@@ -1,0 +1,178 @@
+import { PaintingType } from '@/types/gallery';
+
+export const size = 15;
+
+export const SPEED = 5;
+export const HEIGHT = size / 10;
+
+export const INIT: PaintingType[] = [
+  {
+    id: 1,
+    paintingUrl: '/gallery/painting.png',
+    title: '1바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 2,
+    paintingUrl: '/gallery/painting1.png',
+    title: '2봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 3,
+    paintingUrl: '/gallery/painting2.png',
+    title: '3우리 가족',
+    author: '김도현',
+    desc: '가족과 함께한 행복한 순간을 그렸어요. 엄마, 아빠, 그리고 강아지까지 모두 함께 있는 모습이에요.',
+  },
+  {
+    id: 4,
+    paintingUrl: '/gallery/painting.png',
+    title: '4바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 5,
+    paintingUrl: '/gallery/painting1.png',
+    title: '5봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 6,
+    paintingUrl: '/gallery/painting2.png',
+    title: '6우리 가족',
+    author: '김도현',
+    desc: '가족과 함께한 행복한 순간을 그렸어요. 엄마, 아빠, 그리고 강아지까지 모두 함께 있는 모습이에요.',
+  },
+  {
+    id: 7,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 8,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 9,
+    paintingUrl: '/gallery/painting1.png',
+    title: '5봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 10,
+    paintingUrl: '/gallery/painting2.png',
+    title: '6우리 가족',
+    author: '김도현',
+    desc: '가족과 함께한 행복한 순간을 그렸어요. 엄마, 아빠, 그리고 강아지까지 모두 함께 있는 모습이에요.',
+  },
+  {
+    id: 11,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 12,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 13,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 14,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 15,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 16,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+
+  {
+    id: 17,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 18,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 19,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 20,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 21,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 22,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+  {
+    id: 7,
+    paintingUrl: '/gallery/painting.png',
+    title: '7바다의 노래',
+    author: '최지민',
+    desc: '제주도 여행에서 바라본 에메랄드빛 바다를 담았습니다. 파도 소리가 들리는 것 같은 그림을 그리고 싶었어요.',
+  },
+  {
+    id: 8,
+    paintingUrl: '/gallery/painting1.png',
+    title: '8봄날의 꿈',
+    author: '이소율',
+    desc: '봄날 공원에서 느낀 따뜻한 햇살과 꽃향기를 수채화로 표현했습니다. 핑크빛 꽃잎이 바람에 날리는 모습이 인상적이었습니다.',
+  },
+];
