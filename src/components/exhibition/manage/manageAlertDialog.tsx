@@ -45,7 +45,10 @@ export default function ManageAlertDialog({
       >
         <AlertDialogHeader className="sm:place-items-center sm:text-center">
           <AlertDialogMedia
-            className={cn('mx-auto size-16 rounded-2xl', iconContainerClassName)}
+            className={cn(
+              'mx-auto size-16 rounded-2xl',
+              iconContainerClassName
+            )}
           >
             {icon}
           </AlertDialogMedia>
@@ -57,7 +60,10 @@ export default function ManageAlertDialog({
 
         <div className="mt-2 grid grid-cols-2 gap-3">
           <AlertDialogAction
-            className={cn('rounded-xl py-6 text-base font-semibold', actionClassName)}
+            className={cn(
+              'rounded-xl py-6 text-base font-semibold',
+              actionClassName
+            )}
             onClick={onAction}
           >
             {actionLabel}
