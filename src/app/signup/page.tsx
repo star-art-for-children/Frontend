@@ -46,6 +46,20 @@ export default function SignupPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const submissionLockRef = useRef(false);
 
+  const getApiErrorMessage = async (
+    response: Response,
+    fallbackMessage: string
+  ) => {
+    try {
+      const data = await response.json();
+      if (typeof data?.error === 'string' && data.error.trim()) {
+        return data.error;
+      }
+    } catch {}
+
+    return fallbackMessage;
+  };
+
   const clearFieldError = (field: string) => {
     setFieldErrors((prev) => {
       if (!prev[field]) return prev;
@@ -76,6 +90,8 @@ export default function SignupPage() {
   };
 
   const handleSendOtp = async () => {
+    if (isSendingOtp) return;
+
     setErrorMessage(null);
     setInfoMessage(null);
 
@@ -89,27 +105,37 @@ export default function SignupPage() {
     }
 
     setIsSendingOtp(true);
-    const res = await fetch('/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsedEmail.data),
-    });
-    setIsSendingOtp(false);
 
-    if (!res.ok) {
-      const { error } = await res.json();
-      setErrorMessage(error ?? '이메일 발송에 실패했습니다.');
-      return;
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsedEmail.data),
+      });
+
+      if (!res.ok) {
+        setErrorMessage(
+          await getApiErrorMessage(res, '이메일 발송에 실패했습니다.')
+        );
+        return;
+      }
+
+      setEmailSent(true);
+      setOtp('');
+      clearFieldError('email');
+      clearFieldError('otp');
+      setInfoMessage('인증번호를 이메일로 발송했습니다.');
+    } catch {
+      setErrorMessage(
+        '네트워크 오류가 발생했습니다. 연결 상태를 확인한 뒤 다시 시도해주세요.'
+      );
+    } finally {
+      setIsSendingOtp(false);
     }
-
-    setEmailSent(true);
-    setOtp('');
-    clearFieldError('otp');
-    setInfoMessage('인증번호를 이메일로 발송했습니다.');
   };
 
   const handleSignup = async () => {
-    if (submissionLockRef.current) return;
+    if (submissionLockRef.current || isSubmitting) return;
 
     setErrorMessage(null);
     setInfoMessage(null);
@@ -155,40 +181,47 @@ export default function SignupPage() {
       }),
     };
 
-    const signupRes = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(signupPayload),
-    });
+    let signupCompleted = false;
 
-    if (!signupRes.ok) {
-      submissionLockRef.current = false;
-      setIsSubmitting(false);
-      try {
-        const { error } = await signupRes.json();
-        setErrorMessage(error ?? '회원가입에 실패했습니다.');
-      } catch {
-        setErrorMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    try {
+      const signupRes = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupPayload),
+      });
+
+      if (!signupRes.ok) {
+        setErrorMessage(
+          await getApiErrorMessage(signupRes, '회원가입에 실패했습니다.')
+        );
+        return;
       }
-      return;
-    }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: signupPayload.email,
-      password: signupPayload.password,
-    });
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: signupPayload.email,
+        password: signupPayload.password,
+      });
 
-    if (signInError) {
-      submissionLockRef.current = false;
-      setIsSubmitting(false);
+      if (signInError) {
+        setErrorMessage(
+          `가입은 완료됐으나 로그인에 실패했습니다. (${getAuthErrorMessage(signInError)}) 로그인 페이지에서 다시 시도해주세요.`
+        );
+        return;
+      }
+
+      signupCompleted = true;
+      router.replace('/');
+      router.refresh();
+    } catch {
       setErrorMessage(
-        `가입은 완료됐으나 로그인에 실패했습니다. (${getAuthErrorMessage(signInError)}) 로그인 페이지에서 다시 시도해주세요.`
+        '네트워크 오류가 발생했습니다. 연결 상태를 확인한 뒤 다시 시도해주세요.'
       );
-      return;
+    } finally {
+      if (!signupCompleted) {
+        submissionLockRef.current = false;
+        setIsSubmitting(false);
+      }
     }
-
-    router.replace('/');
-    router.refresh();
   };
 
   return (
