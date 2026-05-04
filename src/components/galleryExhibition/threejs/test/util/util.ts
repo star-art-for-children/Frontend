@@ -297,7 +297,14 @@ export function validateExhibition(init: FormValidation) {
     return { error: 'invalid startDate' };
   }
 
-  const end_date = typeof endDateRaw === 'string' ? new Date(endDateRaw) : null;
+  let end_date: Date | null = null;
+  if (typeof endDateRaw === 'string') {
+    end_date = new Date(endDateRaw);
+
+    if (isNaN(end_date.getTime())) {
+      return { error: 'invalid endDate' };
+    }
+  }
 
   return {
     data: {

@@ -44,8 +44,6 @@ export async function POST(req: NextRequest) {
         .from('thumbnails')
         .upload(`${url}`, thumbnailImg));
 
-      ({ data } = supabase.storage.from('thumbnails').getPublicUrl(`${url}`));
-      thumbnailUrl = data.publicUrl;
       if (error) {
         console.log(error);
         return NextResponse.json(
@@ -53,6 +51,9 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
+
+      ({ data } = supabase.storage.from('thumbnails').getPublicUrl(`${url}`));
+      thumbnailUrl = data.publicUrl;
     }
     ({ data, error } = await supabase
       .from('exhibitions')
