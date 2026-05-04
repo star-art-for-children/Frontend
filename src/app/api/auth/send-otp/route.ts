@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { sendOtpSchema } from '@/lib/schemas/auth';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
 
@@ -27,14 +28,16 @@ function createOtpToken(email: string, otp: string): string {
 
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const { email } = await req.json();
-
-  if (!email) {
+  const body = await req.json();
+  const parsed = sendOtpSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: '이메일을 입력해주세요.' },
+      { error: parsed.error.issues[0].message },
       { status: 400 }
     );
   }
+
+  const { email } = parsed.data;
 
   const otp = generateOtp();
   const token = createOtpToken(email, otp);

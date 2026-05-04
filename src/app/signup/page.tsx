@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getAuthErrorMessage } from '@/lib/supabase/authErrors';
+import { sendOtpSchema, signupFormSchema } from '@/lib/schemas/auth';
 
 type UserType = 'general' | 'teacher';
 
@@ -42,14 +43,48 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const submissionLockRef = useRef(false);
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const resetOtpState = () => {
+    setEmailSent(false);
+    setOtp('');
+    clearFieldError('otp');
+    setInfoMessage(null);
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    clearFieldError('email');
+    if (emailSent) {
+      resetOtpState();
+      setErrorMessage(null);
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: '이메일을 수정했으므로 이메일 인증을 다시 진행해주세요.',
+      }));
+    }
+  };
 
   const handleSendOtp = async () => {
     setErrorMessage(null);
     setInfoMessage(null);
 
-    if (!email) {
-      setErrorMessage('이메일을 입력해주세요.');
+    const parsedEmail = sendOtpSchema.safeParse({ email });
+    if (!parsedEmail.success) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: parsedEmail.error.issues[0].message,
+      }));
       return;
     }
 
@@ -57,7 +92,7 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(parsedEmail.data),
     });
     setIsSendingOtp(false);
 
@@ -68,6 +103,8 @@ export default function SignupPage() {
     }
 
     setEmailSent(true);
+    setOtp('');
+    clearFieldError('otp');
     setInfoMessage('인증번호를 이메일로 발송했습니다.');
   };
 
@@ -77,46 +114,51 @@ export default function SignupPage() {
     setErrorMessage(null);
     setInfoMessage(null);
 
-    if (!name.trim()) {
-      setErrorMessage('이름을 입력해주세요.');
-      return;
-    }
     if (!emailSent) {
       setErrorMessage('이메일 인증을 먼저 진행해주세요.');
       return;
     }
-    if (!otp || otp.length !== 8) {
-      setErrorMessage('8자리 인증번호를 입력해주세요.');
-      return;
-    }
-    if (password.length < 6) {
-      setErrorMessage('비밀번호는 6자 이상이어야 합니다.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setErrorMessage('비밀번호가 일치하지 않습니다.');
-      return;
-    }
-    if (userType === 'teacher' && !organization.trim()) {
-      setErrorMessage('교육기관명을 입력해주세요.');
+
+    const input = {
+      role: userType,
+      name,
+      email,
+      otp,
+      password,
+      confirmPassword,
+      ...(userType === 'teacher' && { organization, purpose }),
+    };
+
+    const parsed = signupFormSchema.safeParse(input);
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = String(issue.path[0] ?? '');
+        if (key && !errors[key]) errors[key] = issue.message;
+      }
+      setFieldErrors(errors);
       return;
     }
 
+    setFieldErrors({});
     submissionLockRef.current = true;
     setIsSubmitting(true);
+    const signupPayload = {
+      role: parsed.data.role,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      otp: parsed.data.otp,
+      password: parsed.data.password,
+      ...('organization' in parsed.data && {
+        organization: parsed.data.organization,
+        purpose: parsed.data.purpose,
+      }),
+    };
 
     const signupRes = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        otp,
-        password,
-        name,
-        role: userType,
-        organization,
-        purpose,
-      }),
+      body: JSON.stringify(signupPayload),
     });
 
     if (!signupRes.ok) {
@@ -132,8 +174,8 @@ export default function SignupPage() {
     }
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: signupPayload.email,
+      password: signupPayload.password,
     });
 
     if (signInError) {
@@ -217,11 +259,19 @@ export default function SignupPage() {
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        clearFieldError('name');
+                      }}
                       placeholder="이름을 입력하세요"
                       className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                     />
                   </div>
+                  {fieldErrors.name && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.name}
+                    </p>
+                  )}
                 </div>
 
                 {/* 이메일 */}
@@ -237,7 +287,7 @@ export default function SignupPage() {
                       <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => handleEmailChange(e.target.value)}
                         placeholder="example@email.com"
                         className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                       />
@@ -255,6 +305,11 @@ export default function SignupPage() {
                           : '인증발송'}
                     </button>
                   </div>
+                  {fieldErrors.email && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.email}
+                    </p>
+                  )}
                 </div>
 
                 {/* 인증번호 */}
@@ -269,9 +324,10 @@ export default function SignupPage() {
                         inputMode="numeric"
                         maxLength={8}
                         value={otp}
-                        onChange={(e) =>
-                          setOtp(e.target.value.replace(/\D/g, ''))
-                        }
+                        onChange={(e) => {
+                          setOtp(e.target.value.replace(/\D/g, ''));
+                          clearFieldError('otp');
+                        }}
                         placeholder="인증번호 8자리 입력"
                         className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 flex-1 rounded-[14px] border bg-[#faf7f2] px-4 text-[16px] transition-all outline-none focus:ring-2"
                       />
@@ -282,6 +338,11 @@ export default function SignupPage() {
                         </span>
                       </div>
                     </div>
+                    {fieldErrors.otp && (
+                      <p className="text-[12px] text-red-500">
+                        {fieldErrors.otp}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -297,8 +358,12 @@ export default function SignupPage() {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="6자 이상"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        clearFieldError('password');
+                        clearFieldError('confirmPassword');
+                      }}
+                      placeholder="8자 이상, 영문·숫자·특수문자 포함"
                       className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                     />
                     <button
@@ -314,6 +379,11 @@ export default function SignupPage() {
                       )}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.password}
+                    </p>
+                  )}
                 </div>
 
                 {/* 비밀번호 확인 */}
@@ -328,7 +398,10 @@ export default function SignupPage() {
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        clearFieldError('confirmPassword');
+                      }}
                       placeholder="비밀번호 재입력"
                       className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                     />
@@ -347,6 +420,11 @@ export default function SignupPage() {
                       )}
                     </button>
                   </div>
+                  {fieldErrors.confirmPassword && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.confirmPassword}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -377,11 +455,19 @@ export default function SignupPage() {
                         <input
                           type="text"
                           value={organization}
-                          onChange={(e) => setOrganization(e.target.value)}
+                          onChange={(e) => {
+                            setOrganization(e.target.value);
+                            clearFieldError('organization');
+                          }}
                           placeholder="학원 / 학교명"
                           className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                         />
                       </div>
+                      {fieldErrors.organization && (
+                        <p className="text-[12px] text-red-500">
+                          {fieldErrors.organization}
+                        </p>
+                      )}
                     </div>
 
                     {/* 사용 목적 */}
@@ -391,11 +477,19 @@ export default function SignupPage() {
                       </label>
                       <textarea
                         value={purpose}
-                        onChange={(e) => setPurpose(e.target.value)}
+                        onChange={(e) => {
+                          setPurpose(e.target.value);
+                          clearFieldError('purpose');
+                        }}
                         placeholder="사용 목적을 간략하게 작성해주세요"
                         rows={4}
                         className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 w-full resize-none rounded-[14px] border bg-[#faf7f2] px-4 py-3 text-[16px] leading-6 transition-all outline-none focus:ring-2"
                       />
+                      {fieldErrors.purpose && (
+                        <p className="text-[12px] text-red-500">
+                          {fieldErrors.purpose}
+                        </p>
+                      )}
                     </div>
                   </motion.div>
                 )}

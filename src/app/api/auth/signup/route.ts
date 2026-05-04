@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { signupRequestSchema } from '@/lib/schemas/auth';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
 
@@ -43,8 +44,19 @@ function verifyOtpToken(token: string, email: string, otp: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const { email, otp, password, name, role, organization, purpose } =
-    await req.json();
+  const body = await req.json();
+  const parsed = signupRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+
+  const { email, otp, password, name, role } = parsed.data;
+  const organization =
+    'organization' in parsed.data ? parsed.data.organization : undefined;
+  const purpose = 'purpose' in parsed.data ? parsed.data.purpose : undefined;
 
   const token = req.cookies.get('otp_token')?.value;
   if (!token || !verifyOtpToken(token, email, otp)) {
