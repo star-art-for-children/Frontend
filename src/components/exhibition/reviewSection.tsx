@@ -22,13 +22,13 @@ export default function ReviewSection({
   isLoggedIn = false,
   currentUser,
 }: ReviewSectionProps) {
-  const [reviews] = useState(initialReviews);
+  const [reviews] = useState<Review[]>(initialReviews ?? []);
   const [input, setInput] = useState('');
 
   return (
     <section className="space-y-4 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
       <strong className="text-secondary mb-3 block text-lg font-bold">
-        관람 후기 ({reviews?.length})
+        관람 후기 ({reviews.length})
       </strong>
 
       {/* 입력 영역 */}
@@ -65,8 +65,8 @@ export default function ReviewSection({
 
       {/* 후기 리스트 */}
       <ul className="space-y-4 pt-2">
-        {reviews?.length !== 0 ? (
-          reviews?.map((review) => {
+        {reviews.length !== 0 ? (
+          reviews.map((review) => {
             const isMine = currentUser && review.author === currentUser;
 
             return (
