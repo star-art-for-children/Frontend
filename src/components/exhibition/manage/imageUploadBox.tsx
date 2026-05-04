@@ -2,7 +2,7 @@
 
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ImageUploadBoxProps {
   initialUrl?: string;
@@ -12,26 +12,28 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(initialUrl ?? null);
 
+  // 메모리 참조 해제
+  useEffect(() => {
+    return () => {
+      if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
-    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
   };
 
   const removeImage = () => {
-    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
     if (inputRef.current) inputRef.current.value = '';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-
     const file = e.dataTransfer.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
-    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
   };
 
