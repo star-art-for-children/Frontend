@@ -31,6 +31,10 @@ function createOtpToken(email: string, otp: string): string {
   ).toString('base64');
 }
 
+/**
+ * 신뢰 가능한 리버스 프록시(예: Vercel, Nginx) 환경 전용.
+ * 프록시 없이 직접 노출될 경우 x-forwarded-for가 위조될 수 있습니다.
+ */
 function getClientIp(req: NextRequest): string | null {
   const forwardedFor = req.headers.get('x-forwarded-for');
   if (forwardedFor) {
