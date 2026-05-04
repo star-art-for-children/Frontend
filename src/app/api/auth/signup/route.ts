@@ -45,7 +45,17 @@ function verifyOtpToken(token: string, email: string, otp: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body: unknown;
+
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: '잘못된 요청 형식입니다.' },
+      { status: 400 }
+    );
+  }
+
   const parsed = signupRequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
