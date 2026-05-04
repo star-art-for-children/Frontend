@@ -97,7 +97,8 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error('Supabase createUser error:', error);
-    const code = 'code' in error && typeof error.code === 'string' ? error.code : null;
+    const code =
+      'code' in error && typeof error.code === 'string' ? error.code : null;
     const message =
       code === 'email_exists' || code === 'user_already_exists'
         ? '이미 가입된 이메일입니다.'

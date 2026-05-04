@@ -554,7 +554,9 @@ export default function SignupPage() {
             </div>
 
             {/* 메시지 영역 */}
-            {errorMessage && <p className="text-[14px] text-red-500">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-[14px] text-red-500">{errorMessage}</p>
+            )}
 
             {/* 회원가입 버튼 */}
             <button
