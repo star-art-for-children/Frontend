@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -42,6 +42,7 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const submissionLockRef = useRef(false);
 
   const handleSendOtp = async () => {
     setErrorMessage(null);
@@ -71,6 +72,8 @@ export default function SignupPage() {
   };
 
   const handleSignup = async () => {
+    if (submissionLockRef.current) return;
+
     setErrorMessage(null);
     setInfoMessage(null);
 
@@ -99,6 +102,7 @@ export default function SignupPage() {
       return;
     }
 
+    submissionLockRef.current = true;
     setIsSubmitting(true);
 
     const signupRes = await fetch('/api/auth/signup', {
@@ -116,6 +120,7 @@ export default function SignupPage() {
     });
 
     if (!signupRes.ok) {
+      submissionLockRef.current = false;
       setIsSubmitting(false);
       try {
         const { error } = await signupRes.json();
@@ -131,9 +136,9 @@ export default function SignupPage() {
       password,
     });
 
-    setIsSubmitting(false);
-
     if (signInError) {
+      submissionLockRef.current = false;
+      setIsSubmitting(false);
       setErrorMessage(
         `가입은 완료됐으나 로그인에 실패했습니다. (${getAuthErrorMessage(signInError)}) 로그인 페이지에서 다시 시도해주세요.`
       );

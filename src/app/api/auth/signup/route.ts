@@ -75,9 +75,10 @@ export async function POST(req: NextRequest) {
     password,
     email_confirm: true,
     user_metadata: {
-      name,
+      username: name,
       role,
-      ...(role === 'teacher' ? { organization, purpose } : {}),
+      institution: role === 'teacher' ? organization : null,
+      purpose: role === 'teacher' ? purpose : null,
     },
   });
 

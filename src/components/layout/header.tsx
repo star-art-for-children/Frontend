@@ -9,7 +9,20 @@ export default async function Header() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const name = user?.user_metadata?.name as string | undefined;
+  let name: string | undefined =
+    user?.user_metadata?.username ?? user?.email?.split('@')[0];
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    name = profile?.username ?? name;
+  }
+
+  const displayName = name?.trim() || '사용자';
 
   return (
     <header className="h-16">
@@ -37,8 +50,8 @@ export default async function Header() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user && name ? (
-              <UserMenu name={name} />
+            {user ? (
+              <UserMenu name={displayName} />
             ) : (
               <>
                 <Link
