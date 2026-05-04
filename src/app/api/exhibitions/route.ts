@@ -16,6 +16,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
+    if (user['user_metadata'].role !== 'teacher') {
+      return NextResponse.json({ message: 'not allowed ' }, { status: 401 });
+    }
+
     let data, error;
 
     let thumbnailUrl: null | string = null;
