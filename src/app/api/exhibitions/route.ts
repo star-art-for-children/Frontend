@@ -8,7 +8,7 @@ import {
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const body = await req.formData();
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
     let thumbnailUrl: null | string = null;
 
+    const body = await req.formData();
     const parsedFormData = parseFormDataToObj(body);
     const result = validateExhibition(parsedFormData);
 
