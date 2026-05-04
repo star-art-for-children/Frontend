@@ -16,9 +16,8 @@ const exhibitions: ExhibitionProps[] = [
     id: '2',
     title: '사계절 이야기',
     host: '해피아트 미술학원',
-    image: '/images/sample_thumb.png',
     startDate: '2026-04-01',
-    endDate: '2026-04-30',
+    endDate: '2026-05-31',
     likes: 45,
   },
   {

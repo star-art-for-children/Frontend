@@ -32,7 +32,7 @@ interface ExhibitionDetail {
   id: string;
   title: string;
   host: string;
-  banner: string;
+  image?: string;
   startDate: string;
   endDate?: string;
   totalLikes: number;
@@ -46,7 +46,6 @@ const mockExhibitionDetail: Record<string, ExhibitionDetail> = {
     id: '2',
     title: '봄의 소리전',
     host: '해피아트 미술학원',
-    banner: '/images/sample_thumb.png',
     startDate: '2026-03-01',
     totalLikes: 201,
     works: [
@@ -66,7 +65,7 @@ const mockExhibitionDetail: Record<string, ExhibitionDetail> = {
     id: '3',
     title: '봄의 소리전',
     host: '해피아트 미술학원',
-    banner: '/images/sample_thumb.png',
+    image: '/images/sample_thumb.png',
     startDate: '2026-03-01',
     endDate: '2026-05-31',
     totalLikes: 201,
@@ -122,7 +121,7 @@ const mockExhibitionDetail: Record<string, ExhibitionDetail> = {
     id: '4',
     title: '겨울 풍경전',
     host: '꿈나무 창작학원',
-    banner: '/images/sample_thumb.png',
+    image: '/images/sample_thumb.png',
     startDate: '2025-12-01',
     endDate: '2026-02-28',
     totalLikes: 312,
@@ -131,7 +130,7 @@ const mockExhibitionDetail: Record<string, ExhibitionDetail> = {
     id: '1',
     title: '여름 날씨전',
     host: '해피아트 미술학원',
-    banner: '/images/sample_thumb.png',
+    image: '/images/sample_thumb.png',
     startDate: '2026-08-01',
     totalLikes: 0,
   },
@@ -189,7 +188,7 @@ export default async function ExhibitionDetail({ params }: PageProps) {
       {/* 배너 영역 */}
       <section className="relative h-80 w-full overflow-hidden">
         <Image
-          src={exhibition.banner}
+          src={exhibition.image ?? '/images/default_banner.jpg'}
           alt={exhibition.title}
           fill
           priority
