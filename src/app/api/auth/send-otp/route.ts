@@ -1,11 +1,7 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import {
-  otpEmailCooldownLimiter,
-  otpEmailWindowLimiter,
-  otpIpWindowLimiter,
-} from '@/lib/rate-limit';
+import { consumeOtpLimits, refundOtpLimits } from '@/lib/rate-limit';
 import { sendOtpSchema } from '@/lib/schemas/auth';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
@@ -49,6 +45,47 @@ function getRetryAfterSeconds(resetAt: number): string {
   return String(Math.max(1, Math.ceil((resetAt - Date.now()) / 1000)));
 }
 
+function createRateLimitResponse(
+  reason: 'emailCooldown' | 'emailWindow' | 'ipWindow',
+  resetAt: number
+) {
+  switch (reason) {
+    case 'emailCooldown':
+      return NextResponse.json(
+        { error: '인증번호는 1분 뒤에 다시 요청할 수 있습니다.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': getRetryAfterSeconds(resetAt),
+          },
+        }
+      );
+    case 'emailWindow':
+      return NextResponse.json(
+        {
+          error:
+            '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': getRetryAfterSeconds(resetAt),
+          },
+        }
+      );
+    case 'ipWindow':
+      return NextResponse.json(
+        { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': getRetryAfterSeconds(resetAt),
+          },
+        }
+      );
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: unknown;
 
@@ -73,118 +110,40 @@ export async function POST(req: NextRequest) {
   const { email } = parsed.data;
   const normalizedEmail = email.toLowerCase();
   const clientIp = getClientIp(req);
-
-  const [emailCooldownStatus, emailWindowStatus, ipWindowStatus] =
-    await Promise.all([
-      otpEmailCooldownLimiter.getRemaining(normalizedEmail),
-      otpEmailWindowLimiter.getRemaining(normalizedEmail),
-      clientIp
-        ? otpIpWindowLimiter.getRemaining(clientIp)
-        : Promise.resolve(null),
-    ]);
-
-  if (emailCooldownStatus.remaining <= 0) {
-    return NextResponse.json(
-      { error: '인증번호는 1분 뒤에 다시 요청할 수 있습니다.' },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': getRetryAfterSeconds(emailCooldownStatus.reset),
-        },
-      }
-    );
-  }
-
-  if (emailWindowStatus.remaining <= 0) {
-    return NextResponse.json(
-      {
-        error: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
-      },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': getRetryAfterSeconds(emailWindowStatus.reset),
-        },
-      }
-    );
-  }
-
-  if (ipWindowStatus && ipWindowStatus.remaining <= 0) {
-    return NextResponse.json(
-      { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': getRetryAfterSeconds(ipWindowStatus.reset),
-        },
-      }
-    );
-  }
-
-  const emailCooldownResult =
-    await otpEmailCooldownLimiter.limit(normalizedEmail);
-  if (!emailCooldownResult.success) {
-    return NextResponse.json(
-      { error: '인증번호는 1분 뒤에 다시 요청할 수 있습니다.' },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': getRetryAfterSeconds(emailCooldownResult.reset),
-        },
-      }
-    );
-  }
-
-  const emailWindowResult = await otpEmailWindowLimiter.limit(normalizedEmail);
-  if (!emailWindowResult.success) {
-    return NextResponse.json(
-      {
-        error: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
-      },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': getRetryAfterSeconds(emailWindowResult.reset),
-        },
-      }
-    );
-  }
-
-  if (clientIp) {
-    const ipWindowResult = await otpIpWindowLimiter.limit(clientIp);
-    if (!ipWindowResult.success) {
-      return NextResponse.json(
-        { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': getRetryAfterSeconds(ipWindowResult.reset),
-          },
-        }
-      );
-    }
+  const limitResult = await consumeOtpLimits(normalizedEmail, clientIp);
+  if (!limitResult.success) {
+    return createRateLimitResponse(limitResult.reason, limitResult.reset);
   }
 
   const otp = generateOtp();
   const token = createOtpToken(email, otp);
+  let sendError = false;
 
-  const { error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-    to: email,
-    subject: '[스타아트] 이메일 인증번호',
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1a1a2e;">스타아트 이메일 인증</h2>
-        <p>아래 인증번호를 입력해주세요. <strong>10분</strong> 이내에 유효합니다.</p>
-        <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #f5bc3e; padding: 24px; background: #faf7f2; border-radius: 12px; text-align: center;">
-          ${otp}
+  try {
+    const { error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: email,
+      subject: '[스타아트] 이메일 인증번호',
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="color: #1a1a2e;">스타아트 이메일 인증</h2>
+          <p>아래 인증번호를 입력해주세요. <strong>10분</strong> 이내에 유효합니다.</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #f5bc3e; padding: 24px; background: #faf7f2; border-radius: 12px; text-align: center;">
+            ${otp}
+          </div>
+          <p style="color: #999; font-size: 13px; margin-top: 16px;">본인이 요청하지 않은 경우 이 메일을 무시해주세요.</p>
         </div>
-        <p style="color: #999; font-size: 13px; margin-top: 16px;">본인이 요청하지 않은 경우 이 메일을 무시해주세요.</p>
-      </div>
-    `,
-  });
+      `,
+    });
 
-  if (error) {
+    sendError = Boolean(error);
+  } catch {
+    sendError = true;
+  }
+
+  if (sendError) {
+    await refundOtpLimits(limitResult.reservation);
+
     return NextResponse.json(
       { error: '이메일 발송에 실패했습니다.' },
       { status: 500 }
