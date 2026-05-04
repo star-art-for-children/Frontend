@@ -1,19 +1,21 @@
 'use client';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Scene from '@/components/galleryExhibition/threejs/Scene';
 import { IoIosArrowBack } from 'react-icons/io';
 import { VscMute } from 'react-icons/vsc';
 import { AiOutlineSound } from 'react-icons/ai';
 import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
+import Scene from '@/components/galleryExhibition/threejs/Scene';
+import Scene2 from '@/components/galleryExhibition/threejs/test/Scene';
 
 export default function GalleryExhibitionPage() {
-  const { galleryId } = useParams();
+  const { id } = useParams();
   const [galleryInit, setGalleryInit] = useState([]);
   const [isMuted, setIsMuted] = useState(false);
-  const [start, setStart] = useState(false);
+  const [start, setStart] = useState(0);
+  console.log(start);
   useEffect(() => {
-    console.log(galleryId);
+    console.log(id);
     const fetchInit = async () => {
       //서비스 레이어로 뺼예정
       try {
@@ -29,7 +31,7 @@ export default function GalleryExhibitionPage() {
       }
     };
   }, []);
-  if (!start) {
+  if (start === 0) {
     return (
       <ModalWrapper
         isOpen={!start}
@@ -79,16 +81,17 @@ export default function GalleryExhibitionPage() {
               className={
                 'bg-primary/90 hover:bg-primary flex-1 cursor-pointer rounded-xl py-[14px] text-center text-[16px] font-bold text-white'
               }
-              onClick={() => setStart(true)}
+              onClick={() => setStart(1)}
             >
-              🎨 입장하기
+              typeA
             </button>
             <button
               className={
                 'bg-secondary/5 text-secondary/70 flex-1 cursor-pointer rounded-xl py-[14px] text-center text-[16px]'
               }
+              onClick={() => setStart(2)}
             >
-              돌아가기
+              typeB
             </button>
           </div>
         </div>
@@ -127,7 +130,7 @@ export default function GalleryExhibitionPage() {
           )}
         </div>
       </div>
-      <Scene />
+      {start === 1 ? <Scene /> : <Scene2 />}
     </div>
   );
 }
