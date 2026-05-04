@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
 const str = (msg: string) =>
-  z.preprocess(
-    (v) => (typeof v === 'string' ? v : ''),
-    z.string().min(1, msg)
-  );
+  z.preprocess((v) => (typeof v === 'string' ? v : ''), z.string().min(1, msg));
 
 const trimStr = (msg: string) =>
   z.preprocess(
