@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import WorkFormBox from './workFormBox';
@@ -35,7 +35,7 @@ export default function AddWorkDialog({
         {triggerLabel}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto sm:max-w-xl">
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-secondary text-lg font-bold">
             작품 등록
@@ -80,7 +80,7 @@ export default function AddWorkDialog({
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button className="flex-1 rounded-xl py-6">추가하기</Button>
+          <Button className="flex-1 rounded-xl py-6">등록하기</Button>
           <DialogClose
             render={
               <Button variant="outline" className="rounded-xl px-6 py-6" />

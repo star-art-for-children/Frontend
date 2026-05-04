@@ -45,7 +45,7 @@ export default function EditWorkDialog({ work }: EditWorkDialogProps) {
         수정
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto sm:max-w-xl">
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-secondary text-lg font-bold">
             작품 수정
