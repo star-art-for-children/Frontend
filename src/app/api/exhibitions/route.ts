@@ -16,8 +16,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
-    if (user['user_metadata'].role !== 'teacher') {
-      return NextResponse.json({ message: 'not allowed ' }, { status: 401 });
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json(
+        { message: 'profile not found' },
+        { status: 403 }
+      );
+    }
+
+    if (profile.role !== 'teacher') {
+      return NextResponse.json({ message: 'not allowed' }, { status: 403 });
     }
 
     let data, error;
