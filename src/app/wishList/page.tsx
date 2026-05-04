@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import WishlistCard from '@/components/wishlist/WishlistCard';
+import WishlistCard from '@/components/myArtworks/ArtworkCard';
 import ArtworkModal from '@/components/myArtworks/ArtworkModal';
 import FilterTab from '@/components/myArtworks/FilterTab';
-import { WISHLIST_ARTWORKS } from '@/components/wishlist/MockData';
+import { WISHLIST_ARTWORKS } from '@/components/wishList/MockData';
 import { Artwork, FilterType } from '@/components/myArtworks/Types';
 
 export default function WishlistPage() {
