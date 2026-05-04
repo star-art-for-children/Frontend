@@ -1,7 +1,6 @@
 'use client';
 
-import Image from 'next/image';
-import { Pencil, X } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WorkFormBox from './workFormBox';
 import {
@@ -12,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import ImageUploadBox from './imageUploadBox';
 
 interface Work {
   id: string;
@@ -34,7 +34,11 @@ export default function EditWorkDialog({ work }: EditWorkDialogProps) {
     <Dialog>
       <DialogTrigger
         render={
-          <Button size="sm" variant="surface" className="flex-1 rounded-lg" />
+          <Button
+            size="sm"
+            variant="surface"
+            className="hover:text-primary flex-1 rounded-lg"
+          />
         }
       >
         <Pencil className="h-3.5 w-3.5" />
@@ -50,20 +54,7 @@ export default function EditWorkDialog({ work }: EditWorkDialogProps) {
 
         <div className="space-y-5 py-1">
           <WorkFormBox label="작품 이미지" essential>
-            <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-[#F5EFE0]">
-              <Image
-                src={work.image}
-                alt={work.title}
-                fill
-                className="object-cover"
-              />
-              <button
-                type="button"
-                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <ImageUploadBox initialUrl={work.image} />
           </WorkFormBox>
 
           <WorkFormBox label="작품명" essential>

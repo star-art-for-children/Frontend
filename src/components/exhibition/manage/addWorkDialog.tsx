@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import ImageUploadBox from './imageUploadBox';
 
 interface AddWorkDialogProps {
   triggerLabel?: string;
@@ -43,13 +44,7 @@ export default function AddWorkDialog({
 
         <div className="space-y-5 py-1">
           <WorkFormBox label="작품 이미지" essential>
-            <div className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-12 transition-colors hover:bg-gray-100">
-              <Upload className="text-secondary/40 h-8 w-8" />
-              <p className="text-secondary/60 text-sm">
-                이미지를 드래그하거나 클릭하여 업로드
-              </p>
-              <p className="text-secondary/40 text-xs">JPG, PNG, GIF 지원</p>
-            </div>
+            <ImageUploadBox />
           </WorkFormBox>
 
           <WorkFormBox label="작품명" essential>
