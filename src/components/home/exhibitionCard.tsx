@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getStatus } from '@/lib/exhibition/dateStatus';
+import { formatDate, getStatus } from '@/lib/exhibition/dateStatus';
 import { ExhibitionProps } from '@/types/exhibitionList';
 import LikeButton from './likeButton';
 
@@ -29,7 +29,7 @@ export default function ExhibitionCard({
   } = exhibition;
 
   const status = getStatus(startDate, endDate);
-  const dateText = endDate ? `${startDate} ~ ${endDate}` : startDate;
+  const dateText = formatDate(startDate, endDate);
 
   return (
     <Link

@@ -17,6 +17,11 @@ export function getStatus(
   end.setHours(23, 59, 59, 999);
 
   if (now < start.getTime()) return 'upcoming';
+  if (!endDate) return 'ongoing';
   if (now > end.getTime()) return 'ended';
   return 'ongoing';
 }
+
+export const formatDate = (startDate: string, endDate?: string) => {
+  return endDate ? `${startDate} ~ ${endDate}` : startDate;
+};
