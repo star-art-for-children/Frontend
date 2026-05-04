@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import WishlistCard from '@/components/myArtworks/ArtworkCard';
+import WishlistCard from '@/components/wishList/WishlistCard';
 import ArtworkModal from '@/components/myArtworks/ArtworkModal';
 import FilterTab from '@/components/myArtworks/FilterTab';
 import { WISHLIST_ARTWORKS } from '@/components/wishList/MockData';
