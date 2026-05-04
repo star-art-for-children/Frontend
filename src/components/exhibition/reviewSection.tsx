@@ -17,7 +17,7 @@ interface ReviewSectionProps {
   currentUser?: string;
 }
 
-export function ReviewSection({
+export default function ReviewSection({
   initialReviews,
   isLoggedIn = false,
   currentUser,

@@ -1,12 +1,16 @@
 import Image from 'next/image';
 import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
 import { formatDate, getStatus } from '@/lib/exhibition/dateStatus';
-import { ReviewSection } from '@/components/exhibition/reviewSection';
-import { WorkDialog } from '@/components/exhibition/workDialog';
-import { ExhibitionEnded } from '@/components/exhibition/exhibitionEnded';
-import { ExhibitionUpcoming } from '@/components/exhibition/exhibitionUpcoming';
+
 import { Button } from '@/components/ui/button';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+  ExhibitionEnded,
+  ExhibitionUpcoming,
+  ReviewSection,
+  WorkDialog,
+} from '@/components/exhibition';
 
 interface Work {
   id: string;
@@ -226,13 +230,13 @@ export default async function ExhibitionDetail({ params }: PageProps) {
 
           <div className="flex flex-wrap items-center gap-2">
             {isOwner && (
-              <Button
-                size="lg"
-                className="text-secondary/60 hover:bg-primary/20 rounded-xl bg-[#FAF7F2] transition-colors"
+              <Link
+                href={`/exhibitions/${exhibition.id}/manage`}
+                className="text-secondary/60 hover:bg-primary/20 inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#FAF7F2] px-2.5 text-sm font-medium transition-colors"
               >
                 <Settings className="h-4 w-4" />
                 전시회 관리
-              </Button>
+              </Link>
             )}
             {isLiked ? (
               <Button
@@ -251,11 +255,14 @@ export default async function ExhibitionDetail({ params }: PageProps) {
                 좋아요
               </Button>
             )}
-            <Button size="lg" className="rounded-xl">
+            <Link
+              href={`/gallery/${exhibition.id}`}
+              className="bg-primary inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-white transition-colors hover:bg-[#E09415]"
+            >
               <span>🎨</span>
               전시회 입장하기
               <ArrowRight className="h-4 w-4" />
-            </Button>
+            </Link>
           </div>
         </div>
 
@@ -293,15 +300,14 @@ export default async function ExhibitionDetail({ params }: PageProps) {
           <p className="mt-2 text-sm text-white/90">
             실제 갤러리를 걷는 것처럼 작품을 감상해보세요
           </p>
-          <Button
-            size="lg"
-            variant="on-primary"
-            className="mt-5 rounded-xl px-7 py-6"
+          <Link
+            href={`/gallery/${exhibition.id}`}
+            className="mt-5 inline-flex h-12 items-center gap-1.5 rounded-xl bg-white px-7 text-sm font-medium text-[#F5A623] shadow-sm transition-colors hover:bg-white/90"
           >
             <span>🎨</span>
             전시회 입장하기
-            <ArrowRight />
-          </Button>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </section>
 
         {/* 관람 후기 */}

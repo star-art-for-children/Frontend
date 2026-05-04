@@ -9,7 +9,8 @@ interface ExhibitionUpcomingProps {
   isTeacher?: boolean;
 }
 
-export function ExhibitionUpcoming({
+export default function ExhibitionUpcoming({
+  id,
   title,
   host,
   startDate,

@@ -27,7 +27,7 @@ interface WorkDialogProps {
   isLoggedIn?: boolean;
 }
 
-export function WorkDialog({
+export default function WorkDialog({
   work,
   exhibitionTitle,
   exhibitionHost,

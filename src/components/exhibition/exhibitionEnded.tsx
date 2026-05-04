@@ -5,7 +5,10 @@ interface ExhibitionEndedProps {
   endDate: string;
 }
 
-export function ExhibitionEnded({ title, endDate }: ExhibitionEndedProps) {
+export default function ExhibitionEnded({
+  title,
+  endDate,
+}: ExhibitionEndedProps) {
   return (
     <section className="flex min-h-screen items-center justify-center px-3.5 py-20">
       <div className="flex flex-col items-center gap-4 text-center">
