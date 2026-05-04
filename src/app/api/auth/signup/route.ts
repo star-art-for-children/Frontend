@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { signupRequestSchema } from '@/lib/schemas/auth';
+import { getAuthErrorMessage } from '@/lib/supabase/authErrors';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
 
@@ -96,11 +97,12 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error('Supabase createUser error:', error);
+    const code = 'code' in error && typeof error.code === 'string' ? error.code : null;
     const message =
-      error.message === 'User already registered'
+      code === 'email_exists' || code === 'user_already_exists'
         ? '이미 가입된 이메일입니다.'
-        : '회원가입에 실패했습니다.';
-    return NextResponse.json({ error: message }, { status: 400 });
+        : getAuthErrorMessage(error);
+    return NextResponse.json({ error: message, code }, { status: 400 });
   }
 
   const response = NextResponse.json({ success: true });

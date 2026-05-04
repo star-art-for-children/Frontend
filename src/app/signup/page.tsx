@@ -42,7 +42,10 @@ export default function SignupPage() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [emailStatusMessage, setEmailStatusMessage] = useState<{
+    type: 'error' | 'success';
+    text: string;
+  } | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const submissionLockRef = useRef(false);
 
@@ -54,6 +57,12 @@ export default function SignupPage() {
       const data = await response.json();
       if (typeof data?.error === 'string' && data.error.trim()) {
         return data.error;
+      }
+      if (typeof data?.code === 'string' && data.code.trim()) {
+        return getAuthErrorMessage({
+          code: data.code,
+          message: typeof data?.message === 'string' ? data.message : '',
+        });
       }
     } catch {}
 
@@ -73,7 +82,7 @@ export default function SignupPage() {
     setEmailSent(false);
     setOtp('');
     clearFieldError('otp');
-    setInfoMessage(null);
+    setEmailStatusMessage(null);
   };
 
   const handleEmailChange = (value: string) => {
@@ -93,7 +102,7 @@ export default function SignupPage() {
     if (isSendingOtp) return;
 
     setErrorMessage(null);
-    setInfoMessage(null);
+    setEmailStatusMessage(null);
 
     const parsedEmail = sendOtpSchema.safeParse({ email });
     if (!parsedEmail.success) {
@@ -114,9 +123,10 @@ export default function SignupPage() {
       });
 
       if (!res.ok) {
-        setErrorMessage(
-          await getApiErrorMessage(res, '이메일 발송에 실패했습니다.')
-        );
+        setEmailStatusMessage({
+          type: 'error',
+          text: await getApiErrorMessage(res, '이메일 발송에 실패했습니다.'),
+        });
         return;
       }
 
@@ -124,11 +134,15 @@ export default function SignupPage() {
       setOtp('');
       clearFieldError('email');
       clearFieldError('otp');
-      setInfoMessage('인증번호를 이메일로 발송했습니다.');
+      setEmailStatusMessage({
+        type: 'success',
+        text: '인증번호를 이메일로 발송했습니다.',
+      });
     } catch {
-      setErrorMessage(
-        '네트워크 오류가 발생했습니다. 연결 상태를 확인한 뒤 다시 시도해주세요.'
-      );
+      setEmailStatusMessage({
+        type: 'error',
+        text: '네트워크 오류가 발생했습니다. 연결 상태를 확인한 뒤 다시 시도해주세요.',
+      });
     } finally {
       setIsSendingOtp(false);
     }
@@ -138,7 +152,6 @@ export default function SignupPage() {
     if (submissionLockRef.current || isSubmitting) return;
 
     setErrorMessage(null);
-    setInfoMessage(null);
 
     if (!emailSent) {
       setErrorMessage('이메일 인증을 먼저 진행해주세요.');
@@ -343,6 +356,17 @@ export default function SignupPage() {
                       {fieldErrors.email}
                     </p>
                   )}
+                  {emailStatusMessage && (
+                    <p
+                      className={`text-[12px] ${
+                        emailStatusMessage.type === 'error'
+                          ? 'text-red-500'
+                          : 'text-[#00c950]'
+                      }`}
+                    >
+                      {emailStatusMessage.text}
+                    </p>
+                  )}
                 </div>
 
                 {/* 인증번호 */}
@@ -530,15 +554,7 @@ export default function SignupPage() {
             </div>
 
             {/* 메시지 영역 */}
-            {(errorMessage || infoMessage) && (
-              <p
-                className={`text-[14px] ${
-                  errorMessage ? 'text-red-500' : 'text-[#00c950]'
-                }`}
-              >
-                {errorMessage ?? infoMessage}
-              </p>
-            )}
+            {errorMessage && <p className="text-[14px] text-red-500">{errorMessage}</p>}
 
             {/* 회원가입 버튼 */}
             <button
