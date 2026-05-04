@@ -7,6 +7,7 @@ import {
   EditWorkDialog,
   ManageAlertDialog,
 } from '@/components/exhibition/manage';
+import { notFound } from 'next/navigation';
 
 interface Work {
   id: string;
@@ -70,6 +71,8 @@ interface PageProps {
 export default async function ExhibitionManagePage({ params }: PageProps) {
   const { id } = await params;
   const exhibition = mockData[id];
+
+  if (!exhibition) notFound();
 
   const works = exhibition.works ?? [];
 

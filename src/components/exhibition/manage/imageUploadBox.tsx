@@ -16,10 +16,12 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
     const file = e.target.files?.[0];
 
     if (!file) return;
+    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
   };
 
   const removeImage = () => {
+    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -29,6 +31,7 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
 
     const file = e.dataTransfer.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
+    if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(file));
   };
 
