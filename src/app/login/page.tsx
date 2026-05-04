@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -19,8 +19,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const submissionLockRef = useRef(false);
 
   const handleLogin = async () => {
+    if (submissionLockRef.current) return;
+
     setErrorMessage(null);
 
     if (!email || !password) {
@@ -28,14 +31,16 @@ export default function LoginPage() {
       return;
     }
 
+    submissionLockRef.current = true;
     setIsSubmitting(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    setIsSubmitting(false);
 
     if (error) {
+      submissionLockRef.current = false;
+      setIsSubmitting(false);
       setErrorMessage(getAuthErrorMessage(error));
       return;
     }
