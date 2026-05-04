@@ -1,35 +1,14 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import {
+  otpEmailCooldownLimiter,
+  otpEmailWindowLimiter,
+  otpIpWindowLimiter,
+} from '@/lib/rate-limit';
 import { sendOtpSchema } from '@/lib/schemas/auth';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
-const OTP_COOLDOWN_MS = 60 * 1000;
-const OTP_EMAIL_WINDOW_MS = 10 * 60 * 1000;
-const OTP_EMAIL_MAX_ATTEMPTS = 3;
-const OTP_IP_WINDOW_MS = 10 * 60 * 1000;
-const OTP_IP_MAX_ATTEMPTS = 10;
-
-interface RateLimitRecord {
-  attemptTimestamps: number[];
-  lastAttemptAt: number;
-}
-
-interface RateLimitConfig {
-  cooldownMs?: number;
-  maxAttempts: number;
-  windowMs: number;
-}
-
-interface RateLimitDecision {
-  allowed: boolean;
-  attemptTimestamps: number[];
-  lastAttemptAt: number;
-  retryAfterSeconds?: number;
-}
-
-const emailOtpRequests = new Map<string, RateLimitRecord>();
-const ipOtpRequests = new Map<string, RateLimitRecord>();
 
 function generateOtp(): string {
   return crypto.randomInt(0, 100000000).toString().padStart(8, '0');
@@ -62,64 +41,8 @@ function getClientIp(req: NextRequest): string | null {
   return realIp?.trim() || null;
 }
 
-function evaluateRateLimit(
-  store: Map<string, RateLimitRecord>,
-  key: string,
-  config: RateLimitConfig,
-  now: number
-): RateLimitDecision {
-  const record = store.get(key);
-  const attemptTimestamps =
-    record?.attemptTimestamps.filter(
-      (timestamp) => now - timestamp < config.windowMs
-    ) ?? [];
-  const lastAttemptAt = record?.lastAttemptAt ?? 0;
-
-  if (
-    config.cooldownMs &&
-    lastAttemptAt > 0 &&
-    now - lastAttemptAt < config.cooldownMs
-  ) {
-    return {
-      allowed: false,
-      attemptTimestamps,
-      lastAttemptAt,
-      retryAfterSeconds: Math.ceil(
-        (config.cooldownMs - (now - lastAttemptAt)) / 1000
-      ),
-    };
-  }
-
-  if (attemptTimestamps.length >= config.maxAttempts) {
-    const oldestAttempt = attemptTimestamps[0];
-
-    return {
-      allowed: false,
-      attemptTimestamps,
-      lastAttemptAt,
-      retryAfterSeconds: Math.ceil(
-        (config.windowMs - (now - oldestAttempt)) / 1000
-      ),
-    };
-  }
-
-  return {
-    allowed: true,
-    attemptTimestamps,
-    lastAttemptAt,
-  };
-}
-
-function persistRateLimitState(
-  store: Map<string, RateLimitRecord>,
-  key: string,
-  decision: RateLimitDecision,
-  now: number
-) {
-  store.set(key, {
-    attemptTimestamps: [...decision.attemptTimestamps, now],
-    lastAttemptAt: now,
-  });
+function getRetryAfterSeconds(resetAt: number): string {
+  return String(Math.max(1, Math.ceil((resetAt - Date.now()) / 1000)));
 }
 
 export async function POST(req: NextRequest) {
@@ -146,65 +69,96 @@ export async function POST(req: NextRequest) {
   const { email } = parsed.data;
   const normalizedEmail = email.toLowerCase();
   const clientIp = getClientIp(req);
-  const now = Date.now();
 
-  const emailDecision = evaluateRateLimit(
-    emailOtpRequests,
-    normalizedEmail,
-    {
-      cooldownMs: OTP_COOLDOWN_MS,
-      maxAttempts: OTP_EMAIL_MAX_ATTEMPTS,
-      windowMs: OTP_EMAIL_WINDOW_MS,
-    },
-    now
-  );
+  const [emailCooldownStatus, emailWindowStatus, ipWindowStatus] =
+    await Promise.all([
+      otpEmailCooldownLimiter.getRemaining(normalizedEmail),
+      otpEmailWindowLimiter.getRemaining(normalizedEmail),
+      clientIp
+        ? otpIpWindowLimiter.getRemaining(clientIp)
+        : Promise.resolve(null),
+    ]);
 
-  if (!emailDecision.allowed) {
+  if (emailCooldownStatus.remaining <= 0) {
     return NextResponse.json(
-      {
-        error:
-          emailDecision.attemptTimestamps.length >= OTP_EMAIL_MAX_ATTEMPTS
-            ? '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'
-            : '인증번호는 1분 뒤에 다시 요청할 수 있습니다.',
-      },
+      { error: '인증번호는 1분 뒤에 다시 요청할 수 있습니다.' },
       {
         status: 429,
         headers: {
-          'Retry-After': String(emailDecision.retryAfterSeconds ?? 60),
+          'Retry-After': getRetryAfterSeconds(emailCooldownStatus.reset),
         },
       }
     );
   }
 
-  let ipDecision: RateLimitDecision | null = null;
+  if (emailWindowStatus.remaining <= 0) {
+    return NextResponse.json(
+      {
+        error: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': getRetryAfterSeconds(emailWindowStatus.reset),
+        },
+      }
+    );
+  }
+
+  if (ipWindowStatus && ipWindowStatus.remaining <= 0) {
+    return NextResponse.json(
+      { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': getRetryAfterSeconds(ipWindowStatus.reset),
+        },
+      }
+    );
+  }
+
+  const emailCooldownResult =
+    await otpEmailCooldownLimiter.limit(normalizedEmail);
+  if (!emailCooldownResult.success) {
+    return NextResponse.json(
+      { error: '인증번호는 1분 뒤에 다시 요청할 수 있습니다.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': getRetryAfterSeconds(emailCooldownResult.reset),
+        },
+      }
+    );
+  }
+
+  const emailWindowResult = await otpEmailWindowLimiter.limit(normalizedEmail);
+  if (!emailWindowResult.success) {
+    return NextResponse.json(
+      {
+        error: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': getRetryAfterSeconds(emailWindowResult.reset),
+        },
+      }
+    );
+  }
 
   if (clientIp) {
-    ipDecision = evaluateRateLimit(
-      ipOtpRequests,
-      clientIp,
-      {
-        maxAttempts: OTP_IP_MAX_ATTEMPTS,
-        windowMs: OTP_IP_WINDOW_MS,
-      },
-      now
-    );
-
-    if (!ipDecision.allowed) {
+    const ipWindowResult = await otpIpWindowLimiter.limit(clientIp);
+    if (!ipWindowResult.success) {
       return NextResponse.json(
         { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
         {
           status: 429,
           headers: {
-            'Retry-After': String(ipDecision.retryAfterSeconds ?? 60),
+            'Retry-After': getRetryAfterSeconds(ipWindowResult.reset),
           },
         }
       );
     }
-  }
-
-  persistRateLimitState(emailOtpRequests, normalizedEmail, emailDecision, now);
-  if (clientIp && ipDecision) {
-    persistRateLimitState(ipOtpRequests, clientIp, ipDecision, now);
   }
 
   const otp = generateOtp();
