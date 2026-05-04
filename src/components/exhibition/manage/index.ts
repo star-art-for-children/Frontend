@@ -1,4 +1,6 @@
-// 예정, 종료 페이지
+// 작품 추가, 수정버튼 dialog
 export { default as EditWorkDialog } from './editWorkDialog';
 export { default as AddWorkDialog } from './addWorkDialog';
-export { default as FinishAlertDialog } from './finishAlertDialog';
+
+// 전시회 종료버튼, 삭제버튼 alert dialog
+export { default as ManageAlertDialog } from './manageAlertDialog';

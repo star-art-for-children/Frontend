@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, Trash2, TriangleAlert, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AddWorkDialog,
   EditWorkDialog,
-  FinishAlertDialog,
+  ManageAlertDialog,
 } from '@/components/exhibition/manage';
 
 interface Work {
@@ -98,7 +98,30 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             </div>
           </div>
 
-          <FinishAlertDialog />
+          <ManageAlertDialog
+            trigger={
+              <Button
+                size="lg"
+                variant="destructive"
+                className="shrink-0 rounded-xl"
+              >
+                <X className="h-4 w-4" />
+                전시회 종료
+              </Button>
+            }
+            icon={<TriangleAlert stroke="#FF6900" />}
+            iconContainerClassName="bg-primary/10 text-primary"
+            title="전시회 종료"
+            description={
+              <>
+                전시회를 종료하면 관람객이 더 이상 입장할 수 없습니다.
+                <br />
+                정말 종료하시겠습니까?
+              </>
+            }
+            actionLabel="종료하기"
+            actionClassName="bg-[#FF6900] hover:bg-[#F64900] text-white"
+          />
         </div>
 
         {/* 전시 소개 */}
@@ -157,14 +180,30 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                   <p className="text-secondary/60 text-xs">{work.artist}</p>
                   <div className="mt-3 flex gap-2">
                     <EditWorkDialog work={work} />
-                    <Button
-                      size="sm"
-                      variant="surface"
-                      className="flex-1 rounded-lg hover:text-red-500"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      삭제
-                    </Button>
+                    <ManageAlertDialog
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant="surface"
+                          className="flex-1 rounded-lg hover:text-red-500"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          삭제
+                        </Button>
+                      }
+                      icon={<Trash2 />}
+                      iconContainerClassName="bg-red-100 text-red-500"
+                      title="작품 삭제"
+                      description={
+                        <>
+                          &quot;{work.title}&quot; 작품을 삭제하시겠습니까?
+                          <br />
+                          삭제 후 복원할 수 없습니다.
+                        </>
+                      }
+                      actionLabel="삭제하기"
+                      actionClassName="bg-red-500 hover:bg-red-600 text-white"
+                    />
                   </div>
                 </div>
               </div>
