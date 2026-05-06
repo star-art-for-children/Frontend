@@ -32,59 +32,58 @@ export default function Painting({
       <mesh castShadow receiveShadow>
         <boxGeometry args={[imgW, imgH, 0.05]} />
         <meshStandardMaterial color={'black'} />
-
-        <Html
-          transform
-          position={[0, -h / 2 + 0.8, 0.13]}
-          distanceFactor={2}
-          center
-          occlude
-          style={{
-            opacity: visible ? 1 : 0,
-            pointerEvents: visible ? 'auto' : 'none',
-            transition: 'opacity 0.4s ease, transform 0.4s ease',
-            willChange: 'opacity, transform',
-          }}
-        >
-          <div className={'gap flex flex-col gap-1 font-bold text-white'}>
-            <h1 className={'text-[45px]'}>
-              {details.id}:{details?.title}
-            </h1>
-            <h1 className={'text-[25px]'}>{details?.author}</h1>
-            <p className={'text-[20px] text-wrap text-gray-200'}>
-              {details?.desc}
-            </p>
-            <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
-              <div className={'flex gap-1'}>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('ewnjs');
-                  }}
-                >
-                  <Heart fill={'#e68181'} />
-                </button>
-                <p>11</p>
-              </div>
+      </mesh>
+      <Html
+        transform
+        position={[0, -h / 2 + 0.8, 0.13]}
+        distanceFactor={2}
+        center
+        occlude
+        style={{
+          opacity: visible ? 1 : 0,
+          pointerEvents: visible ? 'auto' : 'none',
+          transition: 'opacity 0.4s ease, transform 0.4s ease',
+          willChange: 'opacity, transform',
+        }}
+      >
+        <div className={'gap flex flex-col gap-1 font-bold text-white'}>
+          <h1 className={'text-[45px]'}>
+            {details.id}:{details?.title}
+          </h1>
+          <h1 className={'text-[25px]'}>{details?.author}</h1>
+          <p className={'text-[20px] text-wrap text-gray-200'}>
+            {details?.desc}
+          </p>
+          <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
+            <div className={'flex gap-1'}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log('ewnjs');
                 }}
               >
-                <Bookmark />
+                <Heart fill={'#e68181'} />
               </button>
-              <button
-                onClick={(e) => {
-                  downloadImgHandler(e, details.paintingUrl, details.title);
-                }}
-              >
-                <Download />
-              </button>
+              <p>11</p>
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                console.log('ewnjs');
+              }}
+            >
+              <Bookmark />
+            </button>
+            <button
+              onClick={(e) => {
+                downloadImgHandler(e, details.paintingUrl, details.title);
+              }}
+            >
+              <Download />
+            </button>
           </div>
-        </Html>
-      </mesh>
+        </div>
+      </Html>
     </group>
   );
 }

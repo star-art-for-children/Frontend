@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
-import { PointerLockControls, useTexture } from '@react-three/drei';
-import React, { useMemo } from 'react';
+import { PointerLockControls, useProgress } from '@react-three/drei';
+import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import Room from '@/components/galleryExhibition/threejs/test/Room';
 
 import Player from '@/components/galleryExhibition/threejs/test/Player';
@@ -10,18 +10,26 @@ import {
 } from '@/components/galleryExhibition/threejs/test/util/util';
 import { INIT } from '../../../../../data/galleryData';
 
-export default function Scene2() {
+export default function Scene2({
+  ready,
+}: {
+  ready: Dispatch<SetStateAction<boolean>>;
+}) {
   const size = 21;
   const height = size * 0.3;
 
-  const innerWalls = useMemo(() => generateGalleryWalls(size), []);
-  const walls = createWalls(size, height);
+  const innerWalls = useMemo(() => generateGalleryWalls(size), [size]);
+  const walls = useMemo(() => createWalls(size, height), [size, height]);
 
-  const urls = useMemo(() => INIT.map((x) => x.paintingUrl), [INIT]);
-  useTexture.preload(urls); // preload
+  const { active } = useProgress();
 
+  useEffect(() => {
+    if (!active) {
+      ready(true);
+    }
+  }, [active]);
   return (
-    <div className={'h-screen w-screen bg-white'}>
+    <>
       <Canvas shadows camera={{ fov: 50 }}>
         <Room
           walls={walls}
@@ -35,6 +43,6 @@ export default function Scene2() {
         <Player innerWalls={innerWalls} size={size} speed={3} />
         <PointerLockControls />
       </Canvas>
-    </div>
+    </>
   );
 }
