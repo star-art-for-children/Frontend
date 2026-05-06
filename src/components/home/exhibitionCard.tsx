@@ -45,7 +45,7 @@ export default function ExhibitionCard({
           src={image ?? '/images/default_thumb.jpg'}
           alt={title}
           fill
-          sizes="(min-width: 768px) 25vw, 50vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className={cn(
             'object-cover transition-transform duration-300 group-hover:scale-105',
             status === 'ended' && 'opacity-70 grayscale'
