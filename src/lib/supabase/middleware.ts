@@ -25,7 +25,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser(); // 사용자 정보 불러오며 토큰 갱신 및 쿠키 최신화
+  const { error } = await supabase.auth.getUser(); // 사용자 정보 불러오며 토큰 갱신 및 쿠키 최신화
+
+  if (error?.code === 'refresh_token_not_found') {
+    supabaseResponse.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith('sb-')) supabaseResponse.cookies.delete(name);
+    });
+  }
 
   return supabaseResponse;
 }
