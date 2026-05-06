@@ -24,17 +24,18 @@ export default function UserMenu({ name }: UserMenuProps) {
 
   // resize시 메뉴 hidden
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) setOpen(false);
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handleChange = () => {
+      if (mq.matches) setOpen(false);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
   }, []);
 
   const initial = name.charAt(0);
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger className="hover:bg-primary/10 flex items-center gap-2 rounded-xl px-3 py-2 transition-colors outline-none">
         <span className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white">
           {initial}

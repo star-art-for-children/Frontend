@@ -17,15 +17,16 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
 
   // resize시 메뉴 hidden
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) setOpen(false);
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handleChange = () => {
+      if (mq.matches) setOpen(false);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
   }, []);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen} modal={false}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
