@@ -14,11 +14,14 @@ export default async function MyPage() {
   if (!user) redirect('/login');
 
   // profiles 테이블에서 현재 유저의 프로필 조회
-  const { data: profileData } = await supabase
+  const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('username, role, institution')
     .eq('id', user.id)
     .single();
+
+  // PGRST116: row 없음 (정상 edge case) / 그 외 에러는 예외 처리
+  if (profileError && profileError.code !== 'PGRST116') redirect('/');
 
   const role = profileData?.role === 'teacher' ? 'teacher' : 'user';
   const name =
