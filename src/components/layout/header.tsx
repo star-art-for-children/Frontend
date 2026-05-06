@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { UserMenu } from './userMenu';
+import UserMenu from './userMenu';
+import MobileMenu from './mobileMenu';
 
 export default async function Header() {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export default async function Header() {
 
   return (
     <header className="h-16">
-      <div className="border-secondary/8 fixed top-0 z-20 h-16 w-full border-b bg-[#FAF7F2]/95 shadow-[0_2px_8px_rgba(44,40,38,0.06)] backdrop-blur">
+      <div className="border-secondary/8 fixed top-0 z-60 h-16 w-full border-b bg-[#FAF7F2]/95 shadow-[0_2px_8px_rgba(44,40,38,0.06)] backdrop-blur">
         <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-3.5">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
@@ -39,7 +40,7 @@ export default async function Header() {
               <span className="text-secondary text-lg font-bold">스타아트</span>
             </Link>
 
-            <nav>
+            <nav className="hidden md:block">
               <Link
                 href="/"
                 className="text-secondary/60 text-sm transition-colors hover:text-gray-900"
@@ -49,7 +50,7 @@ export default async function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             {user ? (
               <UserMenu name={displayName} />
             ) : (
@@ -68,6 +69,11 @@ export default async function Header() {
                 </Link>
               </>
             )}
+          </div>
+
+          {/* 모바일 */}
+          <div className="md:hidden">
+            <MobileMenu isLoggedIn={!!user} />
           </div>
         </div>
       </div>
