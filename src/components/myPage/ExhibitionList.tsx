@@ -46,21 +46,13 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                 idx > 0 ? 'mt-1' : ''
               }`}
             >
-              {ex.thumbnail?.startsWith('http') ? (
-                // DB에서 받아온 실제 이미지 URL인 경우
-                <Image
-                  src={ex.thumbnail}
-                  alt=""
-                  width={44}
-                  height={44}
-                  className="shrink-0 rounded-[14px] object-cover"
-                />
-              ) : (
-                // 이미지가 없는 경우 CSS 그라디언트로 대체
-                <div
-                  className={`h-11 w-11 shrink-0 rounded-[14px] ${thumbnailClassName(ex.thumbnail)}`}
-                />
-              )}
+              <Image
+                src={ex.thumbnail || '/images/default_thumb.jpg'}
+                alt=""
+                width={44}
+                height={44}
+                className="shrink-0 rounded-[14px] object-cover"
+              />
 
               <div className="min-w-0 flex-1">
                 <p className="mb-1 text-[14px] font-semibold text-[#2b2724]">
@@ -97,19 +89,4 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
       </ul>
     </section>
   );
-}
-
-function thumbnailClassName(thumbnail: Exhibition['thumbnail']) {
-  switch (thumbnail) {
-    case 'sunset':
-      return 'bg-[radial-gradient(circle_at_30%_30%,#f4c46a,transparent_30%),linear-gradient(135deg,#4c2d20,#9a5b38_55%,#f2aa6b)]';
-    case 'abstract':
-      return 'bg-[radial-gradient(circle_at_28%_30%,#f0d545,transparent_18%),radial-gradient(circle_at_70%_35%,#2b71c8,transparent_24%),radial-gradient(circle_at_48%_75%,#e46d34,transparent_22%),#6d8b1c]';
-    case 'pastel':
-      return 'bg-[linear-gradient(135deg,#f8d7b6,#f7efc9_45%,#d2e8f7)]';
-    case 'nature':
-      return 'bg-[linear-gradient(135deg,#764d2a,#efe4d0_45%,#8fb0ca)]';
-    default:
-      return 'bg-[#ece8e1]';
-  }
 }
