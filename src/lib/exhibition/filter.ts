@@ -12,11 +12,15 @@ export function filterAndSortExhibitions({
   sort,
   currentHost,
 }: FilterOptions): ExhibitionProps[] {
+  const ongoingOnly = exhibitions.filter(
+    (e) => getStatus(e.startDate, e.endDate) === 'ongoing'
+  );
+
   switch (sort) {
     case 'popular':
-      return [...exhibitions].sort((a, b) => b.likes - a.likes);
+      return [...ongoingOnly].sort((a, b) => b.likes - a.likes);
     case 'oldest':
-      return [...exhibitions].sort((a, b) =>
+      return [...ongoingOnly].sort((a, b) =>
         a.startDate.localeCompare(b.startDate)
       );
     case 'upcoming':
@@ -31,7 +35,7 @@ export function filterAndSortExhibitions({
       return exhibitions.filter((e) => e.host === currentHost);
     case 'latest':
     default:
-      return [...exhibitions].sort((a, b) =>
+      return [...ongoingOnly].sort((a, b) =>
         b.startDate.localeCompare(a.startDate)
       );
   }

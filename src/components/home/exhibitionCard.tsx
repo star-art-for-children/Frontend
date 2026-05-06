@@ -42,15 +42,20 @@ export default function ExhibitionCard({
     >
       <div className="relative aspect-4/3 overflow-hidden bg-[#F5EFE0]">
         <Image
-          src={image}
+          src={image || '/images/default_thumb.jpg'}
           alt={title}
           fill
-          sizes="(min-width: 768px) 25vw, 50vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className={cn(
             'object-cover transition-transform duration-300 group-hover:scale-105',
             status === 'ended' && 'opacity-70 grayscale'
           )}
         />
+        {!image && (
+          <div className="text-secondary/90 absolute top-1/2 left-1/2 max-w-50 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-4">
+            <p className="wrap-break-words line-clamp-3 text-sm">{title}</p>
+          </div>
+        )}
 
         {/* 진행중: 좌상단 라벨 */}
         {status === 'ongoing' && (

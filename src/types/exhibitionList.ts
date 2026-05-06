@@ -2,7 +2,7 @@ export interface ExhibitionProps {
   id: string;
   title: string;
   host: string;
-  image: string;
+  image?: string;
   startDate: string;
   endDate?: string;
   likes: number;
