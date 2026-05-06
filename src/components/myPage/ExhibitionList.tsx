@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Exhibition } from '@/types/myPage';
 
@@ -47,11 +48,12 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
             >
               {ex.thumbnail?.startsWith('http') ? (
                 // DB에서 받아온 실제 이미지 URL인 경우
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={ex.thumbnail}
                   alt=""
-                  className="h-11 w-11 shrink-0 rounded-[14px] object-cover"
+                  width={44}
+                  height={44}
+                  className="shrink-0 rounded-[14px] object-cover"
                 />
               ) : (
                 // 이미지가 없는 경우 CSS 그라디언트로 대체
