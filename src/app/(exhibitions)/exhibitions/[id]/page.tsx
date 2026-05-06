@@ -188,7 +188,7 @@ export default async function ExhibitionDetail({ params }: PageProps) {
       {/* 배너 영역 */}
       <section className="relative h-80 w-full overflow-hidden">
         <Image
-          src={exhibition.image ?? '/images/default_banner.jpg'}
+          src={exhibition.image || '/images/default_banner.jpg'}
           alt={exhibition.title}
           fill
           priority
