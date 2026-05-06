@@ -21,13 +21,11 @@ export default function Scene2({
   const innerWalls = useMemo(() => generateGalleryWalls(size), [size]);
   const walls = useMemo(() => createWalls(size, height), [size, height]);
 
-  const { active } = useProgress();
+  const { active, loaded, total } = useProgress();
 
   useEffect(() => {
-    if (!active) {
-      ready(true);
-    }
-  }, [active]);
+    ready(active === false && loaded === total && total > 0);
+  }, [active, loaded, total, ready]);
   return (
     <>
       <Canvas shadows camera={{ fov: 50 }}>
