@@ -1,6 +1,8 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { signupRequestSchema } from '@/lib/schemas/auth';
+import { getAuthErrorMessage } from '@/lib/supabase/authErrors';
 
 const OTP_SECRET = process.env.OTP_SECRET!;
 
@@ -43,8 +45,29 @@ function verifyOtpToken(token: string, email: string, otp: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const { email, otp, password, name, role, organization, purpose } =
-    await req.json();
+  let body: unknown;
+
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: '잘못된 요청 형식입니다.' },
+      { status: 400 }
+    );
+  }
+
+  const parsed = signupRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+
+  const { email, otp, password, name, role } = parsed.data;
+  const organization =
+    'organization' in parsed.data ? parsed.data.organization : undefined;
+  const purpose = 'purpose' in parsed.data ? parsed.data.purpose : undefined;
 
   const token = req.cookies.get('otp_token')?.value;
   if (!token || !verifyOtpToken(token, email, otp)) {
@@ -84,11 +107,13 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error('Supabase createUser error:', error);
+    const code =
+      'code' in error && typeof error.code === 'string' ? error.code : null;
     const message =
-      error.message === 'User already registered'
+      code === 'email_exists' || code === 'user_already_exists'
         ? '이미 가입된 이메일입니다.'
-        : '회원가입에 실패했습니다.';
-    return NextResponse.json({ error: message }, { status: 400 });
+        : getAuthErrorMessage(error);
+    return NextResponse.json({ error: message, code }, { status: 400 });
   }
 
   const response = NextResponse.json({ success: true });

@@ -4,7 +4,7 @@ const AUTH_ERROR_CODE_MAP: Record<string, string> = {
   invalid_credentials: '이메일 또는 비밀번호가 올바르지 않습니다.',
   email_not_confirmed: '이메일 인증이 완료되지 않았습니다.',
   email_exists: '이미 가입된 이메일입니다.',
-  user_already_exists: '이미 가입된 사용자입니다.',
+  user_already_exists: '이미 가입된 이메일입니다.',
   user_not_found: '존재하지 않는 사용자입니다.',
   signup_disabled: '회원가입이 비활성화되어 있습니다.',
   weak_password: '비밀번호가 너무 약합니다. 더 안전한 비밀번호를 입력해주세요.',
@@ -36,10 +36,13 @@ const AUTH_ERROR_MESSAGE_PATTERNS: Array<[RegExp, string]> = [
   ],
   [/invalid login credentials/i, '이메일 또는 비밀번호가 올바르지 않습니다.'],
   [
+    /user already (registered|exists)|email.*already|already.*email|duplicate/i,
+    '이미 가입된 이메일입니다.',
+  ],
+  [
     /email rate limit exceeded/i,
     '이메일 발송 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
   ],
-  [/user already registered/i, '이미 가입된 이메일입니다.'],
   [/password should be at least/i, '비밀번호는 6자 이상이어야 합니다.'],
   [
     /email link is invalid or has expired/i,
