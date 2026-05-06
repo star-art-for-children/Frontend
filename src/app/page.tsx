@@ -53,7 +53,7 @@ export default function Home() {
           width={920}
           height={425}
           priority
-          className="absolute top-0 left-1/2 -z-10 h-auto w-[60%] -translate-x-1/2"
+          className="pointer-events-none absolute top-0 left-1/2 -z-10 h-auto w-[60%] -translate-x-1/2"
         />
         <div className="mx-auto max-w-6xl px-3.5 py-20 text-center">
           {/* hero title, text */}
