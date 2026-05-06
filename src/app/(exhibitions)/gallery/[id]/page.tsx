@@ -35,7 +35,7 @@ export default function GalleryExhibitionPage() {
       }
     };
     // fetchInit();
-    setTimeout(() => setIsInitReady(true), 1000);
+    setTimeout(() => setIsInitReady(true), 500);
   }, []);
   return (
     <div className={'scr fixed inset-0 z-50'}>
