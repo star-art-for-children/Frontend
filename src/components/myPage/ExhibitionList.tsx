@@ -45,11 +45,20 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                 idx > 0 ? 'mt-1' : ''
               }`}
             >
-              <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] ${thumbnailClassName(
-                  ex.thumbnail
-                )}`}
-              />
+              {ex.thumbnail?.startsWith('http') ? (
+                // DB에서 받아온 실제 이미지 URL인 경우
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ex.thumbnail}
+                  alt=""
+                  className="h-11 w-11 shrink-0 rounded-[14px] object-cover"
+                />
+              ) : (
+                // 이미지가 없는 경우 CSS 그라디언트로 대체
+                <div
+                  className={`h-11 w-11 shrink-0 rounded-[14px] ${thumbnailClassName(ex.thumbnail)}`}
+                />
+              )}
 
               <div className="min-w-0 flex-1">
                 <p className="mb-1 text-[14px] font-semibold text-[#2b2724]">
