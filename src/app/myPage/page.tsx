@@ -53,7 +53,8 @@ export default async function MyPage() {
           id: ex.id,
           title: ex.title,
           artworkCount: artworks?.[0]?.count ?? 0,
-          status: rawStatus === 'ended' ? ('ended' as const) : ('active' as const),
+          status:
+            rawStatus === 'ended' ? ('ended' as const) : ('active' as const),
           thumbnail: ex.thumbnail_url,
         };
       }),
