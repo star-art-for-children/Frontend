@@ -69,10 +69,13 @@ export function UserMenu({ name }: UserMenuProps) {
       {open && (
         <div className="absolute top-full right-0 z-10 w-52 overflow-hidden rounded-xl border border-[#E8DFC8] bg-white p-2 shadow-lg">
           <ul>
-            <MenuItem href="/" icon={<User className="h-4 w-4" />}>
+            <MenuItem href="/myPage" icon={<User className="h-4 w-4" />}>
               마이페이지
             </MenuItem>
-            <MenuItem href="/" icon={<BookMarked className="h-4 w-4" />}>
+            <MenuItem
+              href="/wishList"
+              icon={<BookMarked className="h-4 w-4" />}
+            >
               위시리스트
             </MenuItem>
             <MenuItem href="/artworks" icon={<Heart className="h-4 w-4" />}>
