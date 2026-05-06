@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { USER_NAV_ITEMS } from './navItems';
 import { useLogout } from '@/hooks/useLogout';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 
@@ -43,9 +44,11 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
 
           {isLoggedIn ? (
             <>
-              <NavItem href="/myPage">마이페이지</NavItem>
-              <NavItem href="/wishList">위시리스트</NavItem>
-              <NavItem href="/artworks">내 작품 모아보기</NavItem>
+              {USER_NAV_ITEMS.map((item) => (
+                <NavItem key={item.href} href={item.href}>
+                  {item.label}
+                </NavItem>
+              ))}
               <button
                 type="button"
                 onClick={handleLogout}

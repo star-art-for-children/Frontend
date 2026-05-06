@@ -2,14 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import {
-  ChevronDown,
-  ChevronUp,
-  User,
-  BookMarked,
-  Heart,
-  LogOut,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, LogOut } from 'lucide-react';
+import { USER_NAV_ITEMS } from './navItems';
 import { cn } from '@/lib/utils';
 import { useLogout } from '@/hooks/useLogout';
 import {
@@ -57,15 +51,16 @@ export default function UserMenu({ name }: UserMenuProps) {
         align="end"
         className="w-52 overflow-hidden rounded-xl border border-[#E8DFC8] bg-white p-2 shadow-lg"
       >
-        <MenuItem href="/myPage" icon={<User className="h-4 w-4" />}>
-          마이페이지
-        </MenuItem>
-        <MenuItem href="/wishList" icon={<BookMarked className="h-4 w-4" />}>
-          위시리스트
-        </MenuItem>
-        <MenuItem href="/artworks" icon={<Heart className="h-4 w-4" />}>
-          내 작품 모아보기
-        </MenuItem>
+        {USER_NAV_ITEMS.map((item) => (
+          <DropdownMenuItem
+            key={item.label}
+            className="text-secondary hover:bg-primary/10 focus:bg-primary/10 flex cursor-pointer items-center gap-2 rounded-xl p-3 text-sm transition-colors"
+            render={<Link href={item.href} />}
+          >
+            <span className="text-primary">{item.icon}</span>
+            {item.label}
+          </DropdownMenuItem>
+        ))}
 
         <DropdownMenuSeparator className="bg-[#F0EAD8]" />
 
@@ -74,7 +69,7 @@ export default function UserMenu({ name }: UserMenuProps) {
           disabled={isLoggingOut}
           className={cn(
             'flex w-full cursor-pointer items-center gap-3 rounded-xl p-3 text-sm text-[#E5484D] transition-colors',
-            'focus:bg-[#FDECEC] focus:text-[#E5484D] disabled:opacity-60'
+            'focus:text-[#E5484D] disabled:opacity-60'
           )}
         >
           <LogOut className="h-4 w-4" />
@@ -84,20 +79,3 @@ export default function UserMenu({ name }: UserMenuProps) {
     </DropdownMenu>
   );
 }
-const MenuItem = ({
-  href,
-  icon,
-  children,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) => (
-  <DropdownMenuItem
-    className="text-secondary hover:bg-primary/10 focus:bg-primary/10 flex cursor-pointer items-center gap-2 rounded-xl p-3 text-sm transition-colors"
-    render={<Link href={href} />}
-  >
-    <span className="text-primary">{icon}</span>
-    {children}
-  </DropdownMenuItem>
-);
