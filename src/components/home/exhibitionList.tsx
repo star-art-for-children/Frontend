@@ -39,7 +39,7 @@ export default function ExhibitionList({
         {/* 선생님 계정만 추가 */}
         {isTeacher && (
           <Link
-            href="/exhibitions/new"
+            href="/exhibitions/create"
             className="bg-primary inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#E09415]"
           >
             <Plus className="h-4 w-4" />
