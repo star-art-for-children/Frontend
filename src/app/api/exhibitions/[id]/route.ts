@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { ExhibitionRow } from '@/types/exhibitionList';
 
 export async function GET(
   _req: NextRequest,
@@ -9,7 +10,7 @@ export async function GET(
     const supabase = await createClient();
     const { id: exhibitionId } = await params;
 
-    const { data, error } = await supabase
+    const { data: rawData, error } = await supabase
       .from('exhibitions')
       .select(
         `
@@ -18,9 +19,8 @@ export async function GET(
         thumbnail_url,
         start_date,
         end_date,
-        teacher_id,
-        profiles!teacher_id ( username ),
-        exhibition_likes ( count )
+        profile:profiles!teacher_id ( institution ),
+        likes:exhibition_likes ( count )
       `
       )
       .eq('id', exhibitionId)
@@ -34,17 +34,18 @@ export async function GET(
       return NextResponse.json({ message: 'database error' }, { status: 500 });
     }
 
-    const profile = data.profiles as unknown as { username: string } | null;
-    const likesData = data.exhibition_likes as { count: number }[] | null;
+    const data = rawData as Omit<ExhibitionRow, 'created_at'>;
+    const profile = Array.isArray(data.profile)
+      ? data.profile[0]
+      : data.profile;
     const result = {
       id: data.id,
       title: data.title,
       thumbnailUrl: data.thumbnail_url,
       startDate: data.start_date,
       endDate: data.end_date,
-      host: profile?.username ?? null,
-      hostId: data.teacher_id,
-      likes: likesData?.[0]?.count ?? 0,
+      host: profile?.institution ?? null,
+      likes: data.likes?.[0]?.count ?? 0,
     };
 
     return NextResponse.json({ data: result }, { status: 200 });
