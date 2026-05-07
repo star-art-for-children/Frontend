@@ -17,7 +17,7 @@ export default function NewExhibitionBanner() {
       </div>
 
       <Link
-        href="/dashboard/exhibitions/new"
+        href="/exhibitions/create"
         className="shrink-0 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-[#d59d30] shadow-[0_2px_8px_rgba(255,255,255,0.32)]"
       >
         + 만들기
