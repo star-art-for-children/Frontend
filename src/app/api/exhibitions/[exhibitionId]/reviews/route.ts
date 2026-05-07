@@ -56,7 +56,15 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { message: '유효한 JSON 형식이 아닙니다' },
+        { status: 400 }
+      );
+    }
     const parsed = reviewCreateSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
