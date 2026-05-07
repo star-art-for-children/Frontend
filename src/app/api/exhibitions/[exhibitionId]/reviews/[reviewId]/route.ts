@@ -24,7 +24,10 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
     if (fetchError) {
       if (fetchError.code === 'PGRST116') {
-        return NextResponse.json({ message: 'review not found' }, { status: 404 });
+        return NextResponse.json(
+          { message: 'review not found' },
+          { status: 404 }
+        );
       }
       console.error(fetchError);
       return NextResponse.json({ message: 'database error' }, { status: 500 });
