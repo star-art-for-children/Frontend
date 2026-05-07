@@ -22,11 +22,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
       .eq('id', reviewId)
       .single();
 
-    if (fetchError || !review) {
-      return NextResponse.json(
-        { message: 'review not found' },
-        { status: 404 }
-      );
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        return NextResponse.json({ message: 'review not found' }, { status: 404 });
+      }
+      console.error(fetchError);
+      return NextResponse.json({ message: 'database error' }, { status: 500 });
     }
 
     if (review.user_id !== user.id) {
