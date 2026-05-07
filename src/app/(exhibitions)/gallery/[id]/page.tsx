@@ -38,7 +38,7 @@ export default function GalleryExhibitionPage() {
     setTimeout(() => setIsInitReady(true), 500);
   }, []);
   return (
-    <div className={'scr fixed inset-0 z-50'}>
+    <div className={'scr fixed inset-0 z-99'}>
       {!start && (
         <ModalWrapper
           isOpen={!start}
