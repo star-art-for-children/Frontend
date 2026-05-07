@@ -1,8 +1,29 @@
+'use client';
+
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+
 export default function LogoutButton() {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setIsLoggingOut(false);
+      return;
+    }
+    window.location.replace('/');
+  }
+
   return (
     <button
       type="button"
-      className="flex w-full items-center justify-center gap-2 rounded-[18px] border border-[#ece4d9] bg-white px-5 py-4 text-[14px] font-medium text-[#8e867e] shadow-[0_2px_8px_rgba(64,48,33,0.02)] transition-colors hover:bg-[#fcfaf7]"
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+      className="flex w-full items-center justify-center gap-2 rounded-[18px] border border-[#ece4d9] bg-white px-5 py-4 text-[14px] font-medium text-[#E5484D] shadow-[0_2px_8px_rgba(64,48,33,0.02)] transition-colors hover:bg-[#fcfaf7] disabled:opacity-60"
     >
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
         <path
@@ -13,7 +34,7 @@ export default function LogoutButton() {
           strokeLinejoin="round"
         />
       </svg>
-      로그아웃
+      {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
     </button>
   );
 }
