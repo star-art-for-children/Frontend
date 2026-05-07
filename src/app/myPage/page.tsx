@@ -56,9 +56,9 @@ export default async function MyPage() {
           id: ex.id,
           title: ex.title,
           artworkCount: artworks?.[0]?.count ?? 0,
-          status:
-            rawStatus === 'ended' ? ('ended' as const) : ('active' as const),
+          status: rawStatus === 'ongoing' ? ('active' as const) : rawStatus,
           thumbnail: ex.thumbnail_url,
+          start_date: ex.start_date,
         };
       }),
     };

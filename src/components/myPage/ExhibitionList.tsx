@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Calendar } from 'lucide-react';
 import type { Exhibition } from '@/types/myPage';
 
 interface ExhibitionListProps {
@@ -30,7 +31,7 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
           </span>
         </div>
         <Link
-          href="/dashboard/exhibitions/new"
+          href="/exhibitions/create"
           className="text-[12px] font-semibold text-[#e2ba50]"
         >
           + 새 전시회
@@ -41,7 +42,7 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
         {exhibitions.map((ex, idx) => (
           <li key={ex.id}>
             <Link
-              href={`/dashboard/exhibitions/${ex.id}`}
+              href={`/exhibitions/${ex.id}`}
               className={`flex items-center gap-4 rounded-[18px] px-3 py-3 transition-colors hover:bg-[#faf7f1] ${
                 idx > 0 ? 'mt-1' : ''
               }`}
@@ -58,10 +59,17 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                 <p className="mb-1 text-[14px] font-semibold text-[#2b2724]">
                   {ex.title}
                 </p>
-                <p className="text-[12px] text-[#9b948c]">
-                  {ex.artworkCount}점 ·{' '}
-                  {ex.status === 'active' ? '진행중' : '종료'}
-                </p>
+                {ex.status === 'upcoming' ? (
+                  <p className="flex items-center gap-1 text-[12px] text-[#e2a93a]">
+                    <Calendar size={11} />
+                    {ex.start_date}부터 관람 가능
+                  </p>
+                ) : (
+                  <p className="text-[12px] text-[#9b948c]">
+                    {ex.artworkCount}점 ·{' '}
+                    {ex.status === 'active' ? '진행중' : '종료'}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-3">
@@ -69,10 +77,16 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                   className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                     ex.status === 'active'
                       ? 'bg-[#ecfaf2] text-[#43b77a]'
-                      : 'bg-[#f4f3f1] text-[#bbb3a8]'
+                      : ex.status === 'upcoming'
+                        ? 'bg-[#fff4d9] text-[#d5981f]'
+                        : 'bg-[#f4f3f1] text-[#bbb3a8]'
                   }`}
                 >
-                  {ex.status === 'active' ? '진행중' : '종료'}
+                  {ex.status === 'active'
+                    ? '진행중'
+                    : ex.status === 'upcoming'
+                      ? '예정됨'
+                      : '종료'}
                 </span>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <path
