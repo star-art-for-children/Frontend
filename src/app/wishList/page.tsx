@@ -1,65 +1,66 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import type { Artwork } from '@/components/myArtworks/Types';
+import WishlistScreen from '@/components/wishList/WishlistScreen';
 
-import { useState } from 'react';
-import WishlistCard from '@/components/wishList/WishlistCard';
-import ArtworkModal from '@/components/myArtworks/ArtworkModal';
-import FilterTab from '@/components/myArtworks/FilterTab';
-import { WISHLIST_ARTWORKS } from '@/components/wishList/MockData';
-import { Artwork, FilterType } from '@/components/myArtworks/Types';
+type LikeRow = {
+  created_at: string;
+  artworks: {
+    id: string;
+    title: string;
+    artist_name: string | null;
+    description: string | null;
+    image_url: string | null;
+    artwork_likes: { count: number }[];
+    exhibitions: {
+      title: string;
+      profiles: { institution: string | null } | null;
+    } | null;
+  } | null;
+};
 
-export default function WishlistPage() {
-  const [filter, setFilter] = useState<FilterType>('latest');
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+export default async function WishlistPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const sorted = [...WISHLIST_ARTWORKS].sort((a, b) => {
-    if (filter === 'latest')
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    if (filter === 'oldest')
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    return b.likesCount - a.likesCount;
-  });
+  if (!user) redirect('/login');
 
-  return (
-    <>
-      <main className="min-h-screen bg-[#F5F0E8]">
-        <div className="mx-auto max-w-[1080px] px-6 py-10">
-          <div className="mb-6">
-            <h1 className="mb-1 text-[28px] font-bold tracking-tight text-[#1A1A1A]">
-              위시리스트
-            </h1>
-            <p className="text-[14px] text-[#888780]">
-              저장한 작품 {WISHLIST_ARTWORKS.length}점
-            </p>
-          </div>
+  const { data } = await supabase
+    .from('artwork_likes')
+    .select(
+      `created_at,
+      artworks (
+        id, title, artist_name, description, image_url,
+        artwork_likes(count),
+        exhibitions ( title, profiles!teacher_id ( institution ) )
+      )`
+    )
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
-          <FilterTab value={filter} onChange={setFilter} />
+  const artworks: Artwork[] = ((data ?? []) as unknown as LikeRow[])
+    .filter(
+      (
+        like
+      ): like is LikeRow & { artworks: NonNullable<LikeRow['artworks']> } =>
+        like.artworks !== null
+    )
+    .map((like) => {
+      const aw = like.artworks;
+      return {
+        id: aw.id,
+        title: aw.title,
+        artist: aw.artist_name ?? '',
+        description: aw.description ?? '',
+        exhibitionTitle: aw.exhibitions?.title ?? '',
+        academyName: aw.exhibitions?.profiles?.institution ?? '',
+        imageUrl: aw.image_url ?? '',
+        likesCount: aw.artwork_likes[0]?.count ?? 0,
+        createdAt: like.created_at,
+      };
+    });
 
-          {sorted.length > 0 ? (
-            <div className="grid grid-cols-4 gap-5">
-              {sorted.map((artwork) => (
-                <WishlistCard
-                  key={artwork.id}
-                  artwork={artwork}
-                  onClick={() => setSelectedArtwork(artwork)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-32">
-              <p className="text-[15px] font-medium text-[#888780]">
-                저장한 작품이 없습니다.
-              </p>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {selectedArtwork && (
-        <ArtworkModal
-          artwork={selectedArtwork}
-          onClose={() => setSelectedArtwork(null)}
-        />
-      )}
-    </>
-  );
+  return <WishlistScreen artworks={artworks} />;
 }
