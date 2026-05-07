@@ -26,6 +26,7 @@ export default function Room({
 
   const paintingTextures = useTexture(urls);
   const paintingRefs = useRef<(Group | null)[]>([]);
+  const tempCurrentForward = useRef(new Vector3());
 
   const prevPos = useRef(new Vector3());
   const prevDir = useRef(new Vector3());
@@ -59,7 +60,9 @@ export default function Room({
   }, []);
 
   useFrame(({ camera }) => {
-    const forward = camera.getWorldDirection(new Vector3());
+    camera.getWorldDirection(tempCurrentForward.current);
+
+    const forward = tempCurrentForward.current;
 
     const moved = prevPos.current.distanceTo(camera.position) > 0.1;
 
