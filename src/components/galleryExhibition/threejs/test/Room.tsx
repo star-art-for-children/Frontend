@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { PaintingType, WAllType } from '../../../../types/gallery';
 import { useTexture } from '@react-three/drei';
 import Floor from '@/components/galleryExhibition/threejs/test/Floor';
@@ -6,7 +6,8 @@ import Ceiling from '@/components/galleryExhibition/threejs/test/Ceiling';
 import Walls from '@/components/galleryExhibition/threejs/test/Walls';
 import InnerWalls from '@/components/galleryExhibition/threejs/test/InnerWall';
 import { useFrame } from '@react-three/fiber';
-import { Vector3 } from 'three';
+import { Group, Vector3 } from 'three';
+import { downloadImgHandler } from '@/components/galleryExhibition/threejs/test/util/util';
 
 export default function Room({
   init,
@@ -24,20 +25,38 @@ export default function Room({
   const urls = useMemo(() => init.map((x) => x.paintingUrl), [init]);
 
   const paintingTextures = useTexture(urls);
+  const paintingRefs = useRef<(Group | null)[]>([]);
 
   const prevPos = useRef(new Vector3());
   const prevDir = useRef(new Vector3());
-  const syncTimer = useRef(0);
-  const nextRef = useRef<boolean[]>(new Array(innerWalls.length).fill(false));
 
-  const [visiblePaints, setVisiblePaints] = useState<boolean[]>(
-    new Array(innerWalls.length).fill(false)
-  );
+  const tempPos = useRef(new Vector3());
+  const tempDir = useRef(new Vector3());
 
-  const innerWallPos = useMemo(
-    () => innerWalls.map((x) => new Vector3(...x.pos)),
-    [innerWalls]
-  );
+  const closestPaintingRef = useRef<PaintingType | null>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const painting = closestPaintingRef.current;
+
+      if (!painting) return;
+
+      if (e.key === '1') {
+        console.log('like', painting.title);
+      }
+
+      if (e.key === '2') {
+        console.log(painting);
+        downloadImgHandler(painting.paintingUrl, painting.title);
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+
+    return () => {
+      window.removeEventListener('keydown', handler);
+    };
+  }, []);
 
   useFrame(({ camera }) => {
     const forward = camera.getWorldDirection(new Vector3());
@@ -48,35 +67,45 @@ export default function Room({
 
     if (!moved && !rotated) return;
 
-    const next = nextRef.current;
-    next.fill(false);
+    let bestIndex = -1;
+    let bestScore = -Infinity;
 
     for (let i = 0; i < innerWalls.length; i++) {
-      const pos = innerWallPos[i];
+      const mesh = paintingRefs.current[i];
 
-      const dir = pos.clone().sub(camera.position).normalize();
+      if (!mesh) continue;
 
-      const fovDot = forward.dot(dir);
+      mesh.getWorldPosition(tempPos.current);
 
-      next[i] = fovDot > 0.7;
+      tempDir.current.copy(tempPos.current).sub(camera.position);
+
+      const distance = tempDir.current.length();
+
+      tempDir.current.normalize();
+
+      const fovDot = forward.dot(tempDir.current);
+
+      //소규모니까 그냥 전부 보이게
+      // const paintingVisible = fovDot > 0.7;
+      // mesh.visible = paintingVisible;
+
+      const closestPaintingVisible = fovDot > 0.7 && distance < 7;
+
+      if (closestPaintingVisible) {
+        const score = fovDot * 100 - distance;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
+      }
     }
 
-    const now = performance.now();
+    closestPaintingRef.current = bestIndex !== -1 ? init[bestIndex] : null;
 
-    if (now - syncTimer.current > 100) {
-      setVisiblePaints((prev) => {
-        const same = prev.every((v, i) => v === next[i]);
-
-        return same ? prev : [...next];
-      });
-
-      prevPos.current.copy(camera.position);
-      prevDir.current.copy(forward);
-
-      syncTimer.current = now;
-    }
+    prevPos.current.copy(camera.position);
+    prevDir.current.copy(forward);
   });
-
   return (
     <>
       <Floor size={size} />
@@ -85,9 +114,9 @@ export default function Room({
 
       <InnerWalls
         walls={innerWalls}
-        showPaint={visiblePaints}
         init={init}
         paintingTextures={paintingTextures}
+        paintingRefs={paintingRefs}
       />
 
       <Ceiling size={size} height={height} />

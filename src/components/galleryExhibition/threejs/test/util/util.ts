@@ -1,6 +1,5 @@
 import { Cell, FormValidation, WAllType } from '@/types/gallery';
 import { Texture } from 'three';
-import React from 'react';
 
 export function generateGalleryWalls(roomSize: number) {
   const size = 3;
@@ -208,12 +207,7 @@ export function checkImgSize(
   return [imgW, imgH];
 }
 
-export async function downloadImgHandler(
-  e: React.MouseEvent<HTMLButtonElement>,
-  url: string,
-  title: string
-) {
-  e.stopPropagation();
+export async function downloadImgHandler(url: string, title: string) {
   try {
     const res = await fetch(url);
     const blob = await res.blob();
