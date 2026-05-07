@@ -1,21 +1,19 @@
-// 전시회 리뷰 목록 조회, 생성
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { reviewCreateSchema } from '@/lib/schemas/review';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
+export async function GET(_req: NextRequest, { params }: RouteContext) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('reviews')
-      .select('id, content, created_at, updated_at, user_id, profiles:user_id(username)')
+      .select(
+        'id, content, created_at, updated_at, user_id, profiles:user_id(username)'
+      )
       .eq('exhibition_id', id)
       .order('created_at', { ascending: false });
 
@@ -46,10 +44,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: RouteContext
-) {
+export async function POST(req: NextRequest, { params }: RouteContext) {
   try {
     const { id } = await params;
     const supabase = await createClient();
