@@ -35,11 +35,13 @@ export default async function MyPage() {
 
   if (role === 'teacher') {
     // 선생님이면 본인이 만든 전시회 목록과 각 전시회의 작품 수를 함께 조회
-    const { data: exhibitionsData } = await supabase
+    const { data: exhibitionsData, error: exhibitionsError } = await supabase
       .from('exhibitions')
       .select('id, title, thumbnail_url, start_date, end_date, artworks(count)')
       .eq('teacher_id', user.id)
       .order('created_at', { ascending: false });
+
+    if (exhibitionsError) redirect('/');
 
     profile = {
       id: user.id,
