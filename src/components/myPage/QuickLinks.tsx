@@ -11,7 +11,7 @@ const LINKS = [
     sub: '등록된 나의 작품들을 확인하세요',
   },
   {
-    href: '/wishlist',
+    href: '/wishList',
     icon: 'book',
     iconBg: 'bg-[#fff8e8]',
     iconColor: '#e3b54a',
