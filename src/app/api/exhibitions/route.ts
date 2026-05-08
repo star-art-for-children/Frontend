@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
+  checkRole,
   parseFormDataToObj,
   validateExhibition,
 } from '@/components/galleryExhibition/threejs/test/util/util';
@@ -9,28 +10,12 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ message: 'no session' }, { status: 401 });
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError || !profile) {
+    const roleCheck = await checkRole(supabase);
+    if (!roleCheck.ok) {
       return NextResponse.json(
-        { message: 'profile not found' },
-        { status: 403 }
+        { message: roleCheck.message },
+        { status: roleCheck.status }
       );
-    }
-
-    if (profile.role !== 'teacher') {
-      return NextResponse.json({ message: 'not allowed' }, { status: 403 });
     }
 
     let data, error;
@@ -76,7 +61,7 @@ export async function POST(req: NextRequest) {
     ({ data, error } = await supabase
       .from('exhibitions')
       .insert({
-        teacher_id: user.id,
+        teacher_id: roleCheck.user.id,
         title,
         description,
         guidelines,

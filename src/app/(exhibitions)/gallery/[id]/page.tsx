@@ -6,9 +6,10 @@ import { VscMute } from 'react-icons/vsc';
 import { AiOutlineSound } from 'react-icons/ai';
 import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
 import Scene2 from '@/components/galleryExhibition/threejs/test/Scene';
+import { getArtworksByExhibitionId } from '@/service/artworks';
 
 export default function GalleryExhibitionPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [galleryInit, setGalleryInit] = useState([]);
   const [isMuted, setIsMuted] = useState(false);
@@ -21,21 +22,17 @@ export default function GalleryExhibitionPage() {
   );
   useEffect(() => {
     const fetchInit = async () => {
-      //서비스 레이어로 뺼예정
       try {
-        const res = await fetch('/');
-        if (!res.ok) {
-          throw new Error('Failed to fetch');
-        }
-        const result = await res.json();
-
-        setGalleryInit(result.data);
+        const result = await getArtworksByExhibitionId(id);
+        console.log(result);
+        setGalleryInit(result);
+        setIsInitReady(true);
       } catch (error) {
         console.log(error);
       }
     };
-    // fetchInit();
-    setTimeout(() => setIsInitReady(true), 500);
+    fetchInit();
+    // setTimeout(() => setIsInitReady(true), 500);
   }, []);
   return (
     <div className={'scr fixed inset-0 z-50'}>
@@ -137,9 +134,9 @@ export default function GalleryExhibitionPage() {
         </div>
       </div>
       <div
-        className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'}`}
+        className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} `}
       >
-        <Scene2 ready={setIsReady} />
+        <Scene2 ready={setIsReady} init={galleryInit} />
       </div>
     </div>
   );

@@ -13,6 +13,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
+import { deleteArtworksByArtworkId } from '@/service/artworks';
+import { useRouter } from 'next/navigation';
+import { endExhibition } from '@/service/exhibitions';
 
 interface ManageAlertDialogProps {
   trigger: ReactElement;
@@ -21,8 +24,10 @@ interface ManageAlertDialogProps {
   title: string;
   description: ReactNode;
   actionLabel: string;
+  artworkId?: string;
+  exhibitionId: string;
   actionClassName?: string;
-  onAction?: () => void;
+  onAction?: 'deleteArtwork' | 'exhibitionEnd';
 }
 
 export default function ManageAlertDialog({
@@ -34,7 +39,37 @@ export default function ManageAlertDialog({
   actionLabel,
   actionClassName,
   onAction,
+  artworkId,
+  exhibitionId,
 }: ManageAlertDialogProps) {
+  const router = useRouter();
+  const deleteArtworkHandler = async () => {
+    if (!artworkId) return;
+    try {
+      const deletedId = await deleteArtworksByArtworkId(
+        exhibitionId,
+        artworkId
+      );
+      console.log(deletedId);
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const endExhibitionHandler = async () => {
+    try {
+      const updatedId = await endExhibition(exhibitionId);
+      console.log(updatedId);
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const functionMapper = {
+    deleteArtwork: deleteArtworkHandler,
+    exhibitionEnd: endExhibitionHandler,
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger render={trigger} />
@@ -64,7 +99,7 @@ export default function ManageAlertDialog({
               'rounded-xl py-6 text-base font-semibold',
               actionClassName
             )}
-            onClick={onAction}
+            onClick={onAction && functionMapper[onAction]}
           >
             {actionLabel}
           </AlertDialogAction>

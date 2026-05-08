@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { ExhibitionRow } from '@/types/exhibitionList';
+import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
 
 export async function GET(
   _req: NextRequest,
@@ -52,5 +53,45 @@ export async function GET(
   } catch (err) {
     console.error(err);
     return NextResponse.json({ message: 'unknown error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createClient();
+    const { id } = await params;
+
+    const roleCheck = await checkRole(supabase);
+    if (!roleCheck.ok) {
+      return NextResponse.json(
+        { message: roleCheck.message },
+        { status: roleCheck.status }
+      );
+    }
+    const body = await req.json();
+
+    const { error } = await supabase
+      .from('exhibitions')
+      .update(body)
+      .eq('id', id);
+
+    if (error) {
+      console.error(error);
+      return NextResponse.json(
+        { message: 'failed to update exhibition' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: 'success', updatedId: id },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: 'unkwon error' }, { status: 500 });
   }
 }

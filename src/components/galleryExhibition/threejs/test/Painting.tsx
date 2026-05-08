@@ -1,5 +1,5 @@
 import { Texture } from 'three';
-import { PaintingType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps } from '../../../../types/gallery';
 import React from 'react';
 import { Html } from '@react-three/drei';
 import {
@@ -16,7 +16,7 @@ export default function Painting({
 }: {
   visible: boolean;
   img: Texture;
-  details: PaintingType;
+  details: GalleryUIArtworkProps;
   weight: number;
   height: number;
 }) {
@@ -47,12 +47,10 @@ export default function Painting({
         }}
       >
         <div className={'gap flex flex-col gap-1 font-bold text-white'}>
-          <h1 className={'text-[45px]'}>
-            {details.id}:{details?.title}
-          </h1>
-          <h1 className={'text-[25px]'}>{details?.author}</h1>
+          <h1 className={'text-[45px]'}>{details?.title}</h1>
+          <h1 className={'text-[25px]'}>{details?.artist_name}</h1>
           <p className={'text-[20px] text-wrap text-gray-200'}>
-            {details?.desc}
+            {details?.description}
           </p>
           <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
             <div className={'flex gap-1'}>
@@ -76,7 +74,7 @@ export default function Painting({
             </button>
             <button
               onClick={(e) => {
-                downloadImgHandler(e, details.paintingUrl, details.title);
+                downloadImgHandler(e, details.image_url, details.title);
               }}
             >
               <Download />

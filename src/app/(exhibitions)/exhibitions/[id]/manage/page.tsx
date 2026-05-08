@@ -8,73 +8,32 @@ import {
   ManageAlertDialog,
 } from '@/components/exhibition/manage';
 import { notFound } from 'next/navigation';
-
-interface Work {
-  id: string;
-  title: string;
-  artist: string;
-  image: string;
-  email?: string;
-  description?: string;
-}
-
-interface ExhibitionManage {
-  id: string;
-  title: string;
-  host: string;
-  description?: string;
-  works?: Work[];
-}
-
-const mockData: Record<string, ExhibitionManage> = {
-  '2': {
-    id: '2',
-    title: '사계절 이야기',
-    host: '해피아트 미술학원',
-    description:
-      '사계절을 주제로 한 작품들을 모아 전시합니다. 봄, 여름, 가을, 겨울의 아름다운 변화를 아이들의 눈으로 바라본 작품들이 가득합니다.',
-    works: [],
-  },
-  '3': {
-    id: '3',
-    title: '봄의 소리전',
-    host: '해피아트 미술학원',
-    description:
-      '해피아트 미술학원 학생들이 봄을 주제로 그린 작품들을 전시합니다. 따뜻한 봄날의 감성을 아이들의 순수한 시선으로 담아낸 작품들을 감상해보세요. 총 12명의 학생이 참가했으며, 각자의 개성 넘치는 봄 이야기를 담았습니다.',
-    works: [
-      {
-        id: 'w1',
-        title: '봄날의 꿈',
-        artist: '이소율',
-        image: '/images/sample_thumb.png',
-      },
-      {
-        id: 'w2',
-        title: '바다의 노래',
-        artist: '최지민',
-        image: '/images/sample_thumb.png',
-      },
-      {
-        id: 'w3',
-        title: '우리 가족',
-        artist: '김도현',
-        image: '/images/sample_thumb.png',
-      },
-    ],
-  },
-};
+import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ExhibitionManagePage({ params }: PageProps) {
-  const { id } = await params;
-  const exhibition = mockData[id];
+  const { id: exhibitionId } = await params;
 
-  if (!exhibition) notFound();
+  const supabase = await createClient();
+  const { data: exhibition, error: exhibtionError } = await supabase
+    .from('exhibitions')
+    .select('*')
+    .eq('id', exhibitionId)
+    .single();
 
-  const works = exhibition.works ?? [];
+  if (!exhibition || exhibtionError) notFound();
+  const { data: artworks, error: artworksError } = await supabase
+    .from('artworks')
+    .select('*')
+    .eq('exhibition_id', exhibitionId);
+
+  if (artworksError) notFound();
+
+  console.log(exhibition.description);
+  // const works = data.works ?? [];
 
   return (
     <main className="min-h-screen bg-[#FAF7F2] pb-20">
@@ -82,7 +41,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
         {/* 상단 헤더 */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href={`/exhibitions/${id}`}>
+            <Link href={`/exhibitions/${exhibitionId}`}>
               <Button
                 variant="ghost"
                 size="icon"
@@ -93,10 +52,10 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             </Link>
             <div>
               <h1 className="text-secondary text-2xl font-bold">
-                {exhibition.title}
+                {exhibition?.title}
               </h1>
               <p className="text-secondary/60 mt-0.5 text-sm">
-                {exhibition.host} · 작품 {works.length}점
+                tt · 작품 {exhibition?.length}점
               </p>
             </div>
           </div>
@@ -122,6 +81,8 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                 정말 종료하시겠습니까?
               </>
             }
+            exhibitionId={exhibitionId}
+            onAction={'exhibitionEnd'}
             actionLabel="종료하기"
             actionClassName="bg-[#FF6900] hover:bg-[#F64900] text-white"
           />
@@ -142,7 +103,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
         </div>
 
         {/* 작품 그리드 / 빈 상태 */}
-        {works.length === 0 ? (
+        {artworks.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 rounded-2xl bg-white py-20 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
             <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-4xl">
               <Upload className="text-primary h-6 w-6" />
@@ -162,14 +123,14 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {works.map((work) => (
+            {artworks?.map((work) => (
               <div
                 key={work.id}
                 className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(44,40,38,0.06)]"
               >
                 <div className="relative aspect-4/3 bg-[#F5EFE0]">
                   <Image
-                    src={work.image}
+                    src={work.image_url}
                     alt={work.title}
                     fill
                     sizes="(min-width: 640px) 33vw, 50vw"
@@ -206,6 +167,9 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                       }
                       actionLabel="삭제하기"
                       actionClassName="bg-red-500 hover:bg-red-600 text-white"
+                      onAction={'deleteArtwork'}
+                      artworkId={work.id}
+                      exhibitionId={exhibitionId}
                     />
                   </div>
                 </div>

@@ -41,3 +41,10 @@ export type Cell = {
     left: boolean;
   };
 };
+
+export type GalleryUIArtworkProps = {
+  title: string;
+  artist_name: 'string';
+  description: null | string;
+  image_url: string;
+};

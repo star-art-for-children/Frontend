@@ -1,6 +1,7 @@
 import { Cell, FormValidation, WAllType } from '@/types/gallery';
 import { Texture } from 'three';
 import React from 'react';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export function generateGalleryWalls(roomSize: number) {
   const size = 3;
@@ -316,4 +317,31 @@ export function validateExhibition(init: FormValidation) {
       guidelines,
     },
   };
+}
+/////// 권한 체크
+
+type RoleCheckResult =
+  | { ok: false; status: number; message: string }
+  | { ok: true; user: { id: string } };
+export async function checkRole(
+  supabase: SupabaseClient
+): Promise<RoleCheckResult> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, status: 401, message: 'no session' };
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profileError)
+    return { ok: false, status: 403, message: 'no profile' };
+
+  if (profile.role !== 'teacher')
+    return { ok: false, status: 403, message: 'no role' };
+
+  return { ok: true, user };
 }

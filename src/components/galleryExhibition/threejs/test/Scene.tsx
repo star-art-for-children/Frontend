@@ -8,12 +8,14 @@ import {
   createWalls,
   generateGalleryWalls,
 } from '@/components/galleryExhibition/threejs/test/util/util';
-import { INIT } from '../../../../../data/galleryData';
+import { GalleryUIArtworkProps } from '@/types/gallery';
 
 export default function Scene2({
   ready,
+  init,
 }: {
   ready: Dispatch<SetStateAction<boolean>>;
+  init: GalleryUIArtworkProps[];
 }) {
   const size = 21;
   const height = size * 0.3;
@@ -32,7 +34,7 @@ export default function Scene2({
         <Room
           walls={walls}
           innerWalls={innerWalls}
-          init={INIT}
+          init={init}
           size={size}
           height={height}
         />

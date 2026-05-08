@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { PaintingType, WAllType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
 import { useTexture } from '@react-three/drei';
 import Floor from '@/components/galleryExhibition/threejs/test/Floor';
 import Ceiling from '@/components/galleryExhibition/threejs/test/Ceiling';
@@ -15,13 +15,13 @@ export default function Room({
   walls,
   innerWalls,
 }: {
-  init: PaintingType[];
+  init: GalleryUIArtworkProps[];
   size: number;
   height: number;
   walls: WAllType[];
   innerWalls: WAllType[];
 }) {
-  const urls = useMemo(() => init.map((x) => x.paintingUrl), [init]);
+  const urls = useMemo(() => init.map((x) => x.image_url), [init]);
 
   const paintingTextures = useTexture(urls);
 
