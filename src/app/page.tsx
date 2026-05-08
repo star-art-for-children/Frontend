@@ -1,46 +1,37 @@
 import ExhibitionList from '@/components/home/exhibitionList';
-import { ExhibitionProps } from '@/types/exhibitionList';
-import { Search, Sparkles } from 'lucide-react';
+import SearchForm from '@/components/home/searchForm';
+import { createClient } from '@/lib/supabase/server';
+import { getExhibitions } from '@/service/exhibitions';
+import { ExhibitionSort } from '@/types/exhibitionList';
+import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
+import { Suspense } from 'react';
 
-const exhibitions: ExhibitionProps[] = [
-  {
-    id: '1',
-    title: '여름 날씨전',
-    host: '해피아트 미술학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2026-05-28',
-    likes: 0,
-  },
-  {
-    id: '2',
-    title: '사계절 이야기',
-    host: '해피아트 미술학원',
-    startDate: '2026-04-01',
-    endDate: '2026-05-31',
-    likes: 45,
-  },
-  {
-    id: '3',
-    title: '봄의 소리전',
-    host: '해피아트 미술학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2026-03-01',
-    endDate: '2026-05-31',
-    likes: 128,
-  },
-  {
-    id: '4',
-    title: '겨울 풍경전',
-    host: '꿈나무 창작학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2025-12-01',
-    endDate: '2026-02-28',
-    likes: 312,
-  },
-];
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; search?: string }>;
+}) {
+  const { sort: sortParam, search } = await searchParams;
 
-export default function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, institution')
+    .eq('id', user?.id)
+    .single();
+
+  const isTeacher = profile?.role === 'teacher';
+  const sort = (
+    sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
+  ) as ExhibitionSort;
+
+  const exhibitions = await getExhibitions({ sort, search });
+
   return (
     <main className="bg-[#FAF7F2]">
       {/* hero section */}
@@ -75,28 +66,21 @@ export default function Home() {
 
           {/* search form */}
           <div className="mt-8 flex justify-center">
-            <form
-              role="search"
-              className="mt-6 flex w-full max-w-xl items-center gap-3 rounded-xl bg-white p-5 shadow-[0_2px_12px_rgba(44,40,38,0.06)]"
-            >
-              <Search className="text-secondary/40 h-5 w-5 shrink-0" />
-              <input
-                type="search"
-                placeholder="전시회 이름, 교육기관 검색..."
-                className="text-secondary placeholder:text-secondary/40 w-full bg-transparent text-sm focus:outline-none"
-              />
-            </form>
+            <Suspense>
+              <SearchForm />
+            </Suspense>
           </div>
         </div>
       </section>
       {/* // hero section */}
       <div className="mx-auto max-w-6xl px-3.5 pb-20">
-        <ExhibitionList
-          exhibitions={exhibitions}
-          isLoggedIn={true}
-          isTeacher
-          currentHost="해피아트 미술학원"
-        />
+        <Suspense>
+          <ExhibitionList
+            exhibitions={exhibitions}
+            sort={sort}
+            isTeacher={isTeacher}
+          />
+        </Suspense>
       </div>
     </main>
   );

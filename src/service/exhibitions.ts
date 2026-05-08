@@ -12,3 +12,38 @@ export const postNewExhibition = async (formDate: FormData) => {
 
   return createdId;
 };
+
+export const getExhibitions = async ({
+  page = 1,
+  sort = 'latest',
+  search = '',
+}: {
+  page?: number;
+  sort?: string;
+  search?: string;
+} = {}) => {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+
+  const params = new URLSearchParams({
+    page: page.toString(),
+    sort: sort || 'latest',
+    limit: '8',
+  });
+
+  if (search) params.append('search', search);
+
+  const res = await fetch(`${baseUrl}/api/exhibitions?${params.toString()}`, {
+    cache: 'no-store',
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.message ?? 'unknown error');
+
+  return data.data ?? [];
+};
