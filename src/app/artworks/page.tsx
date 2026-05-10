@@ -1,18 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ArtworkCard from '@/components/myArtworks/ArtworkCard';
 import ArtworkModal from '@/components/myArtworks/ArtworkModal';
 import FilterTab from '@/components/myArtworks/FilterTab';
-import { MOCK_ARTWORKS } from '@/components/myArtworks/MockData';
 import { Artwork, FilterType } from '@/components/myArtworks/Types';
 
+type RawArtwork = {
+  id: string;
+  title: string;
+  artist_name: string | null;
+  description: string | null;
+  image_url: string | null;
+  created_at: string;
+  artwork_likes: { count: number }[];
+  exhibitions: {
+    title: string;
+    profiles: { institution: string | null } | null;
+  } | null;
+};
+
+function mapArtwork(raw: RawArtwork): Artwork {
+  return {
+    id: raw.id,
+    title: raw.title,
+    artist: raw.artist_name ?? '',
+    description: raw.description ?? '',
+    exhibitionTitle: raw.exhibitions?.title ?? '',
+    academyName: raw.exhibitions?.profiles?.institution ?? '',
+    imageUrl: raw.image_url ?? '',
+    likesCount: raw.artwork_likes[0]?.count ?? 0,
+    createdAt: raw.created_at,
+  };
+}
+
 export default function MyArtworksPage() {
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [filter, setFilter] = useState<FilterType>('latest');
   const [search, setSearch] = useState<string>('');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
-  const sorted = [...MOCK_ARTWORKS]
+  useEffect(() => {
+    fetch('/api/archive?type=mine')
+      .then((res) => res.json())
+      .then((json) => setArtworks((json.artworks ?? []).map(mapArtwork)))
+      .catch(console.error);
+  }, []);
+
+  const sorted = [...artworks]
     .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (filter === 'latest')
@@ -30,18 +65,16 @@ export default function MyArtworksPage() {
     <>
       <main className="min-h-screen bg-[#F5F0E8]">
         <div className="mx-auto max-w-[1080px] px-6 py-10">
-          {/* 헤더 영역 */}
           <div className="mb-6 flex items-start justify-between">
             <div>
               <h1 className="mb-1 text-[28px] font-bold tracking-tight text-[#1A1A1A]">
                 내 작품 모아보기
               </h1>
               <p className="text-[14px] text-[#888780]">
-                나의 작품 {MOCK_ARTWORKS.length}점
+                나의 작품 {artworks.length}점
               </p>
             </div>
 
-            {/* 검색창 */}
             <div className="relative">
               <svg
                 className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[#BCBAB2]"
@@ -74,10 +107,8 @@ export default function MyArtworksPage() {
             </div>
           </div>
 
-          {/* 필터 탭 */}
           <FilterTab value={filter} onChange={setFilter} />
 
-          {/* 작품 그리드 */}
           {sorted.length > 0 ? (
             <div className="grid grid-cols-4 gap-5">
               {sorted.map((artwork) => (
@@ -99,7 +130,6 @@ export default function MyArtworksPage() {
         </div>
       </main>
 
-      {/* 작품 상세 모달 */}
       {selectedArtwork && (
         <ArtworkModal
           artwork={selectedArtwork}
