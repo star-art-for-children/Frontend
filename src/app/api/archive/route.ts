@@ -7,6 +7,8 @@ const ARTWORK_SELECT = `
   exhibitions ( title, profiles!teacher_id ( institution ) )
 `;
 
+const DEFAULT_LIMIT = 20;
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -18,20 +20,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
-    const type = req.nextUrl.searchParams.get('type');
+    const { searchParams } = req.nextUrl;
+    const type = searchParams.get('type');
+    const page = Math.max(1, Number(searchParams.get('page') ?? 1));
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(searchParams.get('limit') ?? DEFAULT_LIMIT))
+    );
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
     if (type === 'mine') {
       const { data, error } = await supabase
         .from('artworks')
         .select(ARTWORK_SELECT)
         .eq('artist_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) {
-        return NextResponse.json({ message: error.message }, { status: 500 });
+        console.error('[archive/mine]', error);
+        return NextResponse.json(
+          { message: 'database error' },
+          { status: 500 }
+        );
       }
 
-      return NextResponse.json({ artworks: data });
+      return NextResponse.json({ artworks: data, page, limit });
     }
 
     if (type === 'wishlist') {
@@ -42,18 +57,23 @@ export async function GET(req: NextRequest) {
           artworks ( ${ARTWORK_SELECT} )`
         )
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) {
-        return NextResponse.json({ message: error.message }, { status: 500 });
+        console.error('[archive/wishlist]', error);
+        return NextResponse.json(
+          { message: 'database error' },
+          { status: 500 }
+        );
       }
 
-      return NextResponse.json({ artworks: data });
+      return NextResponse.json({ artworks: data, page, limit });
     }
 
     return NextResponse.json({ message: 'invalid type' }, { status: 400 });
   } catch (e) {
-    console.log(e);
+    console.error('[archive]', e);
     return NextResponse.json({ message: 'unknown error' }, { status: 500 });
   }
 }
