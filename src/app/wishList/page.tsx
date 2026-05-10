@@ -27,7 +27,7 @@ export default async function WishlistPage() {
 
   if (!user) redirect('/login');
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('artwork_likes')
     .select(
       `created_at,
@@ -39,6 +39,8 @@ export default async function WishlistPage() {
     )
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
 
   const artworks: Artwork[] = ((data ?? []) as unknown as LikeRow[])
     .filter(
