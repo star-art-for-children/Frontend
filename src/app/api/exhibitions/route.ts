@@ -5,6 +5,7 @@ import {
   validateExhibition,
 } from '@/components/galleryExhibition/threejs/test/util/util';
 import { ExhibitionListItem, ExhibitionRow } from '@/types/exhibitionList';
+import { EXHIBITIONS_PER_PAGE } from '@/lib/exhibition/constants';
 
 // 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
 const todayKST = (): string => {
@@ -23,7 +24,10 @@ export async function GET(req: NextRequest) {
 
     // pagination
     const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
-    const limit = parseInt(req.nextUrl.searchParams.get('limit') || '8', 10);
+    const limit = parseInt(
+      req.nextUrl.searchParams.get('limit') || String(EXHIBITIONS_PER_PAGE),
+      10
+    );
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -112,6 +116,16 @@ export async function GET(req: NextRequest) {
     const { data, error, count } = await query.returns<ExhibitionRow[]>();
 
     if (error) {
+      if (error.code === 'PGRST103') {
+        return NextResponse.json(
+          {
+            data: [],
+            pagination: { page, limit, totalCount: 0, hasNextPage: false },
+          },
+          { status: 200 }
+        );
+      }
+
       console.log(error);
       return NextResponse.json({ message: 'database error' }, { status: 500 });
     }

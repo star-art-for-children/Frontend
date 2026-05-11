@@ -1,3 +1,5 @@
+import { EXHIBITIONS_PER_PAGE } from '@/lib/exhibition/constants';
+
 export const postNewExhibition = async (formDate: FormData) => {
   const res = await fetch('/api/exhibitions', {
     method: 'POST',
@@ -29,7 +31,7 @@ export const getExhibitions = async ({
   const params = new URLSearchParams({
     page: page.toString(),
     sort: sort || 'latest',
-    limit: '8',
+    limit: String(EXHIBITIONS_PER_PAGE),
   });
 
   if (search) params.append('search', search);
@@ -45,5 +47,12 @@ export const getExhibitions = async ({
 
   if (!res.ok) throw new Error(data.message ?? 'unknown error');
 
-  return data.data ?? [];
+  return {
+    item: data.data ?? [],
+    pagination: data.pagination ?? {
+      page: 1,
+      totalCount: 0,
+      hasNextPage: false,
+    },
+  };
 };

@@ -1,18 +1,21 @@
 import ExhibitionList from '@/components/home/exhibitionList';
+import ListPagination from '@/components/home/listPagination';
 import SearchForm from '@/components/home/searchForm';
 import { createClient } from '@/lib/supabase/server';
 import { getExhibitions } from '@/service/exhibitions';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; search?: string }>;
+  searchParams: Promise<{ sort?: string; search?: string; page?: string }>;
 }) {
-  const { sort: sortParam, search } = await searchParams;
+  const { sort: sortParam, search, page: pageParams } = await searchParams;
+  const page = Math.max(1, parseInt(pageParams ?? '1', 10));
 
   const supabase = await createClient();
   const {
@@ -30,7 +33,13 @@ export default async function Home({
     sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
   ) as ExhibitionSort;
 
-  const exhibitions = await getExhibitions({ sort, search });
+  const { item: exhibitions, pagination } = await getExhibitions({
+    sort,
+    search,
+    page,
+  });
+
+  if (page > 1 && exhibitions.length === 0) return notFound();
 
   return (
     <main className="bg-[#FAF7F2]">
@@ -74,13 +83,17 @@ export default async function Home({
       </section>
       {/* // hero section */}
       <div className="mx-auto max-w-6xl px-3.5 pb-20">
-        <Suspense>
-          <ExhibitionList
-            exhibitions={exhibitions}
-            sort={sort}
-            isTeacher={isTeacher}
-          />
-        </Suspense>
+        <ExhibitionList
+          exhibitions={exhibitions}
+          sort={sort}
+          isTeacher={isTeacher}
+        />
+        <ListPagination
+          currentPage={pagination.page}
+          totalCount={pagination.totalCount}
+          sort={sort}
+          search={search}
+        />
       </div>
     </main>
   );
