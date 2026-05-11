@@ -1,8 +1,8 @@
 import ExhibitionList from '@/components/home/exhibitionList';
 import ListPagination from '@/components/home/listPagination';
 import SearchForm from '@/components/home/searchForm';
+import { fetchExhibitions } from '@/lib/exhibition/queries';
 import { createClient } from '@/lib/supabase/server';
-import { getExhibitions } from '@/service/exhibitions';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
@@ -37,7 +37,7 @@ export default async function Home({
     sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
   ) as ExhibitionSort;
 
-  const { item: exhibitions, pagination } = await getExhibitions({
+  const { data: exhibitions, pagination } = await fetchExhibitions({
     sort,
     search,
     page,
