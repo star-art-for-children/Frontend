@@ -42,9 +42,6 @@ export default function Room({
   const closestPaintingRef = useRef<GalleryUIArtworkProps | null>(null);
 
   useEffect(() => {
-    setArtworks(init);
-  }, [init]);
-  useEffect(() => {
     const postLikes = async () => {
       const painting = closestPaintingRef.current;
       if (!painting || loading) return;

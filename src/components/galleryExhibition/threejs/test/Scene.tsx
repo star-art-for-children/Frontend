@@ -22,7 +22,6 @@ export default function Scene2({
   // console.log(init)
   const size = 21;
   const height = size * 0.3;
-
   const innerWalls = useMemo(() => generateGalleryWalls(size), [size]);
   const walls = useMemo(() => createWalls(size, height), [size, height]);
 

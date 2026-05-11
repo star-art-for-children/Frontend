@@ -140,7 +140,9 @@ export default function GalleryExhibitionPage() {
       <div
         className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} `}
       >
-        <Scene2 exhibitionId={id} ready={setIsReady} init={galleryInit} />
+        {isInitReady && (
+          <Scene2 exhibitionId={id} ready={setIsReady} init={galleryInit} />
+        )}
       </div>
     </div>
   );
