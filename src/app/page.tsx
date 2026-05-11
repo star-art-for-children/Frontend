@@ -22,11 +22,15 @@ export default async function Home({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, institution')
-    .eq('id', user?.id)
-    .single();
+  let profile: { role: string; institution: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('role, institution')
+      .eq('id', user.id)
+      .single();
+    profile = data;
+  }
 
   const isTeacher = profile?.role === 'teacher';
   const sort = (
@@ -87,6 +91,7 @@ export default async function Home({
           exhibitions={exhibitions}
           sort={sort}
           isTeacher={isTeacher}
+          isLoggedIn={!!user}
         />
         <ListPagination
           currentPage={pagination.page}

@@ -8,11 +8,13 @@ interface ExhibitionListProps {
   exhibitions: ExhibitionListItem[];
   sort: ExhibitionSort;
   isTeacher?: boolean;
+  isLoggedIn?: boolean;
 }
 
 export default function ExhibitionList({
   exhibitions,
   sort,
+  isLoggedIn,
   isTeacher = false,
 }: ExhibitionListProps) {
   return (
@@ -48,7 +50,7 @@ export default function ExhibitionList({
             <ExhibitionCard
               key={exhibition.id}
               exhibition={exhibition}
-              isLoggedIn={false}
+              isLoggedIn={isLoggedIn}
             />
           ))}
         </div>

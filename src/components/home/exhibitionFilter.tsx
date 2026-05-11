@@ -33,6 +33,7 @@ export default function ExhibitionFilter({
   const handleSortChange = (newSort: ExhibitionSort) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('sort', newSort);
+    params.delete('page');
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 

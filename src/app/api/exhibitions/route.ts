@@ -109,6 +109,8 @@ export async function GET(req: NextRequest) {
           .order('start_date', { ascending: false });
     }
 
+    // TODO: popular 정렬은 추후 새로운 이슈에서 좋아요 작업할때 수정예정
+    // (현재는 range를 건너뛰고 메모리 정렬 → 1000건 상한 및 페이지네이션 미동작)
     if (sort !== 'popular') {
       query = query.range(from, to);
     }
