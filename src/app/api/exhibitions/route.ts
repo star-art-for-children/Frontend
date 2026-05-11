@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import {
   checkRole,
   parseFormDataToObj,
+  uploadImgToSupabase,
   validateExhibition,
 } from '@/components/galleryExhibition/threejs/test/util/util';
 
@@ -17,8 +18,6 @@ export async function POST(req: NextRequest) {
         { status: roleCheck.status }
       );
     }
-
-    let data, error;
 
     let thumbnailUrl: null | string = null;
 
@@ -40,25 +39,13 @@ export async function POST(req: NextRequest) {
     } = result.data;
 
     if (thumbnailImg instanceof File) {
-      const randomId = crypto.randomUUID();
-      const ext = thumbnailImg.name.split('.').pop();
-      const url = `${randomId}.${ext}`;
-      ({ error } = await supabase.storage
-        .from('thumbnails')
-        .upload(`${url}`, thumbnailImg));
-
-      if (error) {
-        console.log(error);
-        return NextResponse.json(
-          { message: 'img convert Error' },
-          { status: 500 }
-        );
-      }
-
-      ({ data } = supabase.storage.from('thumbnails').getPublicUrl(`${url}`));
-      thumbnailUrl = data.publicUrl;
+      thumbnailUrl = await uploadImgToSupabase(
+        supabase,
+        thumbnailImg,
+        'thumbnails'
+      );
     }
-    ({ data, error } = await supabase
+    const { data, error } = await supabase
       .from('exhibitions')
       .insert({
         teacher_id: roleCheck.user.id,
@@ -69,7 +56,7 @@ export async function POST(req: NextRequest) {
         start_date,
         end_date,
       })
-      .select('id'));
+      .select('id');
 
     if (error) {
       console.log(error);

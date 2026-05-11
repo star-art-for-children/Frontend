@@ -345,3 +345,23 @@ export async function checkRole(
 
   return { ok: true, user };
 }
+
+export async function uploadImgToSupabase(
+  supabase: SupabaseClient,
+  file: File,
+  bucket: string
+) {
+  const randomId = crypto.randomUUID();
+  const ext = file.name.split('.').pop();
+  const filePath = `${randomId}.${ext}`;
+
+  const { error } = await supabase.storage.from(bucket).upload(filePath, file);
+
+  if (error) {
+    throw new Error('Image upload failed');
+  }
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+
+  return data.publicUrl;
+}

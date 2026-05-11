@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
+import {
+  checkRole,
+  uploadImgToSupabase,
+} from '@/components/galleryExhibition/threejs/test/util/util';
 
 export async function PUT(
   req: NextRequest,
@@ -18,14 +21,12 @@ export async function PUT(
       );
     }
 
-    let data, error;
-
-    ({ error } = await supabase
+    const { error: artworksError } = await supabase
       .from('artworks')
       .select('id')
       .eq('id', artworkId)
-      .single());
-    if (error) {
+      .single();
+    if (artworksError) {
       return NextResponse.json(
         { message: 'invalid artWorkId' },
         { status: 404 }
@@ -42,26 +43,10 @@ export async function PUT(
 
     let imageUrl = imageUrlRaw;
     if (imageUrlRaw instanceof File) {
-      const randomId = crypto.randomUUID();
-      const ext = imageUrlRaw.name.split('.').pop();
-      const url = `${randomId}.${ext}`;
-      ({ error } = await supabase.storage
-        .from('artworks')
-        .upload(`${url}`, imageUrlRaw));
-
-      if (error) {
-        console.log(error);
-        return NextResponse.json(
-          { message: 'img convert Error' },
-          { status: 500 }
-        );
-      }
-
-      ({ data } = supabase.storage.from('artworks').getPublicUrl(`${url}`));
-      imageUrl = data.publicUrl;
+      imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
     }
 
-    ({ data, error } = await supabase
+    const { data, error } = await supabase
       .from('artworks')
       .update({
         artist_id,
@@ -71,7 +56,7 @@ export async function PUT(
         image_url: imageUrl,
       })
       .eq('id', artworkId)
-      .select('id'));
+      .select('id');
 
     if (error) {
       console.log(error);
@@ -106,23 +91,23 @@ export async function DELETE(
         { status: roleCheck.status }
       );
     }
-    let data, error;
-    ({ data, error } = await supabase
+
+    const { error: artwrokError } = await supabase
       .from('artworks')
       .select('id')
       .eq('id', artworkId)
-      .single());
-    if (error) {
+      .single();
+    if (artwrokError) {
       return NextResponse.json(
         { message: 'invalid artWorkId' },
         { status: 404 }
       );
     }
-    ({ data, error } = await supabase
+    const { data, error } = await supabase
       .from('artworks')
       .delete()
       .eq('id', artworkId)
-      .select('id'));
+      .select('id');
 
     if (error) {
       console.log(error);

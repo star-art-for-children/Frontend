@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
+import {
+  checkRole,
+  uploadImgToSupabase,
+} from '@/components/galleryExhibition/threejs/test/util/util';
 
 export async function POST(
   req: NextRequest,
@@ -46,23 +49,7 @@ export async function POST(
 
     let imageUrl;
     if (imageUrlRaw instanceof File) {
-      const randomId = crypto.randomUUID();
-      const ext = imageUrlRaw.name.split('.').pop();
-      const url = `${randomId}.${ext}`;
-      ({ error } = await supabase.storage
-        .from('artworks')
-        .upload(`${url}`, imageUrlRaw));
-
-      if (error) {
-        console.log(error);
-        return NextResponse.json(
-          { message: 'img convert Error' },
-          { status: 500 }
-        );
-      }
-
-      ({ data } = supabase.storage.from('artworks').getPublicUrl(`${url}`));
-      imageUrl = data.publicUrl;
+      imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
     }
 
     ({ data, error } = await supabase
