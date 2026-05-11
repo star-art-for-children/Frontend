@@ -213,9 +213,7 @@ const FormField = () => {
       });
 
       if (signInError) {
-        setErrorMessage(
-          `가입은 완료됐으나 로그인에 실패했습니다. (${getAuthErrorMessage(signInError)}) 로그인 페이지에서 다시 시도해주세요.`
-        );
+        router.replace('/login');
         return;
       }
 
