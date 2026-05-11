@@ -1,18 +1,18 @@
 import React from 'react';
 import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
 import Painting from '@/components/galleryExhibition/threejs/test/Painting';
-import { Texture } from 'three';
+import { Group, Texture } from 'three';
 
 export default function InnerWalls({
   paintingTextures,
   init,
   walls,
-  showPaint,
+  paintingRefs,
 }: {
   paintingTextures: Texture[];
   init: GalleryUIArtworkProps[];
   walls: WAllType[];
-  showPaint: boolean[];
+  paintingRefs: React.RefObject<(Group | null)[]>;
 }) {
   return (
     <>
@@ -27,8 +27,10 @@ export default function InnerWalls({
             </mesh>
 
             <Painting
-              visible={showPaint[i]}
               img={paintingTextures[i]}
+              paintingRef={(el) => {
+                paintingRefs.current[i] = el;
+              }}
               details={init[i]}
               weight={w}
               height={h}

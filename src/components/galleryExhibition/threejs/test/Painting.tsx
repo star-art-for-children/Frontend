@@ -1,30 +1,27 @@
-import { Texture } from 'three';
+import { Group, Texture } from 'three';
 import { GalleryUIArtworkProps } from '../../../../types/gallery';
 import React from 'react';
 import { Html } from '@react-three/drei';
-import {
-  checkImgSize,
-  downloadImgHandler,
-} from '@/components/galleryExhibition/threejs/test/util/util';
-import { Bookmark, Download, Heart } from 'lucide-react';
+import { checkImgSize } from '@/components/galleryExhibition/threejs/test/util/util';
+import { Download, Heart } from 'lucide-react';
 export default function Painting({
-  visible,
   img,
   details,
   weight: w,
   height: h,
+  paintingRef,
 }: {
-  visible: boolean;
   img: Texture;
   details: GalleryUIArtworkProps;
   weight: number;
   height: number;
+  paintingRef?: (mesh: Group | null) => void;
 }) {
   const [imgW, imgH] = checkImgSize(img, w, h, 0.4);
 
   if (!details) return null;
   return (
-    <group visible={visible} position={[0, 0, 0.3]}>
+    <group ref={paintingRef} position={[0, 0, 0.3]}>
       <mesh receiveShadow position={[0, 0, 0.03]}>
         <planeGeometry args={[imgW * 0.95, imgH * 0.9]} />
         <meshBasicMaterial map={img} />
@@ -40,8 +37,6 @@ export default function Painting({
         center
         occlude
         style={{
-          opacity: visible ? 1 : 0,
-          pointerEvents: visible ? 'auto' : 'none',
           transition: 'opacity 0.4s ease, transform 0.4s ease',
           willChange: 'opacity, transform',
         }}
@@ -54,31 +49,10 @@ export default function Painting({
           </p>
           <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
             <div className={'flex gap-1'}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('ewnjs');
-                }}
-              >
-                <Heart fill={'#e68181'} />
-              </button>
+              <Heart fill={'#e68181'} />
               <p>11</p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('ewnjs');
-              }}
-            >
-              <Bookmark />
-            </button>
-            <button
-              onClick={(e) => {
-                downloadImgHandler(e, details.image_url, details.title);
-              }}
-            >
-              <Download />
-            </button>
+            <Download />
           </div>
         </div>
       </Html>
