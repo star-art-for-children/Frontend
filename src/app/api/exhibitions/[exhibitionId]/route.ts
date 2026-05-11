@@ -1,15 +1,15 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { ExhibitionRow } from '@/types/exhibitionList';
+import { createClient } from '@/lib/supabase/server';
 import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
+import { ExhibitionRow } from '@/types/exhibitionList';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: exhibitionId } = await params;
+    const { exhibitionId } = await params;
 
     const { data: rawData, error } = await supabase
       .from('exhibitions')
@@ -58,11 +58,11 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id } = await params;
+    const { exhibitionId } = await params;
 
     const roleCheck = await checkRole(supabase);
     if (!roleCheck.ok) {
@@ -76,7 +76,7 @@ export async function PATCH(
     const { error } = await supabase
       .from('exhibitions')
       .update(body)
-      .eq('id', id);
+      .eq('id', exhibitionId);
 
     if (error) {
       console.error(error);
@@ -87,7 +87,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(
-      { message: 'success', updatedId: id },
+      { message: 'success', updatedId: exhibitionId },
       { status: 200 }
     );
   } catch (error) {

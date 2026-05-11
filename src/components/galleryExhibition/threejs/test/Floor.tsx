@@ -8,17 +8,19 @@ export default function Floor({ size }: { size: number }) {
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[size, size]} />
         <MeshReflectorMaterial
-          blur={[10, 5]}
+          blur={[800, 200]}
           resolution={1024}
-          mixBlur={0.3}
-          mixStrength={3}
-          roughness={0.4}
-          depthScale={0.5}
+          mixBlur={1.5}
+          mixStrength={0.6}
+          roughness={0.85}
+          depthScale={0.2}
           minDepthThreshold={0.4}
-          maxDepthThreshold={1.2}
-          color="#E6E6E3"
+          maxDepthThreshold={1.4}
+          color="#f7f7f7"
           map={floorTexture}
-          metalness={0.1}
+          metalness={0}
+          transparent
+          opacity={0.8}
         />
       </mesh>
     </>

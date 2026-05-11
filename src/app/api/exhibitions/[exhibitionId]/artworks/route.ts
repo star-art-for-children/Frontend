@@ -7,11 +7,11 @@ import {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: exhibitionId } = await params;
+    const { exhibitionId } = await params;
     // const exhibitionId = '2bf615f0-bb24-448e-9c26-5c90c6c56394';
     const body = await req.formData();
 
@@ -84,11 +84,11 @@ export async function POST(
 }
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: exhibitionId } = await params;
+    const { exhibitionId } = await params;
     const { data, error } = await supabase
       .from('artworks')
       .select('title,artist_name,description,image_url')
