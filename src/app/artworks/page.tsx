@@ -29,7 +29,7 @@ function mapArtwork(raw: RawArtwork): Artwork {
     exhibitionTitle: raw.exhibitions?.title ?? '',
     academyName: raw.exhibitions?.profiles?.institution ?? '',
     imageUrl: raw.image_url ?? '',
-    likesCount: raw.artwork_likes[0]?.count ?? 0,
+    likesCount: (raw.artwork_likes ?? [])[0]?.count ?? 0,
     createdAt: raw.created_at,
   };
 }
