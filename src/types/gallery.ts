@@ -39,7 +39,7 @@ export type Cell = {
 export type GalleryUIArtworkProps = {
   id: string;
   title: string;
-  artist_name: 'string';
+  artist_name: string;
   description: null | string;
   image_url: string;
   likes: number;

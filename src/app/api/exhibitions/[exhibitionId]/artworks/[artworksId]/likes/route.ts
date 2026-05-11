@@ -44,6 +44,10 @@ export async function POST(
     });
     if (error) {
       console.log(error);
+      return Response.json(
+        { message: 'failed to insert like' },
+        { status: 500 }
+      );
     }
 
     return Response.json({ liked: true });
