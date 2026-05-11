@@ -15,13 +15,15 @@ export async function postArtWorksByExhibitionId(
 }
 export async function getArtworksByExhibitionId(id: string) {
   const res = await fetch(`/api/exhibitions/${id}/artworks`);
+
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.message);
   }
   const result = await res.json();
 
-  return result.data;
+  console.log(result);
+  return result.artworks;
 }
 export async function putArtWorkByArtWorkId(
   exhibitionid: string,
@@ -58,4 +60,17 @@ export async function deleteArtworksByArtworkId(
   }
   const { deletedId } = await res.json();
   return deletedId;
+}
+
+export async function likesToggle(exhibitionId: string, closestId: string) {
+  const result = await fetch(
+    `/api/exhibitions/${exhibitionId}/artworks/${closestId}/likes`,
+    { method: 'POST' }
+  );
+
+  if (!result.ok) {
+    throw new Error('request failed');
+  }
+
+  return result.json();
 }

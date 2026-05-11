@@ -84,23 +84,55 @@ export async function POST(
 }
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ exhibitionId: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ exhibitionId: string }>;
+  }
 ) {
   try {
     const supabase = await createClient();
     const { exhibitionId } = await params;
-    const { data, error } = await supabase
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user)
+      return NextResponse.json({ message: 'no session' }, { status: 401 });
+
+    const { data: artworksRaw, error: artworksError } = await supabase
       .from('artworks')
-      .select('title,artist_name,description,image_url')
+      .select('id,title,artist_name,description,image_url')
       .eq('exhibition_id', exhibitionId);
 
-    if (error) {
+    if (artworksError) {
       return NextResponse.json(
         { message: 'cant find artwroks by exhhibitionId' },
         { status: 400 }
       );
     }
-    return NextResponse.json({ message: 'success', data }, { status: 200 });
+    const artworksIds = artworksRaw?.map((x) => x.id) || [];
+
+    const { data: likes, error: likesError } = await supabase
+      .from('artwork_likes')
+      .select('*')
+      .in('artwork_id', artworksIds);
+    if (likesError) {
+      console.log(likesError);
+      return NextResponse.json({ message: 'likes error' }, { status: 400 });
+    }
+    console.log(artworksRaw);
+    console.log(likes);
+    const artworks = artworksRaw.map((x) => {
+      const artworkLikes = likes.filter((xx) => xx.artwork_id === x.id);
+
+      return {
+        ...x,
+        likes: artworkLikes.length,
+        likesByMe: artworkLikes.some((xx) => xx.user_id === user.id),
+      };
+    });
+    console.log(artworks);
+    return NextResponse.json({ message: 'success', artworks }, { status: 200 });
   } catch (e) {
     console.log(e);
     return NextResponse.json({ message: 'unkwon Error' }, { status: 500 });

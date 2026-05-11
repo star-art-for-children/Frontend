@@ -228,13 +228,6 @@ export async function downloadImgHandler(url: string, title: string) {
     console.error('download fail', err);
   }
 }
-export function likesHandler(paintingId: number) {
-  // 얘는 로그인 필요 -> 페인팅 아이디만넘겨주면 서버측에서 paintingId + userId 로 db저장
-}
-
-export function bookmarkHandler(paintingId: number) {
-  // 좋아요가 있는데 필요할까?
-}
 
 ////api
 

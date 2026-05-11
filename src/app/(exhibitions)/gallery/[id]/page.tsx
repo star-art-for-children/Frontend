@@ -24,7 +24,7 @@ export default function GalleryExhibitionPage() {
     const fetchInit = async () => {
       try {
         const result = await getArtworksByExhibitionId(id);
-        console.log(result);
+        console.log('rewrewrwe' + result);
         setGalleryInit(result);
         setIsInitReady(true);
       } catch (error) {
@@ -33,7 +33,7 @@ export default function GalleryExhibitionPage() {
     };
     fetchInit();
     // setTimeout(() => setIsInitReady(true), 500);
-  }, []);
+  }, [id]);
   return (
     <div className={'scr fixed inset-0 z-99'}>
       {!start && (
@@ -140,7 +140,7 @@ export default function GalleryExhibitionPage() {
       <div
         className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} `}
       >
-        <Scene2 ready={setIsReady} init={galleryInit} />
+        <Scene2 exhibitionId={id} ready={setIsReady} init={galleryInit} />
       </div>
     </div>
   );

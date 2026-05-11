@@ -49,8 +49,8 @@ export default function Painting({
           </p>
           <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
             <div className={'flex gap-1'}>
-              <Heart fill={'#e68181'} />
-              <p>11</p>
+              <Heart fill={details?.likesByMe ? '#e68181' : 'none'} />
+              <p>{details?.likes}</p>
             </div>
             <Download />
           </div>

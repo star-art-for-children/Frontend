@@ -11,12 +11,15 @@ import {
 import { GalleryUIArtworkProps } from '@/types/gallery';
 
 export default function Scene2({
+  exhibitionId,
   ready,
   init,
 }: {
+  exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
   init: GalleryUIArtworkProps[];
 }) {
+  // console.log(init)
   const size = 21;
   const height = size * 0.3;
 
@@ -32,6 +35,7 @@ export default function Scene2({
     <>
       <Canvas shadows camera={{ fov: 50 }}>
         <Room
+          exhibitionId={exhibitionId}
           walls={walls}
           innerWalls={innerWalls}
           init={init}

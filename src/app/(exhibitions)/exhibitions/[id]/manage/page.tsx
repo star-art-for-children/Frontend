@@ -18,6 +18,13 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
   const { id: exhibitionId } = await params;
 
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) notFound();
+
   const { data: exhibition, error: exhibtionError } = await supabase
     .from('exhibitions')
     .select('*')
@@ -25,6 +32,8 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
     .single();
 
   if (!exhibition || exhibtionError) notFound();
+  if (user.id !== exhibition.teacher_id) notFound();
+
   const { data: artworks, error: artworksError } = await supabase
     .from('artworks')
     .select('*')
@@ -55,7 +64,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                 {exhibition?.title}
               </h1>
               <p className="text-secondary/60 mt-0.5 text-sm">
-                tt · 작품 {exhibition?.length}점
+                tt · 작품 {artworks?.length}점
               </p>
             </div>
           </div>

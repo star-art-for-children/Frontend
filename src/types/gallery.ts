@@ -23,13 +23,7 @@ export type WAllType = {
   rot?: [number, number, number];
   direction?: string;
 };
-export type PaintingType = {
-  id: number;
-  paintingUrl: string;
-  title: string;
-  author: string;
-  desc: string;
-};
+
 export type Cell = {
   x: number;
   z: number;
@@ -43,8 +37,11 @@ export type Cell = {
 };
 
 export type GalleryUIArtworkProps = {
+  id: string;
   title: string;
   artist_name: 'string';
   description: null | string;
   image_url: string;
+  likes: number;
+  likesByMe: boolean;
 };
