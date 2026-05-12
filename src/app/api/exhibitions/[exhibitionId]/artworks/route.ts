@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
+  checkExhibitionOwner,
   checkRole,
   uploadImgToSupabase,
 } from '@/components/galleryExhibition/threejs/test/util/util';
@@ -22,19 +23,16 @@ export async function POST(
       );
     }
 
-    let data, error;
-    // 전시회 아이디로 전시회 있는지부터 조회
-    ({ data, error } = await supabase
-      .from('exhibitions')
-      .select('id')
-      .eq('id', exhibitionId)
-      .single());
-
-    if (error || !data) {
-      console.log(error);
+    const exhibitionOwnerCheck = await checkExhibitionOwner(
+      supabase,
+      exhibitionId,
+      roleCheck.user.id,
+      'exhibition'
+    );
+    if (!exhibitionOwnerCheck.ok) {
       return NextResponse.json(
-        { message: 'exhibition not found' },
-        { status: 404 }
+        { message: exhibitionOwnerCheck.message },
+        { status: exhibitionOwnerCheck.status }
       );
     }
 
@@ -64,7 +62,7 @@ export async function POST(
       imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
     }
 
-    ({ data, error } = await supabase
+    const { data, error } = await supabase
       .from('artworks')
       .insert({
         title,
@@ -74,7 +72,7 @@ export async function POST(
         exhibition_id: exhibitionId,
         image_url: imageUrl,
       })
-      .select('id'));
+      .select('id');
     console.log(error);
 
     if (error) {
