@@ -4,7 +4,7 @@ import { useState, type MouseEvent } from 'react';
 import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toggleExhibitionLike } from '@/service/exhibitions';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface LikeButtonProps {
   exhibitionId: string;
@@ -19,6 +19,7 @@ export default function LikeButton({
   initialLiked = false,
   isLoggedIn = false,
 }: LikeButtonProps) {
+  const router = useRouter();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(initialLikes); // 총 좋아요 수
   const [isPending, setIsPending] = useState(false);
@@ -29,7 +30,8 @@ export default function LikeButton({
 
     if (!isLoggedIn) {
       alert('로그인이 필요한 기능입니다.');
-      redirect('/login');
+      router.push('/login');
+      return;
     }
 
     if (isPending) return;
