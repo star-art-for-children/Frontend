@@ -6,8 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
 
 export default async function Home({
   searchParams,
@@ -33,6 +32,9 @@ export default async function Home({
   }
 
   const isTeacher = profile?.role === 'teacher';
+  if (sortParam === 'mine' && !isTeacher) {
+    redirect('/');
+  }
   const sort = (
     sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
   ) as ExhibitionSort;
@@ -79,9 +81,7 @@ export default async function Home({
 
           {/* search form */}
           <div className="mt-8 flex justify-center">
-            <Suspense>
-              <SearchForm />
-            </Suspense>
+            <SearchForm />
           </div>
         </div>
       </section>

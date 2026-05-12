@@ -82,23 +82,27 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
-        .order('start_date', { ascending: true });
+        .order('start_date', { ascending: true })
+        .order('created_at', { ascending: true });
       break;
     case 'popular':
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
-        .order('start_date', { ascending: false });
+        .order('start_date', { ascending: false })
+        .order('created_at', { ascending: false });
       break;
     case 'upcoming':
       query = query
         .gt('start_date', today)
-        .order('start_date', { ascending: true });
+        .order('start_date', { ascending: true })
+        .order('created_at', { ascending: true });
       break;
     case 'ended':
       query = query
         .lt('end_date', today)
-        .order('end_date', { ascending: false });
+        .order('end_date', { ascending: false })
+        .order('created_at', { ascending: false });
       break;
     case 'mine': {
       const {
@@ -112,7 +116,6 @@ export async function fetchExhibitions({
         .order('created_at', { ascending: false });
       break;
     }
-
     case 'latest':
     default:
       query = query

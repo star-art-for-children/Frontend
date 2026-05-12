@@ -1,13 +1,14 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useRef } from 'react';
+import { useRef, useTransition } from 'react';
 
 export default function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,9 @@ export default function SearchForm() {
     }
 
     params.delete('page');
-    router.push(`/?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false });
+    });
   };
 
   return (
@@ -30,10 +33,15 @@ export default function SearchForm() {
       role="search"
       className="mt-6 flex w-full max-w-xl items-center gap-3 rounded-xl bg-white p-5 shadow-[0_2px_12px_rgba(44,40,38,0.06)]"
     >
-      <Search className="text-secondary/40 h-5 w-5 shrink-0" />
+      {isPending ? (
+        <Loader2 className="text-secondary h-5 w-5 shrink-0 animate-spin" />
+      ) : (
+        <Search className="text-secondary/40 h-5 w-5 shrink-0" />
+      )}
       <input
         ref={inputRef}
         defaultValue={searchParams.get('search') ?? ''}
+        disabled={isPending}
         type="search"
         placeholder="전시회 이름, 교육기관 검색..."
         className="text-secondary placeholder:text-secondary/40 w-full bg-transparent text-sm focus:outline-none"
