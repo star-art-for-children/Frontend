@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
+import {
+  checkExhibitionOwner,
+  checkRole,
+} from '@/components/galleryExhibition/threejs/test/util/util';
 import { ExhibitionRow } from '@/types/exhibitionList';
 
 export async function GET(
@@ -71,11 +74,26 @@ export async function PATCH(
         { status: roleCheck.status }
       );
     }
+    const exhibitionOwnerCheck = await checkExhibitionOwner(
+      supabase,
+      exhibitionId,
+      roleCheck.user.id,
+      'exhibition'
+    );
+    if (!exhibitionOwnerCheck.ok) {
+      return NextResponse.json(
+        { message: exhibitionOwnerCheck.message },
+        { status: exhibitionOwnerCheck.status }
+      );
+    }
+
     const body = await req.json();
+    const patch: Record<string, unknown> = {};
+    if ('end_date' in body) patch.end_date = body.end_date;
 
     const { error } = await supabase
       .from('exhibitions')
-      .update(body)
+      .update(patch)
       .eq('id', exhibitionId);
 
     if (error) {

@@ -23,11 +23,14 @@ interface AddWorkDialogProps {
   triggerClassName?: string;
 }
 export type ArtworkFormUi = {
-  artist_id: string | null;
+  artist_email: string | null;
   title: string;
   artist_name: string;
   description: string | null;
   image_url: string | File;
+  profiles: {
+    email: string;
+  };
 };
 
 const fieldClass =
@@ -43,12 +46,13 @@ export default function AddWorkDialog({
   const {
     register,
     control,
-    formState: { isValid, isSubmitting },
+    setError,
+    formState: { isValid, isSubmitting, errors },
     handleSubmit,
   } = useForm<ArtworkFormUi>({
     mode: 'onChange',
     defaultValues: {
-      artist_id: null,
+      artist_email: null,
       title: '',
       artist_name: '',
       description: null,
@@ -57,8 +61,8 @@ export default function AddWorkDialog({
   });
   const submitHandler = async (e: ArtworkFormUi) => {
     const formData = new FormData();
-    if (e.artist_id) {
-      formData.append('artist_id', e.artist_id);
+    if (e.artist_email) {
+      formData.append('artist_email', e.artist_email);
     }
     if (e.description) {
       formData.append('description', e.description);
@@ -74,6 +78,13 @@ export default function AddWorkDialog({
       router.refresh();
     } catch (e) {
       console.log(e);
+      if (e instanceof Error && e.message === 'profile not found') {
+        console.log('dnsjehsndjwndj');
+        setError('artist_email', {
+          type: 'server',
+          message: '가입된 프로필이 없습니다',
+        });
+      }
     }
   };
 
@@ -131,11 +142,16 @@ export default function AddWorkDialog({
 
             <WorkFormBox label="작가 이메일">
               <input
-                {...register('artist_id', { required: false })}
+                {...register('artist_email', { required: false })}
                 type="email"
                 placeholder="스타아트 가입 이메일 (있는 경우)"
                 className={fieldClass}
               />
+              {errors.artist_email && (
+                <p className="text-xs text-red-500">
+                  {errors.artist_email.message}
+                </p>
+              )}
               <p className="text-secondary/50 text-xs">
                 입력 시 해당 계정의 &apos;내 작품 모아보기&apos;에 표시됩니다
               </p>

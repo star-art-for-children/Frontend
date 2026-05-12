@@ -352,3 +352,42 @@ export async function uploadImgToSupabase(
 
   return data.publicUrl;
 }
+
+export async function checkExhibitionOwner(
+  supabase: SupabaseClient,
+  id: string,
+  teacherId: string,
+  type: 'artwork' | 'exhibition'
+) {
+  let exhibitionId = id;
+
+  if (type === 'artwork') {
+    const { data: artwork, error } = await supabase
+      .from('artworks')
+      .select('exhibition_id')
+      .eq('id', id)
+      .single();
+
+    if (error || !artwork) {
+      return { ok: false, status: 404, message: 'invalid artWorkId' };
+    }
+
+    exhibitionId = artwork.exhibition_id;
+  }
+
+  const { data: exhibition, error: exhibitionError } = await supabase
+    .from('exhibitions')
+    .select('teacher_id')
+    .eq('id', exhibitionId)
+    .single();
+
+  if (exhibitionError || !exhibition) {
+    return { ok: false, status: 404, message: 'invalid exhibition' };
+  }
+
+  if (teacherId !== exhibition.teacher_id) {
+    return { ok: false, status: 403, message: 'permission denied' };
+  }
+
+  return { ok: true };
+}

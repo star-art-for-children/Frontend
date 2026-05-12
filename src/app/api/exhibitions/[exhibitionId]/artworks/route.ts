@@ -13,7 +13,6 @@ export async function POST(
     const supabase = await createClient();
     const { exhibitionId } = await params;
     // const exhibitionId = '2bf615f0-bb24-448e-9c26-5c90c6c56394';
-    const body = await req.formData();
 
     const roleCheck = await checkRole(supabase);
     if (!roleCheck.ok) {
@@ -40,8 +39,21 @@ export async function POST(
     }
 
     //작품 삽입
+    const body = await req.formData();
+    const email = body.get('artist_email');
+    const { data: artistProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+    if (profileError || !artistProfile) {
+      return NextResponse.json(
+        { message: 'profile not found' },
+        { status: 403 }
+      );
+    }
 
-    const artist_id = body.get('artist_id');
+    const artist_id = artistProfile.id;
     const title = body.get('title');
     const artist_name = body.get('artist_name');
     const description = body.get('description');
@@ -117,11 +129,8 @@ export async function GET(
       .select('*')
       .in('artwork_id', artworksIds);
     if (likesError) {
-      console.log(likesError);
       return NextResponse.json({ message: 'likes error' }, { status: 400 });
     }
-    console.log(artworksRaw);
-    console.log(likes);
     const artworks = artworksRaw.map((x) => {
       const artworkLikes = likes.filter((xx) => xx.artwork_id === x.id);
 
@@ -131,7 +140,6 @@ export async function GET(
         likesByMe: artworkLikes.some((xx) => xx.user_id === user.id),
       };
     });
-    console.log(artworks);
     return NextResponse.json({ message: 'success', artworks }, { status: 200 });
   } catch (e) {
     console.log(e);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
+  checkExhibitionOwner,
   checkRole,
   uploadImgToSupabase,
 } from '@/components/galleryExhibition/threejs/test/util/util';
@@ -21,21 +22,35 @@ export async function PUT(
       );
     }
 
-    const { error: artworksError } = await supabase
-      .from('artworks')
-      .select('id')
-      .eq('id', artworkId)
-      .single();
-    if (artworksError) {
+    const exhibitionOwnerCheck = await checkExhibitionOwner(
+      supabase,
+      artworkId,
+      roleCheck.user.id,
+      'artwork'
+    );
+    if (!exhibitionOwnerCheck.ok) {
       return NextResponse.json(
-        { message: 'invalid artWorkId' },
-        { status: 404 }
+        { message: exhibitionOwnerCheck.message },
+        { status: exhibitionOwnerCheck.status }
       );
     }
-    // console.log(data)
 
     const body = await req.formData();
-    const artist_id = body.get('artist_id');
+    const email = body.get('artist_email');
+    console.log(email);
+    const { data: artistProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+    if (profileError || !artistProfile) {
+      return NextResponse.json(
+        { message: 'profile not found' },
+        { status: 403 }
+      );
+    }
+
+    const artist_id = artistProfile.id;
     const title = body.get('title');
     const artist_name = body.get('artist_name');
     const description = body.get('description');
@@ -91,18 +106,19 @@ export async function DELETE(
         { status: roleCheck.status }
       );
     }
-
-    const { error: artwrokError } = await supabase
-      .from('artworks')
-      .select('id')
-      .eq('id', artworkId)
-      .single();
-    if (artwrokError) {
+    const exhibitionOwnerCheck = await checkExhibitionOwner(
+      supabase,
+      artworkId,
+      roleCheck.user.id,
+      'artwork'
+    );
+    if (!exhibitionOwnerCheck.ok) {
       return NextResponse.json(
-        { message: 'invalid artWorkId' },
-        { status: 404 }
+        { message: exhibitionOwnerCheck.message },
+        { status: exhibitionOwnerCheck.status }
       );
     }
+
     const { data, error } = await supabase
       .from('artworks')
       .delete()

@@ -36,12 +36,17 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
 
   const { data: artworks, error: artworksError } = await supabase
     .from('artworks')
-    .select('*')
+    .select(
+      `
+    *,
+    profiles:artist_id (
+      email
+    )
+  `
+    )
     .eq('exhibition_id', exhibitionId);
-
   if (artworksError) notFound();
 
-  console.log(exhibition.description);
   // const works = data.works ?? [];
 
   return (

@@ -92,7 +92,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, []);
+  }, [loading, exhibitionId]);
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempCurrentForward.current);
