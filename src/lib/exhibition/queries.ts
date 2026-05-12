@@ -52,13 +52,12 @@ export async function fetchExhibitions({
       end_date,
       teacher_id,
       created_at,
-      profile:profiles!teacher_id ( institution ),
-      likes:exhibition_likes ( count )
+      likes_count,
+      profile:profiles!teacher_id ( institution )
     `,
     { count: 'exact' }
   );
 
-  // 검색
   if (search) {
     const { data: matchedProfiles } = await supabase
       .from('profiles')
@@ -76,7 +75,6 @@ export async function fetchExhibitions({
     }
   }
 
-  // 필터링
   switch (sort) {
     case 'oldest':
       query = query
@@ -89,6 +87,7 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
+        .order('likes_count', { ascending: false })
         .order('start_date', { ascending: false })
         .order('created_at', { ascending: false });
       break;
@@ -121,14 +120,11 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
-        .order('start_date', { ascending: false });
+        .order('start_date', { ascending: false })
+        .order('created_at', { ascending: false });
   }
 
-  // TODO: popular 정렬은 추후 새로운 이슈에서 좋아요 작업할때 수정예정
-  // (현재는 range를 건너뛰고 메모리 정렬 → 1000건 상한 및 페이지네이션 미동작)
-  if (sort !== 'popular') {
-    query = query.range(from, to);
-  }
+  query = query.range(from, to);
 
   const { data, error, count } = await query.returns<ExhibitionRow[]>();
 
@@ -144,14 +140,28 @@ export async function fetchExhibitions({
         },
       };
     }
-
     console.error(error);
     throw new Error('database error');
   }
 
-  let result: ExhibitionListItem[] = (data ?? []).map((row) => {
-    const profile = Array.isArray(row.profile) ? row.profile[0] : row.profile;
+  let likedIds = new Set<string>();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (user && data && data.length > 0) {
+    const exhibitionIds = data.map((row) => row.id);
+    const { data: likedRows } = await supabase
+      .from('exhibition_likes')
+      .select('exhibition_id')
+      .eq('user_id', user.id)
+      .in('exhibition_id', exhibitionIds);
+
+    likedIds = new Set((likedRows ?? []).map((r) => r.exhibition_id));
+  }
+
+  const result: ExhibitionListItem[] = (data ?? []).map((row) => {
+    const profile = Array.isArray(row.profile) ? row.profile[0] : row.profile;
     return {
       id: row.id,
       title: row.title,
@@ -159,14 +169,10 @@ export async function fetchExhibitions({
       image: row.thumbnail_url,
       startDate: row.start_date,
       endDate: row.end_date,
-      likes: row.likes?.[0]?.count ?? 0,
+      likes: row.likes_count,
+      liked: likedIds.has(row.id),
     };
   });
-
-  // 인기순 재정렬
-  if (sort === 'popular') {
-    result = result.sort((a, b) => b.likes - a.likes);
-  }
 
   const totalCount = count || 0;
   const hasNextPage = from + limit < totalCount;

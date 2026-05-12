@@ -15,7 +15,7 @@ export type ExhibitionRow = {
   teacher_id: string;
   created_at: string;
   profile: { institution: string } | { institution: string }[] | null;
-  likes: { count: number }[] | null;
+  likes_count: number;
   status?: ExhibitionSort;
   dataText?: string;
 };
@@ -28,4 +28,5 @@ export type ExhibitionListItem = {
   startDate: string;
   endDate: string | null;
   likes: number;
+  liked: boolean;
 };
