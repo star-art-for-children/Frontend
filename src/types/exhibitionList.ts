@@ -1,14 +1,3 @@
-export interface ExhibitionProps {
-  id: string;
-  title: string;
-  host: string;
-  image?: string;
-  startDate: string;
-  endDate?: string;
-  likes: number;
-  href?: string;
-}
-
 export type ExhibitionSort =
   | 'latest'
   | 'popular'
@@ -27,6 +16,8 @@ export type ExhibitionRow = {
   created_at: string;
   profile: { institution: string } | { institution: string }[] | null;
   likes: { count: number }[] | null;
+  status?: ExhibitionSort;
+  dataText?: string;
 };
 
 export type ExhibitionListItem = {

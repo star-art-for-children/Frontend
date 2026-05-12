@@ -4,6 +4,30 @@ import {
   parseFormDataToObj,
   validateExhibition,
 } from '@/components/galleryExhibition/threejs/test/util/util';
+import {
+  ExhibitionsAuthRequiredError,
+  fetchExhibitions,
+} from '@/lib/exhibition/queries';
+
+export async function GET(req: NextRequest) {
+  try {
+    const search = req.nextUrl.searchParams.get('search') || '';
+    const sort = req.nextUrl.searchParams.get('sort') || 'latest';
+    const rawPage = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+
+    const { data, pagination } = await fetchExhibitions({ page, sort, search });
+
+    return NextResponse.json({ data, pagination }, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    // sort = mine 미로그인시 에러
+    if (err instanceof ExhibitionsAuthRequiredError) {
+      return NextResponse.json({ message: 'no session' }, { status: 401 });
+    }
+    return NextResponse.json({ message: 'unknown error' }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
