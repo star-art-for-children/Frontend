@@ -26,6 +26,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { error } = await supabase.auth.getUser(); // 사용자 정보 불러오며 토큰 갱신 및 쿠키 최신화
+  console.log('middleware: getUser()');
 
   if (error?.code === 'refresh_token_not_found') {
     supabaseResponse.cookies.getAll().forEach(({ name }) => {
