@@ -4,11 +4,11 @@ import { ExhibitionRow } from '@/types/exhibitionList';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: exhibitionId } = await params;
+    const { exhibitionId } = await params;
 
     const { data: rawData, error } = await supabase
       .from('exhibitions')
