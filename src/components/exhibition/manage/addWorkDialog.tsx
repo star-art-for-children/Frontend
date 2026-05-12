@@ -28,9 +28,6 @@ export type ArtworkFormUi = {
   artist_name: string;
   description: string | null;
   image_url: string | File;
-  profiles: {
-    email: string;
-  };
 };
 
 const fieldClass =

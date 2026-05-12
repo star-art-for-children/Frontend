@@ -13,6 +13,14 @@ import { createClient } from '@/lib/supabase/server';
 interface PageProps {
   params: Promise<{ id: string }>;
 }
+export type ArtworkWithEmail = {
+  id: string;
+  title: string;
+  artist_name: string;
+  description: string | null;
+  image_url: string;
+  artist_email: string;
+};
 
 export default async function ExhibitionManagePage({ params }: PageProps) {
   const { id: exhibitionId } = await params;
@@ -34,19 +42,15 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
   if (!exhibition || exhibtionError) notFound();
   if (user.id !== exhibition.teacher_id) notFound();
 
-  const { data: artworks, error: artworksError } = await supabase
-    .from('artworks')
-    .select(
-      `
-    *,
-    profiles:artist_id (
-      email
-    )
-  `
-    )
-    .eq('exhibition_id', exhibitionId);
+  const { data, error: artworksError } = await supabase.rpc(
+    'get_artworks_with_email',
+    {
+      p_exhibition_id: exhibitionId,
+    }
+  );
   if (artworksError) notFound();
 
+  const artworks = data as ArtworkWithEmail[] | [];
   // const works = data.works ?? [];
 
   return (
@@ -155,7 +159,9 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                   <p className="text-secondary text-sm font-semibold">
                     {work.title}
                   </p>
-                  <p className="text-secondary/60 text-xs">{work.artist}</p>
+                  <p className="text-secondary/60 text-xs">
+                    {work.artist_name}
+                  </p>
                   <div className="mt-3 flex gap-2">
                     <EditWorkDialog work={work} />
                     <ManageAlertDialog

@@ -17,22 +17,20 @@ import { useParams, useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import { putArtWorkByArtWorkId } from '@/service/artworks';
 import { ArtworkFormUi } from '@/components/exhibition/manage/addWorkDialog';
+import { ArtworkWithEmail } from '@/app/(exhibitions)/exhibitions/[id]/manage/page';
 
-interface Work {
+export interface Work {
   id: string;
   title: string;
   artist_name: string;
   image_url: string;
-  email?: string;
+  artist_email?: string;
   description?: string;
   artist_id?: string;
-  profiles: {
-    email: string;
-  };
 }
 
 interface EditWorkDialogProps {
-  work: Work;
+  work: ArtworkWithEmail;
 }
 
 const fieldClass =
@@ -51,7 +49,7 @@ export default function EditWorkDialog({ work }: EditWorkDialogProps) {
   } = useForm<ArtworkFormUi>({
     mode: 'onChange',
     defaultValues: {
-      artist_email: work.profiles?.email || null,
+      artist_email: work?.artist_email || null,
       title: work.title,
       artist_name: work.artist_name,
       description: work.description,

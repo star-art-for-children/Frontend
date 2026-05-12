@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import {
   checkExhibitionOwner,
   checkRole,
+  getUserIdByEmail,
   uploadImgToSupabase,
 } from '@/components/galleryExhibition/threejs/test/util/util';
 
@@ -37,20 +38,19 @@ export async function PUT(
 
     const body = await req.formData();
     const email = body.get('artist_email');
-    console.log(email);
-    const { data: artistProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
-    if (profileError || !artistProfile) {
-      return NextResponse.json(
-        { message: 'profile not found' },
-        { status: 403 }
-      );
+    let artist_id;
+    if (email && typeof email === 'string') {
+      const profile = await getUserIdByEmail(supabase, email);
+
+      if (!profile.ok) {
+        return NextResponse.json(
+          { message: profile.message },
+          { status: profile.status }
+        );
+      }
+      artist_id = profile.userId;
     }
 
-    const artist_id = artistProfile.id;
     const title = body.get('title');
     const artist_name = body.get('artist_name');
     const description = body.get('description');
