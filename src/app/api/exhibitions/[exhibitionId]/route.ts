@@ -1,14 +1,23 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { ExhibitionRow } from '@/types/exhibitionList';
+
+type ExhibitionDetailRow = {
+  id: string;
+  title: string;
+  thumbnail_url: string | null;
+  start_date: string;
+  end_date: string | null;
+  profile: { institution: string } | { institution: string }[] | null;
+  likes: { count: number }[] | null;
+};
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ exhibitionId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: exhibitionId } = await params;
+    const { exhibitionId } = await params;
 
     const { data: rawData, error } = await supabase
       .from('exhibitions')
@@ -34,7 +43,7 @@ export async function GET(
       return NextResponse.json({ message: 'database error' }, { status: 500 });
     }
 
-    const data = rawData as Omit<ExhibitionRow, 'created_at'>;
+    const data = rawData as unknown as ExhibitionDetailRow;
     const profile = Array.isArray(data.profile)
       ? data.profile[0]
       : data.profile;
