@@ -15,7 +15,8 @@ export default function ExhibitionCard({
   exhibition,
   isLoggedIn,
 }: ExhibitionCardProps) {
-  const { id, title, host, image, startDate, endDate, likes } = exhibition;
+  const { id, title, host, image, startDate, endDate, likes, liked } =
+    exhibition;
 
   const status = getStatus(startDate, endDate ?? undefined);
   const dateText = formatDate(startDate, endDate ?? undefined);
@@ -81,7 +82,12 @@ export default function ExhibitionCard({
             <Calendar className="h-3.5 w-3.5" />
             {dateText}
           </span>
-          <LikeButton initialLikes={likes} isLoggedIn={isLoggedIn} />
+          <LikeButton
+            initialLikes={likes}
+            initialLiked={liked}
+            exhibitionId={exhibition.id}
+            isLoggedIn={isLoggedIn}
+          />
         </div>
       </div>
     </Link>

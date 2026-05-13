@@ -3,50 +3,70 @@
 import { useState, type MouseEvent } from 'react';
 import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toggleExhibitionLike } from '@/service/exhibitions';
+import { useRouter } from 'next/navigation';
 
 interface LikeButtonProps {
+  exhibitionId: string;
   initialLikes: number;
   initialLiked?: boolean;
   isLoggedIn?: boolean;
-  /** 추후 API 연결 시 실제 mutation 함수 */
-  onToggle?: (liked: boolean) => void;
 }
 
 export default function LikeButton({
+  exhibitionId,
   initialLikes,
   initialLiked = false,
   isLoggedIn = false,
-  onToggle,
 }: LikeButtonProps) {
+  const router = useRouter();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(initialLikes); // 총 좋아요 수
+  const [isPending, setIsPending] = useState(false);
 
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isLoggedIn) {
-      // TODO: 로그인 모달 또는 로그인 페이지로 이동 / alert로 임시처리
       alert('로그인이 필요한 기능입니다.');
+      router.push('/login');
       return;
     }
 
-    const newLiked = !liked;
-    setLiked(newLiked);
-    setLikes((prev) => prev + (newLiked ? 1 : -1));
-    onToggle?.(newLiked);
+    if (isPending) return;
+
+    // 백업용
+    const previousLiked = liked;
+    const previousLikes = likes;
+    const nextLiked = !previousLiked;
+
+    // 낙관적
+    setLiked(nextLiked);
+    setLikes(previousLikes + (nextLiked ? 1 : -1));
+
+    try {
+      setIsPending(true);
+      await toggleExhibitionLike(exhibitionId, nextLiked);
+    } catch (err) {
+      console.error('Like Error:', err);
+      setLiked(previousLiked);
+      setLikes(previousLikes);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <button
       type="button"
       onClick={handleClick}
+      disabled={isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
       aria-pressed={liked}
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 transition-colors',
-        isLoggedIn && 'group/like cursor-pointer',
-        !isLoggedIn && 'cursor-default opacity-70'
+        isLoggedIn ? 'group/like cursor-pointer' : 'cursor-default opacity-70'
       )}
     >
       <Heart
