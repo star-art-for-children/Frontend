@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  checkExhibitionOwner,
-  checkRole,
-} from '@/components/galleryExhibition/threejs/test/util/util';
+import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 
 type ExhibitionDetailRow = {
   id: string;

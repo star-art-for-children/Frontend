@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps, WAllType } from '../../../types/gallery';
 import { useTexture } from '@react-three/drei';
-import Floor from '@/components/galleryExhibition/threejs/test/Floor';
-import Ceiling from '@/components/galleryExhibition/threejs/test/Ceiling';
-import Walls from '@/components/galleryExhibition/threejs/test/Walls';
-import InnerWalls from '@/components/galleryExhibition/threejs/test/InnerWall';
 import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
-import { downloadImgHandler } from '@/components/galleryExhibition/threejs/test/util/util';
 import { likesToggle } from '@/service/artworks';
+import { downloadImgHandler } from '@/lib/gallery/image';
+import Floor from '@/components/galleryExhibition/threejs/Floor';
+import Walls from '@/components/galleryExhibition/threejs/Walls';
+import InnerWalls from '@/components/galleryExhibition/threejs/InnerWall';
+import Ceiling from '@/components/galleryExhibition/threejs/Ceiling';
 
 export default function Room({
   init,

@@ -1,14 +1,10 @@
 import { Canvas } from '@react-three/fiber';
 import { PointerLockControls, useProgress } from '@react-three/drei';
 import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
-import Room from '@/components/galleryExhibition/threejs/test/Room';
-
-import Player from '@/components/galleryExhibition/threejs/test/Player';
-import {
-  createWalls,
-  generateGalleryWalls,
-} from '@/components/galleryExhibition/threejs/test/util/util';
 import { GalleryUIArtworkProps } from '@/types/gallery';
+import { createWalls, generateGalleryWalls } from '@/lib/gallery/createWalls';
+import Room from '@/components/galleryExhibition/threejs/Room';
+import Player from '@/components/galleryExhibition/threejs/Player';
 
 export default function Scene2({
   exhibitionId,

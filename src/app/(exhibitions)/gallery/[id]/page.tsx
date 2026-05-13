@@ -5,8 +5,8 @@ import { IoIosArrowBack } from 'react-icons/io';
 import { VscMute } from 'react-icons/vsc';
 import { AiOutlineSound } from 'react-icons/ai';
 import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
-import Scene2 from '@/components/galleryExhibition/threejs/test/Scene';
 import { getArtworksByExhibitionId } from '@/service/artworks';
+import Scene2 from '@/components/galleryExhibition/threejs/Scene';
 
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();

@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { checkRole } from '@/components/galleryExhibition/threejs/test/util/util';
+import { checkRole } from '@/lib/gallery/checkRole';
 
 export default async function Layout({
   children,

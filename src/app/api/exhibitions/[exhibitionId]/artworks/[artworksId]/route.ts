@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
+import { getUserIdByEmail } from '@/lib/gallery/user';
 import {
-  checkExhibitionOwner,
-  checkRole,
-  getUserIdByEmail,
   ImageUploadValidationError,
   uploadImgToSupabase,
-} from '@/components/galleryExhibition/threejs/test/util/util';
+} from '@/lib/supabase/uploadImage';
 
 export async function PUT(
   req: NextRequest,

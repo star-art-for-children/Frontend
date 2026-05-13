@@ -1,5 +1,5 @@
 import React from 'react';
-import { WAllType } from '../../../../types/gallery';
+import { WAllType } from '../../../types/gallery';
 
 export default function Walls({ walls }: { walls: WAllType[] }) {
   return (
