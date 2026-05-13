@@ -6,6 +6,10 @@ export function checkImgSize(
   h: number,
   offset: number
 ) {
+  if (!img?.width || !img?.height || img.height === 0) {
+    console.warn('Invalid texture dimensions');
+    return [w * offset, h * offset];
+  }
   const imgAspect = img?.width / img?.height;
 
   const wallAspect = w / h;

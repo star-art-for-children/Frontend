@@ -43,6 +43,9 @@ export function validateExhibition(init: FormValidation) {
       return { error: 'invalid endDate' };
     }
   }
+  if (end_date && end_date.getTime() < start_date.getTime()) {
+    return { error: 'endDate must be after startDate' };
+  }
 
   return {
     data: {
