@@ -27,6 +27,8 @@ export const toggleExhibitionLike = async (
   }
 
   return res.json();
+};
+
 export const endExhibition = async (exhibitionId: string) => {
   const res = await fetch(`/api/exhibitions/${exhibitionId}`, {
     method: 'PATCH',
