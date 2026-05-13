@@ -7,7 +7,7 @@ import {
   EditWorkDialog,
   ManageAlertDialog,
 } from '@/components/exhibition/manage';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
@@ -31,7 +31,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) notFound();
+  if (!user) redirect('/login');
 
   const { data: exhibition, error: exhibtionError } = await supabase
     .from('exhibitions')
