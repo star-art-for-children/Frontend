@@ -1,8 +1,8 @@
 import ExhibitionList from '@/components/home/exhibitionList';
 import ListPagination from '@/components/home/listPagination';
 import SearchForm from '@/components/home/searchForm';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { fetchExhibitions } from '@/lib/exhibition/queries';
-import { createClient } from '@/lib/supabase/server';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
@@ -16,22 +16,10 @@ export default async function Home({
   const { sort: sortParam, search, page: pageParams } = await searchParams;
   const page = Math.max(1, parseInt(pageParams ?? '1', 10));
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let profile: { role: string; institution: string | null } | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('role, institution')
-      .eq('id', user.id)
-      .single();
-    profile = data;
-  }
-
+  // 캐싱된 유저 데이터 조회(없다면 새로 요청)
+  const { profile, user } = await getAuthContext();
   const isTeacher = profile?.role === 'teacher';
+
   if (sortParam === 'mine' && !isTeacher) {
     redirect('/');
   }
@@ -43,6 +31,7 @@ export default async function Home({
     sort,
     search,
     page,
+    userId: user?.id,
   });
 
   if (page > 1 && exhibitions.length === 0) return notFound();
