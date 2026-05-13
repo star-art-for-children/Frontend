@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
+  checkRole,
+  ImageUploadValidationError,
   parseFormDataToObj,
+  uploadImgToSupabase,
   validateExhibition,
 } from '@/components/galleryExhibition/threejs/test/util/util';
 import {
@@ -33,31 +36,13 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ message: 'no session' }, { status: 401 });
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError || !profile) {
+    const roleCheck = await checkRole(supabase);
+    if (!roleCheck.ok) {
       return NextResponse.json(
-        { message: 'profile not found' },
-        { status: 403 }
+        { message: roleCheck.message },
+        { status: roleCheck.status }
       );
     }
-
-    if (profile.role !== 'teacher') {
-      return NextResponse.json({ message: 'not allowed' }, { status: 403 });
-    }
-
-    let data, error;
 
     let thumbnailUrl: null | string = null;
 
@@ -79,28 +64,16 @@ export async function POST(req: NextRequest) {
     } = result.data;
 
     if (thumbnailImg instanceof File) {
-      const randomId = crypto.randomUUID();
-      const ext = thumbnailImg.name.split('.').pop();
-      const url = `${randomId}.${ext}`;
-      ({ error } = await supabase.storage
-        .from('thumbnails')
-        .upload(`${url}`, thumbnailImg));
-
-      if (error) {
-        console.log(error);
-        return NextResponse.json(
-          { message: 'img convert Error' },
-          { status: 500 }
-        );
-      }
-
-      ({ data } = supabase.storage.from('thumbnails').getPublicUrl(`${url}`));
-      thumbnailUrl = data.publicUrl;
+      thumbnailUrl = await uploadImgToSupabase(
+        supabase,
+        thumbnailImg,
+        'thumbnails'
+      );
     }
-    ({ data, error } = await supabase
+    const { data, error } = await supabase
       .from('exhibitions')
       .insert({
-        teacher_id: user.id,
+        teacher_id: roleCheck.user.id,
         title,
         description,
         guidelines,
@@ -108,7 +81,7 @@ export async function POST(req: NextRequest) {
         start_date,
         end_date,
       })
-      .select('id'));
+      .select('id');
 
     if (error) {
       console.log(error);
@@ -123,6 +96,11 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (e) {
+    // 이미지 검증 오류일 경우 400 에러 반환
+    if (e instanceof ImageUploadValidationError) {
+      return NextResponse.json({ message: e.message }, { status: 400 });
+    }
+
     console.log(e);
     return NextResponse.json({ message: 'unkwon Error' }, { status: 500 });
   }

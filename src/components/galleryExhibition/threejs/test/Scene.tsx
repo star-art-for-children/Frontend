@@ -8,16 +8,20 @@ import {
   createWalls,
   generateGalleryWalls,
 } from '@/components/galleryExhibition/threejs/test/util/util';
-import { INIT } from '../../../../../data/galleryData';
+import { GalleryUIArtworkProps } from '@/types/gallery';
 
 export default function Scene2({
+  exhibitionId,
   ready,
+  init,
 }: {
+  exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
+  init: GalleryUIArtworkProps[];
 }) {
+  // console.log(init)
   const size = 21;
   const height = size * 0.3;
-
   const innerWalls = useMemo(() => generateGalleryWalls(size), [size]);
   const walls = useMemo(() => createWalls(size, height), [size, height]);
 
@@ -30,9 +34,10 @@ export default function Scene2({
     <>
       <Canvas shadows camera={{ fov: 50 }}>
         <Room
+          exhibitionId={exhibitionId}
           walls={walls}
           innerWalls={innerWalls}
-          init={INIT}
+          init={init}
           size={size}
           height={height}
         />
