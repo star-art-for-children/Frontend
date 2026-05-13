@@ -127,10 +127,10 @@ export default function Room({
       // const paintingVisible = fovDot > 0.7;
       // mesh.visible = paintingVisible;
 
-      const closestPaintingVisible = fovDot > 0.7 && distance < 7;
+      const closestPaintingVisible = fovDot > 0.5 && distance < 5;
 
       if (closestPaintingVisible) {
-        const score = fovDot * 100 - distance;
+        const score = fovDot * 20 - distance * 10;
 
         if (score > bestScore) {
           bestScore = score;
