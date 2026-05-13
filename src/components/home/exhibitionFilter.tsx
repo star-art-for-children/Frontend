@@ -2,6 +2,9 @@
 
 import { cn } from '@/lib/utils';
 import { ExhibitionSort } from '@/types/exhibitionList';
+import { Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { TransitionStartFunction, useOptimistic } from 'react';
 
 const BASE_FILTERS: { value: ExhibitionSort; label: string }[] = [
   { value: 'latest', label: '최신순' },
@@ -18,34 +21,53 @@ const TEACHER_FILTER: { value: ExhibitionSort; label: string } = {
 
 interface ExhibitionFilterProps {
   value: ExhibitionSort;
-  onChange: (value: ExhibitionSort) => void;
   isTeacher?: boolean;
+  isPending: boolean;
+  startTransition: TransitionStartFunction;
 }
 
 export default function ExhibitionFilter({
   value,
-  onChange,
   isTeacher = false,
+  isPending,
+  startTransition,
 }: ExhibitionFilterProps) {
   const filters = isTeacher ? [...BASE_FILTERS, TEACHER_FILTER] : BASE_FILTERS;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [optimisticSort, setOptimisticSort] = useOptimistic(value);
+
+  const handleSortChange = (newSort: ExhibitionSort) => {
+    if (newSort === value) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', newSort);
+    params.delete('page');
+    startTransition(() => {
+      setOptimisticSort(newSort);
+      router.push(`/?${params.toString()}`, { scroll: false });
+    });
+  };
 
   return (
     <div className="flex flex-wrap gap-2">
       {filters.map((filter) => {
-        const active = filter.value === value;
+        const active = filter.value === optimisticSort;
         return (
           <button
             key={filter.value}
             type="button"
-            onClick={() => onChange(filter.value)}
+            onClick={() => handleSortChange(filter.value)}
             className={cn(
-              'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+              'inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors',
               active
                 ? 'bg-primary text-primary-foreground'
                 : 'text-secondary/60 hover:bg-primary/10 hover:text-secondary bg-white'
             )}
           >
             {filter.label}
+            {isPending && active && (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            )}
           </button>
         );
       })}

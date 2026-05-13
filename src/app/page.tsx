@@ -1,46 +1,52 @@
 import ExhibitionList from '@/components/home/exhibitionList';
-import { ExhibitionProps } from '@/types/exhibitionList';
-import { Search, Sparkles } from 'lucide-react';
+import ListPagination from '@/components/home/listPagination';
+import SearchForm from '@/components/home/searchForm';
+import { fetchExhibitions } from '@/lib/exhibition/queries';
+import { createClient } from '@/lib/supabase/server';
+import { ExhibitionSort } from '@/types/exhibitionList';
+import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
+import { notFound, redirect } from 'next/navigation';
 
-const exhibitions: ExhibitionProps[] = [
-  {
-    id: '1',
-    title: '여름 날씨전',
-    host: '해피아트 미술학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2026-05-28',
-    likes: 0,
-  },
-  {
-    id: '2',
-    title: '사계절 이야기',
-    host: '해피아트 미술학원',
-    startDate: '2026-04-01',
-    endDate: '2026-05-31',
-    likes: 45,
-  },
-  {
-    id: '3',
-    title: '봄의 소리전',
-    host: '해피아트 미술학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2026-03-01',
-    endDate: '2026-05-31',
-    likes: 128,
-  },
-  {
-    id: '4',
-    title: '겨울 풍경전',
-    host: '꿈나무 창작학원',
-    image: '/images/sample_thumb.png',
-    startDate: '2025-12-01',
-    endDate: '2026-02-28',
-    likes: 312,
-  },
-];
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; search?: string; page?: string }>;
+}) {
+  const { sort: sortParam, search, page: pageParams } = await searchParams;
+  const page = Math.max(1, parseInt(pageParams ?? '1', 10));
 
-export default function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let profile: { role: string; institution: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('role, institution')
+      .eq('id', user.id)
+      .single();
+    profile = data;
+  }
+
+  const isTeacher = profile?.role === 'teacher';
+  if (sortParam === 'mine' && !isTeacher) {
+    redirect('/');
+  }
+  const sort = (
+    sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
+  ) as ExhibitionSort;
+
+  const { data: exhibitions, pagination } = await fetchExhibitions({
+    sort,
+    search,
+    page,
+  });
+
+  if (page > 1 && exhibitions.length === 0) return notFound();
+
   return (
     <main className="bg-[#FAF7F2]">
       {/* hero section */}
@@ -75,17 +81,7 @@ export default function Home() {
 
           {/* search form */}
           <div className="mt-8 flex justify-center">
-            <form
-              role="search"
-              className="mt-6 flex w-full max-w-xl items-center gap-3 rounded-xl bg-white p-5 shadow-[0_2px_12px_rgba(44,40,38,0.06)]"
-            >
-              <Search className="text-secondary/40 h-5 w-5 shrink-0" />
-              <input
-                type="search"
-                placeholder="전시회 이름, 교육기관 검색..."
-                className="text-secondary placeholder:text-secondary/40 w-full bg-transparent text-sm focus:outline-none"
-              />
-            </form>
+            <SearchForm />
           </div>
         </div>
       </section>
@@ -93,9 +89,15 @@ export default function Home() {
       <div className="mx-auto max-w-6xl px-3.5 pb-20">
         <ExhibitionList
           exhibitions={exhibitions}
-          isLoggedIn={true}
-          isTeacher
-          currentHost="해피아트 미술학원"
+          sort={sort}
+          isTeacher={isTeacher}
+          isLoggedIn={!!user}
+        />
+        <ListPagination
+          currentPage={pagination.page}
+          totalCount={pagination.totalCount}
+          sort={sort}
+          search={search}
         />
       </div>
     </main>

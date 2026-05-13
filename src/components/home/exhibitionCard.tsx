@@ -3,41 +3,29 @@ import Link from 'next/link';
 import { Calendar, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDate, getStatus } from '@/lib/exhibition/dateStatus';
-import { ExhibitionProps } from '@/types/exhibitionList';
+import { ExhibitionListItem } from '@/types/exhibitionList';
 import LikeButton from './likeButton';
 
 interface ExhibitionCardProps {
-  exhibition: ExhibitionProps;
-  selected?: boolean;
+  exhibition: ExhibitionListItem;
   isLoggedIn?: boolean;
 }
 
 export default function ExhibitionCard({
   exhibition,
-  selected,
   isLoggedIn,
 }: ExhibitionCardProps) {
-  const {
-    id,
-    title,
-    host,
-    image,
-    startDate,
-    endDate,
-    likes,
-    href = `/exhibitions/${id}`,
-  } = exhibition;
+  const { id, title, host, image, startDate, endDate, likes } = exhibition;
 
-  const status = getStatus(startDate, endDate);
-  const dateText = formatDate(startDate, endDate);
+  const status = getStatus(startDate, endDate ?? undefined);
+  const dateText = formatDate(startDate, endDate ?? undefined);
 
   return (
     <Link
-      href={href}
+      href={`/exhibitions/${id}`}
       className={cn(
         'group block overflow-hidden rounded-2xl bg-white transition-all',
-        'shadow-[0_2px_8px_rgba(44,40,38,0.06)] hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]',
-        selected && 'ring-primary ring-2'
+        'shadow-[0_2px_8px_rgba(44,40,38,0.06)] hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]'
       )}
     >
       <div className="relative aspect-4/3 overflow-hidden bg-[#F5EFE0]">
