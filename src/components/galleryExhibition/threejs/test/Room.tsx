@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { PaintingType, WAllType } from '../../../../types/gallery';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
 import { useTexture } from '@react-three/drei';
 import Floor from '@/components/galleryExhibition/threejs/test/Floor';
 import Ceiling from '@/components/galleryExhibition/threejs/test/Ceiling';
@@ -8,6 +8,7 @@ import InnerWalls from '@/components/galleryExhibition/threejs/test/InnerWall';
 import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
 import { downloadImgHandler } from '@/components/galleryExhibition/threejs/test/util/util';
+import { likesToggle } from '@/service/artworks';
 
 export default function Room({
   init,
@@ -15,14 +16,18 @@ export default function Room({
   height,
   walls,
   innerWalls,
+  exhibitionId,
 }: {
-  init: PaintingType[];
+  init: GalleryUIArtworkProps[];
   size: number;
   height: number;
   walls: WAllType[];
   innerWalls: WAllType[];
+  exhibitionId: string;
 }) {
-  const urls = useMemo(() => init.map((x) => x.paintingUrl), [init]);
+  const [artworks, setArtworks] = useState(init);
+  const [loading, setLoading] = useState(false);
+  const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
 
   const paintingTextures = useTexture(urls);
   const paintingRefs = useRef<(Group | null)[]>([]);
@@ -34,21 +39,51 @@ export default function Room({
   const tempPos = useRef(new Vector3());
   const tempDir = useRef(new Vector3());
 
-  const closestPaintingRef = useRef<PaintingType | null>(null);
+  const closestPaintingRef = useRef<GalleryUIArtworkProps | null>(null);
 
   useEffect(() => {
+    const postLikes = async () => {
+      const painting = closestPaintingRef.current;
+      if (!painting || loading) return;
+
+      const closestId = painting.id;
+
+      let prevArtworks;
+      setArtworks((prev) => {
+        prevArtworks = [...prev];
+        return prev.map((x) =>
+          x.id === closestId
+            ? {
+                ...x,
+                likesByMe: !x.likesByMe,
+                likes: x.likesByMe ? x.likes - 1 : x.likes + 1,
+              }
+            : x
+        );
+      });
+      setLoading(true);
+      try {
+        await likesToggle(exhibitionId, closestId);
+      } catch (e) {
+        console.log(e);
+        setArtworks(prevArtworks || []);
+      } finally {
+        setLoading(false);
+      }
+    };
     const handler = (e: KeyboardEvent) => {
       const painting = closestPaintingRef.current;
 
       if (!painting) return;
 
       if (e.key === '1') {
-        console.log('like', painting.title);
+        console.log('id', painting.id);
+        postLikes();
       }
 
       if (e.key === '2') {
         console.log(painting);
-        downloadImgHandler(painting.paintingUrl, painting.title);
+        downloadImgHandler(painting.image_url, painting.title);
       }
     };
 
@@ -57,7 +92,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, []);
+  }, [loading, exhibitionId]);
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempCurrentForward.current);
@@ -104,7 +139,7 @@ export default function Room({
       }
     }
 
-    closestPaintingRef.current = bestIndex !== -1 ? init[bestIndex] : null;
+    closestPaintingRef.current = bestIndex !== -1 ? artworks[bestIndex] : null;
 
     prevPos.current.copy(camera.position);
     prevDir.current.copy(forward);
@@ -117,7 +152,7 @@ export default function Room({
 
       <InnerWalls
         walls={innerWalls}
-        init={init}
+        init={artworks}
         paintingTextures={paintingTextures}
         paintingRefs={paintingRefs}
       />

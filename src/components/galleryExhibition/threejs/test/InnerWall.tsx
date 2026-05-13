@@ -1,5 +1,5 @@
 import React from 'react';
-import { PaintingType, WAllType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
 import Painting from '@/components/galleryExhibition/threejs/test/Painting';
 import { Group, Texture } from 'three';
 
@@ -10,7 +10,7 @@ export default function InnerWalls({
   paintingRefs,
 }: {
   paintingTextures: Texture[];
-  init: PaintingType[];
+  init: GalleryUIArtworkProps[];
   walls: WAllType[];
   paintingRefs: React.RefObject<(Group | null)[]>;
 }) {

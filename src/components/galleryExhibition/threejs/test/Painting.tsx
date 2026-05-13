@@ -1,5 +1,5 @@
 import { Group, Texture } from 'three';
-import { PaintingType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps } from '../../../../types/gallery';
 import React from 'react';
 import { Html } from '@react-three/drei';
 import { checkImgSize } from '@/components/galleryExhibition/threejs/test/util/util';
@@ -12,7 +12,7 @@ export default function Painting({
   paintingRef,
 }: {
   img: Texture;
-  details: PaintingType;
+  details: GalleryUIArtworkProps;
   weight: number;
   height: number;
   paintingRef?: (mesh: Group | null) => void;
@@ -42,17 +42,15 @@ export default function Painting({
         }}
       >
         <div className={'gap flex flex-col gap-1 font-bold text-white'}>
-          <h1 className={'text-[45px]'}>
-            {details.id}:{details?.title}
-          </h1>
-          <h1 className={'text-[25px]'}>{details?.author}</h1>
+          <h1 className={'text-[45px]'}>{details?.title}</h1>
+          <h1 className={'text-[25px]'}>{details?.artist_name}</h1>
           <p className={'text-[20px] text-wrap text-gray-200'}>
-            {details?.desc}
+            {details?.description}
           </p>
           <div className={'mt-1 flex justify-end gap-2 text-gray-200'}>
             <div className={'flex gap-1'}>
-              <Heart fill={'#e68181'} />
-              <p>11</p>
+              <Heart fill={details?.likesByMe ? '#e68181' : 'none'} />
+              <p>{details?.likes}</p>
             </div>
             <Download />
           </div>

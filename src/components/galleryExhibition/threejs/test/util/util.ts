@@ -1,5 +1,6 @@
 import { Cell, FormValidation, WAllType } from '@/types/gallery';
 import { Texture } from 'three';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export function generateGalleryWalls(roomSize: number) {
   const size = 3;
@@ -227,13 +228,6 @@ export async function downloadImgHandler(url: string, title: string) {
     console.error('download fail', err);
   }
 }
-export function likesHandler(paintingId: number) {
-  // 얘는 로그인 필요 -> 페인팅 아이디만넘겨주면 서버측에서 paintingId + userId 로 db저장
-}
-
-export function bookmarkHandler(paintingId: number) {
-  // 좋아요가 있는데 필요할까?
-}
 
 ////api
 
@@ -309,5 +303,140 @@ export function validateExhibition(init: FormValidation) {
       end_date,
       guidelines,
     },
+  };
+}
+/////// 권한 체크
+
+type RoleCheckResult =
+  | { ok: false; status: number; message: string }
+  | { ok: true; user: { id: string } };
+export async function checkRole(
+  supabase: SupabaseClient
+): Promise<RoleCheckResult> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, status: 401, message: 'no session' };
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profileError)
+    return { ok: false, status: 403, message: 'no profile' };
+
+  if (profile.role !== 'teacher')
+    return { ok: false, status: 403, message: 'no role' };
+
+  return { ok: true, user };
+}
+
+// 이미지 업로드 상한 5MB
+const MAX_IMAGE_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+// 허용 이미지 타입 제한
+const ALLOWED_IMAGE_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+};
+
+// 이미지 검증 에러 클래스
+export class ImageUploadValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ImageUploadValidationError';
+  }
+}
+
+export async function uploadImgToSupabase(
+  supabase: SupabaseClient,
+  file: File,
+  bucket: string
+) {
+  const ext = ALLOWED_IMAGE_TYPES[file.type];
+
+  if (!ext) {
+    throw new ImageUploadValidationError('Only image files can be uploaded');
+  }
+
+  if (file.size > MAX_IMAGE_UPLOAD_SIZE_BYTES) {
+    throw new ImageUploadValidationError('Image file size must be 5MB or less');
+  }
+
+  const randomId = crypto.randomUUID();
+  const filePath = `${randomId}.${ext}`;
+
+  const { error } = await supabase.storage.from(bucket).upload(filePath, file);
+
+  if (error) {
+    throw new Error('Image upload failed');
+  }
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
+export async function checkExhibitionOwner(
+  supabase: SupabaseClient,
+  id: string,
+  teacherId: string,
+  type: 'artwork' | 'exhibition'
+) {
+  let exhibitionId = id;
+
+  if (type === 'artwork') {
+    const { data: artwork, error } = await supabase
+      .from('artworks')
+      .select('exhibition_id')
+      .eq('id', id)
+      .single();
+
+    if (error || !artwork) {
+      return { ok: false, status: 404, message: 'invalid artWorkId' };
+    }
+
+    exhibitionId = artwork.exhibition_id;
+  }
+
+  const { data: exhibition, error: exhibitionError } = await supabase
+    .from('exhibitions')
+    .select('teacher_id')
+    .eq('id', exhibitionId)
+    .single();
+
+  if (exhibitionError || !exhibition) {
+    return { ok: false, status: 404, message: 'invalid exhibition' };
+  }
+
+  if (teacherId !== exhibition.teacher_id) {
+    return { ok: false, status: 403, message: 'permission denied' };
+  }
+
+  return { ok: true };
+}
+
+export async function getUserIdByEmail(
+  supabase: SupabaseClient,
+  email: string
+) {
+  const { data, error } = await supabase.rpc('get_user_id_by_email', {
+    p_email: email,
+  });
+
+  if (error || !data) {
+    return {
+      ok: false,
+      status: 404,
+      message: 'profile not found',
+    };
+  }
+
+  return {
+    ok: true,
+    userId: data as string,
   };
 }

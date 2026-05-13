@@ -2,39 +2,48 @@
 
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 
 interface ImageUploadBoxProps {
-  initialUrl?: string;
+  value?: File | string | null;
+  onChange?: (file: File | null) => void;
 }
 
-export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
+export default function ImageUploadBox({
+  value,
+  onChange,
+}: ImageUploadBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(initialUrl ?? null);
 
-  // 메모리 참조 해제
-  useEffect(() => {
-    return () => {
-      if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
+  const preview = useMemo(() => {
+    if (!value) return null;
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    return URL.createObjectURL(value);
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPreview(URL.createObjectURL(file));
+
+    onChange?.(file);
   };
 
   const removeImage = () => {
-    setPreview(null);
+    onChange?.(null);
     if (inputRef.current) inputRef.current.value = '';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
+
     if (!file || !file.type.startsWith('image/')) return;
-    setPreview(URL.createObjectURL(file));
+
+    onChange?.(file);
   };
 
   return (
@@ -46,6 +55,7 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
         className="hidden"
         onChange={handleChange}
       />
+
       {preview ? (
         <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-[#F5EFE0]">
           <Image
@@ -54,6 +64,7 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
             fill
             className="object-cover"
           />
+
           <button
             type="button"
             onClick={removeImage}
@@ -70,9 +81,11 @@ export default function ImageUploadBox({ initialUrl }: ImageUploadBoxProps) {
           className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-12 transition-colors hover:bg-gray-100"
         >
           <Upload className="text-secondary/40 h-8 w-8" />
+
           <p className="text-secondary/60 text-sm">
             이미지를 드래그하거나 클릭하여 업로드
           </p>
+
           <p className="text-secondary/40 text-xs">JPG, PNG, GIF 지원</p>
         </div>
       )}
