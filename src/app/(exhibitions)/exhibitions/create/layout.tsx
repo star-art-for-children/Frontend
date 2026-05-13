@@ -16,9 +16,7 @@ export default async function Layout({
       redirect('/login');
     }
 
-    if (result.status === 403) {
-      notFound();
-    }
+    notFound();
   }
 
   return <>{children}</>;
