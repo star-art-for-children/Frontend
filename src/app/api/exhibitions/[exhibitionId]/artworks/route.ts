@@ -4,6 +4,7 @@ import {
   checkExhibitionOwner,
   checkRole,
   getUserIdByEmail,
+  ImageUploadValidationError,
   uploadImgToSupabase,
 } from '@/components/galleryExhibition/threejs/test/util/util';
 
@@ -89,6 +90,11 @@ export async function POST(
       { status: 200 }
     );
   } catch (e) {
+    // 이미지 검증 오류일 경우 400에러 반환
+    if (e instanceof ImageUploadValidationError) {
+      return NextResponse.json({ message: e.message }, { status: 400 });
+    }
+
     console.log(e);
     return NextResponse.json({ message: 'unkwon Error' }, { status: 500 });
   }
