@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { EXHIBITIONS_PER_PAGE } from '@/lib/exhibition/constants';
-import { ExhibitionListItem, ExhibitionRow } from '@/types/exhibitionList';
+import {
+  ArtworkRow,
+  ExhibitionDetailRow,
+  ExhibitionListItem,
+  ExhibitionRow,
+} from '@/types/exhibitionList';
 
 // 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
 const todayKST = (): string => {
@@ -180,5 +185,105 @@ export async function fetchExhibitions({
   return {
     data: result,
     pagination: { page: safePage, limit, totalCount, hasNextPage },
+  };
+}
+
+export type ExhibitionWorkItem = {
+  id: string;
+  title: string;
+  artist: string;
+  image: string;
+  description: string | null;
+  likes: number;
+};
+
+export type ExhibitionDetailItem = {
+  id: string;
+  title: string;
+  image: string | null;
+  startDate: string;
+  endDate: string | null;
+  description: string | null;
+  host: string;
+  totalLikes: number;
+  isLiked: boolean;
+  isOwner: boolean;
+  isLoggedIn: boolean;
+  currentUserId: string | null;
+  works: ExhibitionWorkItem[];
+};
+
+export async function fetchExhibitionDetail(
+  exhibitionId: string
+): Promise<ExhibitionDetailItem | null> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
+  const { data: rawData, error } = await supabase
+    .from('exhibitions')
+    .select(
+      `
+      id,
+      title,
+      thumbnail_url,
+      start_date,
+      end_date,
+      description,
+      teacher_id,
+      likes_count,
+      profile:profiles!teacher_id ( institution ),
+      artworks ( id, title, artist_name, description, image_url )
+    `
+    )
+    .eq('id', exhibitionId)
+    .single<ExhibitionDetailRow>();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    console.error('전시회 상세 조회 에러:', error);
+    throw new Error('database error');
+  }
+  if (!rawData) return null;
+
+  let isLiked = false;
+  if (currentUserId) {
+    const { data: likeData } = await supabase
+      .from('exhibition_likes')
+      .select('id')
+      .eq('exhibition_id', exhibitionId)
+      .eq('user_id', currentUserId)
+      .maybeSingle();
+    isLiked = !!likeData;
+  }
+
+  const profile = Array.isArray(rawData.profile)
+    ? rawData.profile[0]
+    : rawData.profile;
+
+  return {
+    id: rawData.id,
+    title: rawData.title,
+    image: rawData.thumbnail_url,
+    startDate: rawData.start_date,
+    endDate: rawData.end_date,
+    description: rawData.description,
+    host: profile?.institution ?? '',
+    totalLikes: rawData.likes_count,
+    isLiked,
+    isOwner: rawData.teacher_id === currentUserId,
+    isLoggedIn: !!currentUserId,
+    currentUserId,
+    works: (rawData.artworks ?? []).map((work: ArtworkRow) => ({
+      id: work.id,
+      title: work.title,
+      artist: work.artist_name,
+      image: work.image_url,
+      description: work.description,
+      likes: 0, // likes 임시처리
+    })),
   };
 }

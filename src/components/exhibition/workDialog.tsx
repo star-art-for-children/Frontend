@@ -33,9 +33,29 @@ export default function WorkDialog({
   exhibitionHost,
   isLoggedIn = false,
 }: WorkDialogProps) {
+  const handleImageDownload = async (imageUrl: string, title: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = title;
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Image Download Error', err);
+      alert('이미지 다운로드에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
   return (
     <Dialog>
-      <DialogTrigger className="group block w-full overflow-hidden rounded-2xl bg-white text-left shadow-[0_2px_8px_rgba(44,40,38,0.06)] transition-all hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]">
+      <DialogTrigger className="group flex w-full flex-col overflow-hidden rounded-2xl bg-white text-left shadow-[0_2px_8px_rgba(44,40,38,0.06)] transition-all hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]">
         <div className="relative aspect-4/3 overflow-hidden bg-[#F5EFE0]">
           <Image
             src={work.image}
@@ -94,6 +114,7 @@ export default function WorkDialog({
               </button>
               <button
                 type="button"
+                onClick={() => handleImageDownload(work.image, work.title)}
                 aria-label="다운로드"
                 className="text-secondary/60 hover:bg-primary/10 inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors"
               >
