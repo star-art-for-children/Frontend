@@ -1,43 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { reviewCreateSchema } from '@/lib/schemas/review';
+import { fetchExhibitionReviews } from '@/lib/exhibition/queries';
 
 type RouteContext = { params: Promise<{ exhibitionId: string }> };
 
-export async function GET(_req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
     const { exhibitionId: id } = await params;
-    const supabase = await createClient();
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, Number(searchParams.get('page')) || 1);
 
-    const { data, error } = await supabase
-      .from('reviews')
-      .select(
-        'id, content, created_at, updated_at, user_id, profiles:user_id(username)'
-      )
-      .eq('exhibition_id', id)
-      .order('created_at', { ascending: false });
+    const { data, pagination } = await fetchExhibitionReviews(id, { page });
 
-    if (error) {
-      console.error(error);
-      return NextResponse.json(
-        { message: 'failed to fetch reviews' },
-        { status: 500 }
-      );
-    }
+    const reviews = data.map((review) => ({
+      id: review.id,
+      author: review.author,
+      user_id: review.userId,
+      date: review.createdAt.slice(0, 10),
+      content: review.content,
+    }));
 
-    const reviews = (data ?? []).map((row) => {
-      const profiles = row.profiles as { username?: string } | null;
-      return {
-        id: row.id,
-        content: row.content,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        user_id: row.user_id,
-        author: profiles?.username ?? '사용자',
-      };
-    });
+    const totalPages = Math.max(
+      1,
+      Math.ceil(pagination.totalCount / pagination.limit)
+    );
 
-    return NextResponse.json({ reviews }, { status: 200 });
+    return NextResponse.json(
+      {
+        reviews,
+        pagination: {
+          totalCount: pagination.totalCount,
+          totalPages,
+          page: pagination.page,
+        },
+      },
+      { status: 200 }
+    );
   } catch (e) {
     console.error(e);
     return NextResponse.json({ message: 'unknown error' }, { status: 500 });
@@ -78,7 +77,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const { data, error } = await supabase
       .from('reviews')
       .insert({ exhibition_id: id, user_id: user.id, content })
-      .select('id')
+      .select('id, content, created_at, user_id, profiles:user_id(username)')
       .single();
 
     if (error) {
@@ -89,8 +88,17 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    const profiles = data.profiles as { username?: string } | null;
+    const review = {
+      id: data.id,
+      author: profiles?.username ?? '사용자',
+      user_id: data.user_id,
+      date: data.created_at.slice(0, 10),
+      content: data.content,
+    };
+
     return NextResponse.json(
-      { message: 'successfully inserted', createdId: data.id },
+      { message: 'successfully inserted', review },
       { status: 200 }
     );
   } catch (e) {

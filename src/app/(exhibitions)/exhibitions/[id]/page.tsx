@@ -9,7 +9,10 @@ import {
   ReviewSection,
   WorkDialog,
 } from '@/components/exhibition';
-import { fetchExhibitionDetail } from '@/lib/exhibition/queries';
+import {
+  fetchExhibitionDetail,
+  fetchExhibitionReviews,
+} from '@/lib/exhibition/queries';
 import LikeButton from '@/components/exhibition/likeButton';
 
 export default async function ExhibitionDetail({
@@ -18,9 +21,17 @@ export default async function ExhibitionDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const exhibition = await fetchExhibitionDetail(id);
+  const [exhibition, reviews] = await Promise.all([
+    fetchExhibitionDetail(id),
+    fetchExhibitionReviews(id, { page: 1 }),
+  ]);
 
   if (!exhibition) notFound();
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(reviews.pagination.totalCount / reviews.pagination.limit)
+  );
 
   const { isLoggedIn, isOwner, isLiked, currentUserId } = exhibition;
 
@@ -179,11 +190,20 @@ export default async function ExhibitionDetail({
         </section>
 
         {/* 관람 후기 */}
-        {/* <ReviewSection
-          initialReviews={exhibition.reviews}
+        <ReviewSection
+          exhibitionId={id}
+          reviews={reviews.data.map((r) => ({
+            id: r.id,
+            author: r.author,
+            user_id: r.userId,
+            date: r.createdAt.slice(0, 10),
+            content: r.content,
+          }))}
+          totalCount={reviews.pagination.totalCount}
+          totalPages={totalPages}
           isLoggedIn={isLoggedIn}
-          currentUser={currentUser}
-        /> */}
+          currentUserId={currentUserId ?? undefined}
+        />
       </div>
     </main>
   );
