@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import {
-  checkRole,
-  ImageUploadValidationError,
-  parseFormDataToObj,
-  uploadImgToSupabase,
-  validateExhibition,
-} from '@/components/galleryExhibition/threejs/test/util/util';
+
 import {
   ExhibitionsAuthRequiredError,
   fetchExhibitions,
 } from '@/lib/exhibition/queries';
+import { checkRole } from '@/lib/gallery/checkRole';
+import { parseFormDataToObj } from '@/lib/gallery/parseForm';
+import { validateExhibition } from '@/lib/gallery/validateExhibitionForm';
+import {
+  ImageUploadValidationError,
+  uploadImgToSupabase,
+} from '@/lib/supabase/uploadImage';
 
 export async function GET(req: NextRequest) {
   try {
