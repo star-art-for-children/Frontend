@@ -9,8 +9,8 @@ export const config = {
   matcher: [
     {
       source:
-        // API 라우트 요청, 정적 파일, 이미지, 아이콘 제외한 모든 요청에서 updateSession 미들웨어 함수 실행
-        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|otf)$).*)',
+        // API 라우트, 정적 파일, 이미지, 아이콘, 인증 불필요 페이지 제외
+        '/((?!api|_next/static|_next/image|favicon.ico|login|signup|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|otf)$).*)',
       missing: [
         // prefetch 요청은 함수 실행 제외
         { type: 'header', key: 'next-router-prefetch' },
