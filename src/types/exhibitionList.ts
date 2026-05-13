@@ -51,7 +51,7 @@ export type ArtworkRow = {
   artist_name: string;
   image_url: string;
   description: string | null;
-  likes_count?: number;
+  likes_count: number;
 };
 
 export type ReviewRow = {

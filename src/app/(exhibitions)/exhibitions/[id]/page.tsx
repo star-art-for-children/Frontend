@@ -163,7 +163,9 @@ export default async function ExhibitionDetail({
                     image: work.image,
                     description: work.description ?? undefined,
                     likes: work.likes,
+                    liked: work.liked,
                   }}
+                  exhibitionId={exhibition.id}
                   exhibitionTitle={exhibition.title}
                   exhibitionHost={exhibition.host}
                   isLoggedIn={isLoggedIn}

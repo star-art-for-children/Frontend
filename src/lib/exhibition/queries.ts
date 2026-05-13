@@ -201,6 +201,7 @@ export type ExhibitionWorkItem = {
   image: string;
   description: string | null;
   likes: number;
+  liked: boolean;
 };
 
 export type ExhibitionDetailItem = {
@@ -242,7 +243,7 @@ export async function fetchExhibitionDetail(
       teacher_id,
       likes_count,
       profile:profiles!teacher_id ( institution ),
-      artworks ( id, title, artist_name, description, image_url )
+      artworks ( id, title, artist_name, description, image_url, likes_count )
     `
     )
     .eq('id', exhibitionId)
@@ -255,6 +256,7 @@ export async function fetchExhibitionDetail(
   }
   if (!rawData) return null;
 
+  // 전시회에 대한 좋아요 여부
   let isLiked = false;
   if (currentUserId) {
     const { data: likeData } = await supabase
@@ -264,6 +266,19 @@ export async function fetchExhibitionDetail(
       .eq('user_id', currentUserId)
       .maybeSingle();
     isLiked = !!likeData;
+  }
+
+  // 작품에 대한 liked
+  let likedArtworkIds = new Set<string>();
+  if (currentUserId && rawData.artworks.length) {
+    const artworkId = rawData.artworks.map((row) => row.id);
+    const { data: likedRows } = await supabase
+      .from('artwork_likes')
+      .select('artwork_id')
+      .eq('user_id', currentUserId)
+      .in('artwork_id', artworkId);
+
+    likedArtworkIds = new Set((likedRows ?? []).map((r) => r.artwork_id));
   }
 
   const profile = Array.isArray(rawData.profile)
@@ -289,7 +304,8 @@ export async function fetchExhibitionDetail(
       artist: work.artist_name,
       image: work.image_url,
       description: work.description,
-      likes: 0, // likes 임시처리
+      likes: work.likes_count,
+      liked: likedArtworkIds.has(work.id),
     })),
   };
 }
