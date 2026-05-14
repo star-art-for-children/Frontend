@@ -12,11 +12,11 @@ interface ArtworksScreenProps {
 
 export default function ArtworksScreen({ artworks }: ArtworksScreenProps) {
   const [filter, setFilter] = useState<FilterType>('latest');
-  const [search, setSearch] = useState<string>('');
+  // const [search, setSearch] = useState<string>('');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
   const sorted = [...artworks]
-    .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
+    // .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (filter === 'latest')
         return (
@@ -43,6 +43,7 @@ export default function ArtworksScreen({ artworks }: ArtworksScreenProps) {
               </p>
             </div>
 
+            {/* 검색 기능 - 다음 심화 프로젝트 단계에서 구현 예정
             <div className="relative">
               <svg
                 className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[#BCBAB2]"
@@ -73,6 +74,7 @@ export default function ArtworksScreen({ artworks }: ArtworksScreenProps) {
                 className="w-[220px] rounded-full border border-[#EDEBE4] bg-white py-2.5 pr-4 pl-9 text-[14px] text-[#1A1A1A] transition-colors outline-none placeholder:text-[#BCBAB2] focus:border-[#f4b942]"
               />
             </div>
+            */}
           </div>
 
           <FilterTab value={filter} onChange={setFilter} />
