@@ -8,11 +8,13 @@ export default function InnerWalls({
   init,
   walls,
   paintingRefs,
+  htmlRefs,
 }: {
   paintingTextures: Texture[];
   init: GalleryUIArtworkProps[];
   walls: WAllType[];
   paintingRefs: React.RefObject<(Group | null)[]>;
+  htmlRefs: React.RefObject<(HTMLDivElement | null)[]>;
 }) {
   return (
     <>
@@ -31,6 +33,7 @@ export default function InnerWalls({
                 paintingRef={(el) => {
                   paintingRefs.current[i] = el;
                 }}
+                htmlRef={(el) => (htmlRefs.current[i] = el)}
                 details={paintingDetails}
                 weight={w}
                 height={h}
