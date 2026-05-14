@@ -119,7 +119,7 @@ export default function Player({
       right.current.z * velocity.current.x -
       forward.current.z * velocity.current.z;
 
-    const newPos = new THREE.Vector3(newX, size / 30, newZ);
+    const newPos = new THREE.Vector3(newX, startPos.y, newZ);
 
     let blocked = false;
     const pad = 0.3;
