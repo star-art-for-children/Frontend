@@ -12,7 +12,17 @@ export const postNewExhibition = async (formDate: FormData) => {
 
   return createdId;
 };
+export const getExhibitionDetails = async (id: string) => {
+  const res = await fetch(`/api/exhibitions/${id}`);
 
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message);
+  }
+  const { data:{title,host} } = await res.json();
+
+  return { title, host };
+};
 export const toggleExhibitionLike = async (
   exhibitionId: string,
   nextLiked: boolean

@@ -7,11 +7,16 @@ import { getArtworksByExhibitionId } from '@/service/artworks';
 import Scene2 from '@/components/galleryExhibition/threejs/Scene';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { getExhibitionDetails } from '@/service/exhibitions';
 
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const [exhibitionDetails, setExhibitionDetails] = useState({
+    title: '',
+    host: '',
+  });
   const [galleryInit, setGalleryInit] = useState([]);
   const [isMuted, setIsMuted] = useState(false);
   const [start, setStart] = useState(false);
@@ -26,11 +31,13 @@ export default function GalleryExhibitionPage() {
       try {
         const supabase = createClient();
 
-        const [artworksRes, userRes] = await Promise.all([
+        const [artworksRes, userRes, exhibitionDetails] = await Promise.all([
           getArtworksByExhibitionId(id),
           supabase.auth.getUser(),
+          getExhibitionDetails(id),
         ]);
 
+        setExhibitionDetails(exhibitionDetails);
         setGalleryInit(artworksRes);
         setUser(userRes.data.user ?? null);
         setIsInitReady(true);
@@ -125,8 +132,10 @@ export default function GalleryExhibitionPage() {
         >
           <IoIosArrowBack className={'text-lg text-white/80'} />
           <div className={'flex flex-col'}>
-            <p className={'font-bold text-white/80'}>봄의 소리전</p>
-            <p className={'text-sm text-white/30'}>해피아트 미술학원</p>
+            <p className={'font-bold text-white/80'}>
+              {exhibitionDetails.title}
+            </p>
+            <p className={'text-sm text-white/30'}>{exhibitionDetails.host}</p>
           </div>
         </button>
         {!isMuted && (
