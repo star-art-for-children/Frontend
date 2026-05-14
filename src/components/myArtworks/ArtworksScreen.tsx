@@ -103,6 +103,7 @@ export default function ArtworksScreen({ artworks: initialArtworks }: ArtworksSc
 
       {selectedArtwork && (
         <ArtworkModal
+          key={selectedArtwork.id}
           artwork={selectedArtwork}
           onClose={() => setSelectedArtwork(null)}
           onLikeChange={(liked, newCount) => {

@@ -60,6 +60,7 @@ export default function WishlistScreen({ artworks: initialArtworks }: WishlistSc
 
       {selectedArtwork && (
         <ArtworkModal
+          key={selectedArtwork.id}
           artwork={selectedArtwork}
           onClose={() => setSelectedArtwork(null)}
           onLikeChange={(liked, newCount) => {
