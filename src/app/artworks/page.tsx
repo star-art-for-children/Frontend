@@ -26,7 +26,7 @@ export default async function MyArtworksPage() {
 
   if (!user) redirect('/login');
 
-  const [{ data, error }, { data: likedData }] = await Promise.all([
+  const [{ data, error }, { data: likedData, error: likedError }] = await Promise.all([
     supabase
       .from('artworks')
       .select(
@@ -43,6 +43,7 @@ export default async function MyArtworksPage() {
   ]);
 
   if (error) throw new Error(error.message);
+  if (likedError) throw new Error(likedError.message);
 
   const likedSet = new Set((likedData ?? []).map((l) => l.artwork_id));
 
