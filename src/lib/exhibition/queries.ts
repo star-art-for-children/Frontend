@@ -315,7 +315,10 @@ export async function fetchExhibitionReviews(
   { page = 1, limit = REVIEWS_PER_PAGE }: { page: number; limit?: number }
 ): Promise<{ data: ExhibitionReviewItem[]; pagination: ReviewsPagination }> {
   const supabase = await createClient();
-  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+  const MAX_PAGE = 1000;
+  const safePage = Number.isFinite(page)
+    ? Math.min(MAX_PAGE, Math.max(1, Math.floor(page)))
+    : 1;
   const from = (safePage - 1) * limit;
   const to = from + limit - 1;
 

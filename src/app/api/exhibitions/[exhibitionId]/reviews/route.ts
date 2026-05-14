@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
     const { exhibitionId: id } = await params;
     const { searchParams } = new URL(req.url);
-    const page = Math.max(1, Number(searchParams.get('page')) || 1);
+    const page = Number(searchParams.get('page')) || 1;
 
     const { data, pagination } = await fetchExhibitionReviews(id, { page });
 
