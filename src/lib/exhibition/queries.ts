@@ -19,6 +19,7 @@ export type FetchExhibitionsParams = {
   page?: number;
   sort?: string | null;
   search?: string | null;
+  userId?: string;
 };
 
 export type ExhibitionsPagination = {
@@ -32,6 +33,7 @@ export async function fetchExhibitions({
   page = 1,
   sort,
   search,
+  userId,
 }: FetchExhibitionsParams): Promise<{
   data: ExhibitionListItem[];
   pagination: ExhibitionsPagination;
@@ -104,14 +106,11 @@ export async function fetchExhibitions({
         .order('created_at', { ascending: false });
       break;
     case 'mine': {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
+      if (!userId) {
         throw new ExhibitionsAuthRequiredError();
       }
       query = query
-        .eq('teacher_id', user.id)
+        .eq('teacher_id', userId)
         .order('created_at', { ascending: false });
       break;
     }
@@ -145,16 +144,13 @@ export async function fetchExhibitions({
   }
 
   let likedIds = new Set<string>();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (user && data && data.length > 0) {
+  if (userId && data && data.length > 0) {
     const exhibitionIds = data.map((row) => row.id);
     const { data: likedRows } = await supabase
       .from('exhibition_likes')
       .select('exhibition_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .in('exhibition_id', exhibitionIds);
 
     likedIds = new Set((likedRows ?? []).map((r) => r.exhibition_id));

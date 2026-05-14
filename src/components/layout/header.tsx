@@ -1,29 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import UserMenu from './userMenu';
 import MobileMenu from './mobileMenu';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 
 export default async function Header() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 캐싱된 유저 데이터 조회(없다면 새로 요청)
+  const { user, profile } = await getAuthContext();
 
-  let name: string | undefined =
-    user?.user_metadata?.username ?? user?.email?.split('@')[0];
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    name = profile?.username ?? name;
-  }
-
-  const displayName = name?.trim() || '사용자';
+  const displayName = user
+    ? profile?.username?.trim() ||
+      user.user_metadata?.username ||
+      user.email?.split('@')[0] ||
+      '사용자'
+    : null;
 
   return (
     <header className="h-16">
