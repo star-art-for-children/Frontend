@@ -62,6 +62,7 @@ export default function ImageUploadBox({
             src={preview}
             alt="작품 미리보기"
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover"
           />
 
