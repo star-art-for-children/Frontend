@@ -10,7 +10,8 @@ interface WishlistScreenProps {
   artworks: Artwork[];
 }
 
-export default function WishlistScreen({ artworks }: WishlistScreenProps) {
+export default function WishlistScreen({ artworks: initialArtworks }: WishlistScreenProps) {
+  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const [filter, setFilter] = useState<FilterType>('latest');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
@@ -61,6 +62,18 @@ export default function WishlistScreen({ artworks }: WishlistScreenProps) {
         <ArtworkModal
           artwork={selectedArtwork}
           onClose={() => setSelectedArtwork(null)}
+          onLikeChange={(liked, newCount) => {
+            if (!liked) {
+              setArtworks((prev) => prev.filter((a) => a.id !== selectedArtwork.id));
+              setSelectedArtwork(null);
+            } else {
+              setArtworks((prev) =>
+                prev.map((a) =>
+                  a.id === selectedArtwork.id ? { ...a, likesCount: newCount } : a
+                )
+              );
+            }
+          }}
         />
       )}
     </>

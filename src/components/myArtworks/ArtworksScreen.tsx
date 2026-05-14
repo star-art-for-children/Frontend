@@ -10,7 +10,8 @@ interface ArtworksScreenProps {
   artworks: Artwork[];
 }
 
-export default function ArtworksScreen({ artworks }: ArtworksScreenProps) {
+export default function ArtworksScreen({ artworks: initialArtworks }: ArtworksScreenProps) {
+  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const [filter, setFilter] = useState<FilterType>('latest');
   // const [search, setSearch] = useState<string>('');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
@@ -104,6 +105,13 @@ export default function ArtworksScreen({ artworks }: ArtworksScreenProps) {
         <ArtworkModal
           artwork={selectedArtwork}
           onClose={() => setSelectedArtwork(null)}
+          onLikeChange={(liked, newCount) => {
+            setArtworks((prev) =>
+              prev.map((a) =>
+                a.id === selectedArtwork.id ? { ...a, likesCount: newCount, isLiked: liked } : a
+              )
+            );
+          }}
         />
       )}
     </>

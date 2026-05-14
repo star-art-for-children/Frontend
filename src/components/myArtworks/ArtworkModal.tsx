@@ -8,9 +8,10 @@ import { likesToggle } from '@/service/artworks';
 interface ArtworkModalProps {
   artwork: Artwork;
   onClose: () => void;
+  onLikeChange?: (liked: boolean, newCount: number) => void;
 }
 
-export default function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
+export default function ArtworkModal({ artwork, onClose, onLikeChange }: ArtworkModalProps) {
   const [liked, setLiked] = useState(artwork.isLiked);
   const [likesCount, setLikesCount] = useState(artwork.likesCount);
 
@@ -28,13 +29,15 @@ export default function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
 
   const handleLike = async () => {
     const prev = liked;
+    const newCount = likesCount + (prev ? -1 : 1);
     setLiked(!prev);
-    setLikesCount((c) => c + (prev ? -1 : 1));
+    setLikesCount(newCount);
     try {
       await likesToggle(artwork.exhibitionId, artwork.id);
+      onLikeChange?.(!prev, newCount);
     } catch {
       setLiked(prev);
-      setLikesCount((c) => c + (prev ? 1 : -1));
+      setLikesCount(likesCount);
     }
   };
 
