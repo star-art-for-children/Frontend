@@ -16,8 +16,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const reviews = data.map((review) => ({
       id: review.id,
       author: review.author,
-      user_id: review.userId,
-      date: review.createdAt.slice(0, 10),
+      userId: review.userId,
+      createdAt: review.createdAt.slice(0, 10),
       content: review.content,
     }));
 
@@ -92,8 +92,8 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const review = {
       id: data.id,
       author: profiles?.username ?? '사용자',
-      user_id: data.user_id,
-      date: data.created_at.slice(0, 10),
+      userId: data.user_id,
+      createdAt: data.created_at.slice(0, 10),
       content: data.content,
     };
 

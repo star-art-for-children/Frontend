@@ -195,13 +195,7 @@ export default async function ExhibitionDetail({
         {/* 관람 후기 */}
         <ReviewSection
           exhibitionId={id}
-          reviews={reviews.data.map((r) => ({
-            id: r.id,
-            author: r.author,
-            user_id: r.userId,
-            date: r.createdAt.slice(0, 10),
-            content: r.content,
-          }))}
+          reviews={reviews.data}
           totalCount={reviews.pagination.totalCount}
           totalPages={totalPages}
           isLoggedIn={isLoggedIn}

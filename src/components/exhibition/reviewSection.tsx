@@ -8,10 +8,10 @@ import {
   deleteReview,
   fetchReviewsPage,
   postReview,
-  ReviewData,
 } from '@/service/exhibitions';
+import { ExhibitionReviewItem } from '@/types/exhibitionList';
 
-export type Review = ReviewData;
+export type Review = ExhibitionReviewItem;
 
 interface ReviewSectionProps {
   exhibitionId: string;
@@ -135,7 +135,7 @@ export default function ReviewSection({
       <ul className="space-y-4 pt-2">
         {reviews.length !== 0 ? (
           reviews.map((review) => {
-            const isMine = !!currentUserId && currentUserId === review.user_id;
+            const isMine = !!currentUserId && currentUserId === review.userId;
 
             return (
               <li key={review.id} className="flex gap-3">
@@ -148,7 +148,7 @@ export default function ReviewSection({
                       {review.author}
                     </span>
                     <span className="text-secondary/40 text-xs">
-                      {review.date}
+                      {review.createdAt}
                     </span>
                   </div>
                   <p className="text-secondary/70 text-sm leading-relaxed">

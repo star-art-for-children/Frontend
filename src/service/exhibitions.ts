@@ -1,3 +1,5 @@
+import { ExhibitionReviewItem } from '@/types/exhibitionList';
+
 export const postNewExhibition = async (formDate: FormData) => {
   const res = await fetch('/api/exhibitions', {
     method: 'POST',
@@ -46,16 +48,8 @@ export const endExhibition = async (exhibitionId: string) => {
   return updatedId;
 };
 
-export interface ReviewData {
-  id: string;
-  author: string;
-  user_id: string;
-  date: string;
-  content: string;
-}
-
 export interface ReviewsPage {
-  reviews: ReviewData[];
+  reviews: ExhibitionReviewItem[];
   totalCount: number;
   totalPages: number;
 }
@@ -83,7 +77,7 @@ export const fetchReviewsPage = async (
 export const postReview = async (
   exhibitionId: string,
   content: string
-): Promise<ReviewData> => {
+): Promise<ExhibitionReviewItem> => {
   const res = await fetch(`/api/exhibitions/${exhibitionId}/reviews`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
