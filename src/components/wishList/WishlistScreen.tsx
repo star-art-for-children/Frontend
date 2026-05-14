@@ -75,7 +75,7 @@ export default function WishlistScreen({
               setArtworks((prev) =>
                 prev.map((a) =>
                   a.id === selectedArtwork.id
-                    ? { ...a, likesCount: newCount }
+                    ? { ...a, likesCount: newCount, isLiked: liked }
                     : a
                 )
               );
