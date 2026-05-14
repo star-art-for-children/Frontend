@@ -46,12 +46,7 @@ export default function Scene2({
         />
         <ambientLight intensity={1} />
 
-        <Player
-          startPos={startPosition}
-          innerWalls={innerWalls}
-          size={size}
-          speed={3}
-        />
+        <Player startPos={startPosition} innerWalls={innerWalls} speed={3} />
         <PointerLockControls />
       </Canvas>
     </>

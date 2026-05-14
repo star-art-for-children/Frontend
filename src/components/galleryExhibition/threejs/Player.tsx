@@ -4,7 +4,6 @@ import * as THREE from 'three';
 import { WAllType } from '../../../types/gallery';
 
 export default function Player({
-  size = 15,
   speed = 5,
   innerWalls,
   startPos,

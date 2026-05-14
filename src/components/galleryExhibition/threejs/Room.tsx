@@ -29,8 +29,7 @@ export default function Room({
   user: User | null;
 }) {
   const [artworks, setArtworks] = useState(init);
-  const [loading, setLoading] = useState(false);
-
+  const loadingRef = useRef(false);
   const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
   const paintingTextures = useTexture(urls);
 
@@ -111,12 +110,12 @@ export default function Room({
   useEffect(() => {
     const postLikes = async () => {
       const painting = closestPaintingRef.current;
-      if (!painting || loading) return;
+      if (!painting || loadingRef.current) return;
 
       const closestId = painting.id;
 
       let prevArtworks: GalleryUIArtworkProps[];
-
+      loadingRef.current = true;
       setArtworks((prev) => {
         prevArtworks = [...prev];
 
@@ -131,15 +130,13 @@ export default function Room({
         );
       });
 
-      setLoading(true);
-
       try {
         await likesToggle(exhibitionId, closestId);
       } catch (e) {
         console.log(e);
         setArtworks(prevArtworks!);
       } finally {
-        setLoading(false);
+        loadingRef.current = false;
       }
     };
 
@@ -162,7 +159,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [loading, exhibitionId, user]);
+  }, [exhibitionId, user]);
 
   return (
     <>
