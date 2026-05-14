@@ -47,14 +47,19 @@ export default function ArtworkModal({ artwork, onClose, onLikeChange }: Artwork
   };
 
   const handleDownload = async () => {
-    const response = await fetch(artwork.imageUrl);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${artwork.title}.jpg`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const response = await fetch(artwork.imageUrl);
+      if (!response.ok) throw new Error('download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${artwork.title}.jpg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('이미지 다운로드 실패:', e);
+    }
   };
 
   return (
