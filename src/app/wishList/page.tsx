@@ -13,6 +13,7 @@ type LikeRow = {
     image_url: string | null;
     artwork_likes: { count: number }[];
     exhibitions: {
+      id: string;
       title: string;
       profiles: { institution: string | null } | null;
     } | null;
@@ -34,7 +35,7 @@ export default async function WishlistPage() {
       artworks (
         id, title, artist_name, description, image_url,
         artwork_likes(count),
-        exhibitions ( title, profiles!teacher_id ( institution ) )
+        exhibitions ( id, title, profiles!teacher_id ( institution ) )
       )`
     )
     .eq('user_id', user.id)
@@ -53,6 +54,7 @@ export default async function WishlistPage() {
       const aw = like.artworks;
       return {
         id: aw.id,
+        exhibitionId: aw.exhibitions?.id ?? '',
         title: aw.title,
         artist: aw.artist_name ?? '',
         description: aw.description ?? '',
@@ -60,6 +62,7 @@ export default async function WishlistPage() {
         academyName: aw.exhibitions?.profiles?.institution ?? '',
         imageUrl: aw.image_url ?? '',
         likesCount: aw.artwork_likes[0]?.count ?? 0,
+        isLiked: true,
         createdAt: like.created_at,
       };
     });
