@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
-import { formatDate, getStatus } from '@/lib/exhibition/dateStatus';
+import { ArrowRight } from 'lucide-react';
+import { getStatus } from '@/lib/exhibition/dateStatus';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -8,12 +8,12 @@ import {
   ExhibitionUpcoming,
   ReviewSection,
   WorkDialog,
+  ExhibitionActionBar,
 } from '@/components/exhibition';
 import {
   fetchExhibitionDetail,
   fetchExhibitionReviews,
 } from '@/lib/exhibition/queries';
-import LikeButton from '@/components/exhibition/likeButton';
 
 export default async function ExhibitionDetail({
   params,
@@ -37,10 +37,6 @@ export default async function ExhibitionDetail({
   const { isLoggedIn, isOwner, isLiked, currentUserId } = exhibition;
 
   const status = getStatus(
-    exhibition.startDate,
-    exhibition.endDate ?? undefined
-  );
-  const dateText = formatDate(
     exhibition.startDate,
     exhibition.endDate ?? undefined
   );
@@ -96,48 +92,12 @@ export default async function ExhibitionDetail({
 
       <div className="mx-auto max-w-6xl space-y-6 px-3.5 pt-6">
         {/* 정보 + 액션 바 */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
-          <div className="text-secondary/70 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="text-primary h-4 w-4" />
-              {dateText}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Heart className="h-4 w-4 text-red-500" />총 좋아요{' '}
-              {exhibition.totalLikes}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Star className="text-primary h-4 w-4" />
-              작품 {exhibition.works?.length}점
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {isOwner && (
-              <Link
-                href={`/exhibitions/${exhibition.id}/manage`}
-                className="text-secondary/60 hover:bg-primary/20 inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#FAF7F2] px-2.5 text-sm font-medium transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                전시회 관리
-              </Link>
-            )}
-            <LikeButton
-              isLiked={isLiked}
-              isLoggedIn={isLoggedIn}
-              totalLikes={exhibition.totalLikes}
-              exhibitionId={exhibition.id}
-            />
-            <Link
-              href={`/gallery/${exhibition.id}`}
-              className="bg-primary inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-white transition-colors hover:bg-[#E09415]"
-            >
-              <span>🎨</span>
-              전시회 입장하기
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
+        <ExhibitionActionBar
+          exhibition={exhibition}
+          isLiked={isLiked}
+          isLoggedIn={isLoggedIn}
+          isOwner={isOwner}
+        />
 
         {/* 전시회 소개 */}
         <section className="space-y-3 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
