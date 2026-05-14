@@ -25,7 +25,7 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const { error } = await supabase.auth.getUser(); // 사용자 정보 불러오며 토큰 갱신 및 쿠키 최신화
+  const { error } = await supabase.auth.getClaims(); // JWT claims 검증 및 필요 시 토큰 갱신/쿠키 최신화
 
   if (error?.code === 'refresh_token_not_found') {
     supabaseResponse.cookies.getAll().forEach(({ name }) => {

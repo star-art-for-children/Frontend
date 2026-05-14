@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GalleryUIArtworkProps, WAllType } from '../../../../types/gallery';
+import { GalleryUIArtworkProps, WAllType } from '../../../types/gallery';
 import { useTexture } from '@react-three/drei';
-import Floor from '@/components/galleryExhibition/threejs/test/Floor';
-import Ceiling from '@/components/galleryExhibition/threejs/test/Ceiling';
-import Walls from '@/components/galleryExhibition/threejs/test/Walls';
-import InnerWalls from '@/components/galleryExhibition/threejs/test/InnerWall';
 import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
-import { downloadImgHandler } from '@/components/galleryExhibition/threejs/test/util/util';
 import { likesToggle } from '@/service/artworks';
+import { downloadImgHandler } from '@/lib/gallery/image';
+import Floor from '@/components/galleryExhibition/threejs/Floor';
+import Walls from '@/components/galleryExhibition/threejs/Walls';
+import InnerWalls from '@/components/galleryExhibition/threejs/InnerWall';
+import Ceiling from '@/components/galleryExhibition/threejs/Ceiling';
+import { User } from '@supabase/supabase-js';
 
 export default function Room({
   init,
@@ -17,6 +18,7 @@ export default function Room({
   walls,
   innerWalls,
   exhibitionId,
+  user,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -24,6 +26,7 @@ export default function Room({
   walls: WAllType[];
   innerWalls: WAllType[];
   exhibitionId: string;
+  user: User | null;
 }) {
   const [artworks, setArtworks] = useState(init);
   const [loading, setLoading] = useState(false);
@@ -77,12 +80,11 @@ export default function Room({
       if (!painting) return;
 
       if (e.key === '1') {
-        console.log('id', painting.id);
+        if (!user) return;
         postLikes();
       }
 
       if (e.key === '2') {
-        console.log(painting);
         downloadImgHandler(painting.image_url, painting.title);
       }
     };
@@ -92,7 +94,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [loading, exhibitionId]);
+  }, [loading, exhibitionId, user]);
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempCurrentForward.current);
@@ -127,10 +129,10 @@ export default function Room({
       // const paintingVisible = fovDot > 0.7;
       // mesh.visible = paintingVisible;
 
-      const closestPaintingVisible = fovDot > 0.7 && distance < 7;
+      const closestPaintingVisible = fovDot > 0.5 && distance < 5;
 
       if (closestPaintingVisible) {
-        const score = fovDot * 100 - distance;
+        const score = fovDot * 20 - distance * 10;
 
         if (score > bestScore) {
           bestScore = score;

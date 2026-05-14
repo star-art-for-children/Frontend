@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
+import { getUserIdByEmail } from '@/lib/gallery/user';
 import {
-  checkExhibitionOwner,
-  checkRole,
-  getUserIdByEmail,
   ImageUploadValidationError,
   uploadImgToSupabase,
-} from '@/components/galleryExhibition/threejs/test/util/util';
+} from '@/lib/supabase/uploadImage';
 
 export async function POST(
   req: NextRequest,
@@ -113,8 +112,8 @@ export async function GET(
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user)
-      return NextResponse.json({ message: 'no session' }, { status: 401 });
+    // if (!user)
+    //   return NextResponse.json({ message: 'no session' }, { status: 401 });
 
     const { data: artworksRaw, error: artworksError } = await supabase
       .from('artworks')
@@ -142,7 +141,9 @@ export async function GET(
       return {
         ...x,
         likes: artworkLikes.length,
-        likesByMe: artworkLikes.some((xx) => xx.user_id === user.id),
+        likesByMe: user
+          ? artworkLikes.some((xx) => xx.user_id === user.id)
+          : false,
       };
     });
     return NextResponse.json({ message: 'success', artworks }, { status: 200 });

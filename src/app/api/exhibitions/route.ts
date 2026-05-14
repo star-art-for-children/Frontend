@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import {
-  checkRole,
-  ImageUploadValidationError,
-  parseFormDataToObj,
-  uploadImgToSupabase,
-  validateExhibition,
-} from '@/components/galleryExhibition/threejs/test/util/util';
+
 import {
   ExhibitionsAuthRequiredError,
   fetchExhibitions,
 } from '@/lib/exhibition/queries';
+import { checkRole } from '@/lib/gallery/checkRole';
+import { parseFormDataToObj } from '@/lib/gallery/parseForm';
+import { validateExhibition } from '@/lib/gallery/validateExhibitionForm';
+import {
+  ImageUploadValidationError,
+  uploadImgToSupabase,
+} from '@/lib/supabase/uploadImage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,8 +19,38 @@ export async function GET(req: NextRequest) {
     const sort = req.nextUrl.searchParams.get('sort') || 'latest';
     const rawPage = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
     const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    let userId: string | undefined;
 
-    const { data, pagination } = await fetchExhibitions({ page, sort, search });
+    // '내가 운영중인' 필터 선택시 인증 및 권한 검증 진행
+    if (sort === 'mine') {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return NextResponse.json({ message: 'no session' }, { status: 401 });
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile?.role !== 'teacher') {
+        return NextResponse.json({ message: 'forbidden' }, { status: 403 });
+      }
+
+      userId = user.id;
+    }
+
+    const { data, pagination } = await fetchExhibitions({
+      page,
+      sort,
+      search,
+      userId,
+    });
 
     return NextResponse.json({ data, pagination }, { status: 200 });
   } catch (err) {
