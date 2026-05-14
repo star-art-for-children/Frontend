@@ -5,6 +5,11 @@ export function generateGalleryWalls(roomSize: number) {
   const cellSize = roomSize / size;
   const half = roomSize / 2;
 
+  const startPosition = {
+    x: -half + cellSize / 2,
+    y: 1.6,
+    z: -half + cellSize / 2,
+  };
   // 1. grid 생성
   const grid: Cell[][] = [];
 
@@ -149,7 +154,10 @@ export function generateGalleryWalls(roomSize: number) {
     }
   }
 
-  return walls;
+  return {
+    innerWalls: walls,
+    startPosition,
+  };
 }
 
 export const createWalls = (

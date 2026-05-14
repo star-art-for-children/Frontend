@@ -21,7 +21,10 @@ export default function Scene2({
   // console.log(init)
   const size = 21;
   const height = size * 0.3;
-  const innerWalls = useMemo(() => generateGalleryWalls(size), [size]);
+  const { innerWalls, startPosition } = useMemo(
+    () => generateGalleryWalls(size),
+    [size]
+  );
   const walls = useMemo(() => createWalls(size, height), [size, height]);
 
   const { active, loaded, total } = useProgress();
@@ -43,7 +46,12 @@ export default function Scene2({
         />
         <ambientLight intensity={1} />
 
-        <Player innerWalls={innerWalls} size={size} speed={3} />
+        <Player
+          startPos={startPosition}
+          innerWalls={innerWalls}
+          size={size}
+          speed={3}
+        />
         <PointerLockControls />
       </Canvas>
     </>

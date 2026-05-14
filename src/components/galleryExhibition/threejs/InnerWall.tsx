@@ -18,23 +18,24 @@ export default function InnerWalls({
     <>
       {walls.map((wall, i) => {
         const [w, h, d] = wall.boxSize;
-
+        const paintingDetails = init[i];
         return (
           <group key={i} position={wall.pos} rotation={wall.rot}>
             <mesh>
               <boxGeometry args={[w, h, d]} />
               <meshStandardMaterial color="#E6E0D6" />
             </mesh>
-
-            <Painting
-              img={paintingTextures[i]}
-              paintingRef={(el) => {
-                paintingRefs.current[i] = el;
-              }}
-              details={init[i]}
-              weight={w}
-              height={h}
-            />
+            {paintingDetails && (
+              <Painting
+                img={paintingTextures[i]}
+                paintingRef={(el) => {
+                  paintingRefs.current[i] = el;
+                }}
+                details={paintingDetails}
+                weight={w}
+                height={h}
+              />
+            )}
           </group>
         );
       })}
