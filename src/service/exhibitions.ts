@@ -19,10 +19,9 @@ export const getExhibitionDetails = async (id: string) => {
     const error = await res.json();
     throw new Error(error.message);
   }
-  const {
-    data: { title, host },
-  } = await res.json();
-
+  const { data } = await res.json();
+  const title = data?.title || '';
+  const host = data?.host || '';
   return { title, host };
 };
 export const toggleExhibitionLike = async (
