@@ -28,9 +28,10 @@ export default async function ExhibitionDetail({
 
   if (!exhibition) notFound();
 
+  const limit = reviews.pagination.limit || 10;
   const totalPages = Math.max(
     1,
-    Math.ceil(reviews.pagination.totalCount / reviews.pagination.limit)
+    Math.ceil(reviews.pagination.totalCount / limit)
   );
 
   const { isLoggedIn, isOwner, isLiked, currentUserId } = exhibition;
