@@ -26,21 +26,22 @@ export default async function MyArtworksPage() {
 
   if (!user) redirect('/login');
 
-  const [{ data, error }, { data: likedData, error: likedError }] = await Promise.all([
-    supabase
-      .from('artworks')
-      .select(
-        `id, title, artist_name, description, image_url, created_at,
+  const [{ data, error }, { data: likedData, error: likedError }] =
+    await Promise.all([
+      supabase
+        .from('artworks')
+        .select(
+          `id, title, artist_name, description, image_url, created_at,
         artwork_likes(count),
         exhibitions ( id, title, profiles!teacher_id ( institution ) )`
-      )
-      .eq('artist_id', user.id)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('artwork_likes')
-      .select('artwork_id')
-      .eq('user_id', user.id),
-  ]);
+        )
+        .eq('artist_id', user.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('artwork_likes')
+        .select('artwork_id')
+        .eq('user_id', user.id),
+    ]);
 
   if (error) throw new Error(error.message);
   if (likedError) throw new Error(likedError.message);

@@ -11,7 +11,11 @@ interface ArtworkModalProps {
   onLikeChange?: (liked: boolean, newCount: number) => void;
 }
 
-export default function ArtworkModal({ artwork, onClose, onLikeChange }: ArtworkModalProps) {
+export default function ArtworkModal({
+  artwork,
+  onClose,
+  onLikeChange,
+}: ArtworkModalProps) {
   const [liked, setLiked] = useState(artwork.isLiked);
   const [likesCount, setLikesCount] = useState(artwork.likesCount);
   const [isPending, setIsPending] = useState(false);
