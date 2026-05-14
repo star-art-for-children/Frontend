@@ -14,6 +14,7 @@ interface ArtworkModalProps {
 export default function ArtworkModal({ artwork, onClose, onLikeChange }: ArtworkModalProps) {
   const [liked, setLiked] = useState(artwork.isLiked);
   const [likesCount, setLikesCount] = useState(artwork.likesCount);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -28,16 +29,20 @@ export default function ArtworkModal({ artwork, onClose, onLikeChange }: Artwork
   }, [onClose]);
 
   const handleLike = async () => {
+    if (isPending) return;
     const prev = liked;
     const newCount = likesCount + (prev ? -1 : 1);
     setLiked(!prev);
     setLikesCount(newCount);
+    setIsPending(true);
     try {
       await likesToggle(artwork.exhibitionId, artwork.id);
       onLikeChange?.(!prev, newCount);
     } catch {
       setLiked(prev);
       setLikesCount(likesCount);
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -98,7 +103,8 @@ export default function ArtworkModal({ artwork, onClose, onLikeChange }: Artwork
               {/* 좋아요 */}
               <button
                 onClick={handleLike}
-                className="flex items-center gap-1.5 rounded-full border border-[#EDEBE4] px-3.5 py-1.5 transition-colors hover:bg-[#F5F0E8]"
+                disabled={isPending}
+                className="flex items-center gap-1.5 rounded-full border border-[#EDEBE4] px-3.5 py-1.5 transition-colors hover:bg-[#F5F0E8] disabled:opacity-50"
               >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <path
