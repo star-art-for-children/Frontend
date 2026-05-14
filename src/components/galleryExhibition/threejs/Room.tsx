@@ -9,6 +9,7 @@ import Floor from '@/components/galleryExhibition/threejs/Floor';
 import Walls from '@/components/galleryExhibition/threejs/Walls';
 import InnerWalls from '@/components/galleryExhibition/threejs/InnerWall';
 import Ceiling from '@/components/galleryExhibition/threejs/Ceiling';
+import { User } from '@supabase/supabase-js';
 
 export default function Room({
   init,
@@ -17,6 +18,7 @@ export default function Room({
   walls,
   innerWalls,
   exhibitionId,
+  user,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -24,6 +26,7 @@ export default function Room({
   walls: WAllType[];
   innerWalls: WAllType[];
   exhibitionId: string;
+  user: User | null;
 }) {
   const [artworks, setArtworks] = useState(init);
   const [loading, setLoading] = useState(false);
@@ -77,12 +80,11 @@ export default function Room({
       if (!painting) return;
 
       if (e.key === '1') {
-        console.log('id', painting.id);
+        if (!user) return;
         postLikes();
       }
 
       if (e.key === '2') {
-        console.log(painting);
         downloadImgHandler(painting.image_url, painting.title);
       }
     };
@@ -92,7 +94,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [loading, exhibitionId]);
+  }, [loading, exhibitionId, user]);
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempCurrentForward.current);

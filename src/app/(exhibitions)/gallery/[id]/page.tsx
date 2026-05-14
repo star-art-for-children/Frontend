@@ -7,9 +7,12 @@ import { AiOutlineSound } from 'react-icons/ai';
 import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
 import { getArtworksByExhibitionId } from '@/service/artworks';
 import Scene2 from '@/components/galleryExhibition/threejs/Scene';
+import { createClient } from '@/lib/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const [galleryInit, setGalleryInit] = useState([]);
   const [isMuted, setIsMuted] = useState(false);
@@ -21,19 +24,26 @@ export default function GalleryExhibitionPage() {
     [isInitReady, isReady]
   );
   useEffect(() => {
-    const fetchInit = async () => {
+    const run = async () => {
       try {
-        const result = await getArtworksByExhibitionId(id);
-        console.log('rewrewrwe' + result);
-        setGalleryInit(result);
+        const supabase = createClient();
+
+        const [artworksRes, userRes] = await Promise.all([
+          getArtworksByExhibitionId(id),
+          supabase.auth.getUser(),
+        ]);
+
+        setGalleryInit(artworksRes);
+        setUser(userRes.data.user ?? null);
         setIsInitReady(true);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
-    fetchInit();
-    // setTimeout(() => setIsInitReady(true), 500);
+
+    run();
   }, [id]);
+
   return (
     <div className={'scr fixed inset-0 z-99'}>
       {!start && (
@@ -141,7 +151,12 @@ export default function GalleryExhibitionPage() {
         className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} `}
       >
         {isInitReady && (
-          <Scene2 exhibitionId={id} ready={setIsReady} init={galleryInit} />
+          <Scene2
+            user={user}
+            exhibitionId={id}
+            ready={setIsReady}
+            init={galleryInit}
+          />
         )}
       </div>
     </div>

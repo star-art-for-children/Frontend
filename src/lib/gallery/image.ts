@@ -7,7 +7,7 @@ export function checkImgSize(
   offset: number
 ) {
   if (!img?.width || !img?.height || img.height === 0) {
-    console.warn('Invalid texture dimensions');
+    // console.warn('Invalid texture dimensions');
     return [w * offset, h * offset];
   }
   const imgAspect = img?.width / img?.height;
