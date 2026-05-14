@@ -2,8 +2,6 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
-import { VscMute } from 'react-icons/vsc';
-import { AiOutlineSound } from 'react-icons/ai';
 import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
 import { getArtworksByExhibitionId } from '@/service/artworks';
 import Scene2 from '@/components/galleryExhibition/threejs/Scene';
@@ -131,21 +129,32 @@ export default function GalleryExhibitionPage() {
             <p className={'text-sm text-white/30'}>해피아트 미술학원</p>
           </div>
         </button>
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsMuted((s) => !s);
-          }}
-          className={
-            'flex items-center gap-2 rounded-lg bg-black/50 p-3 backdrop-blur-lg'
-          }
-        >
-          {isMuted ? (
-            <VscMute className={'text-xl text-white/80'} />
-          ) : (
-            <AiOutlineSound className={'text-xl text-white/80'} />
-          )}
-        </div>
+        {!isMuted && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMuted((s) => !s);
+            }}
+            className={'flex items-center gap-2'}
+          >
+            <div
+              className={
+                'flex flex-col items-center rounded-lg bg-black/50 p-3 backdrop-blur-lg'
+              }
+            >
+              <p className={'text-white/80'}>숫자키 1</p>
+              <p className={'text-[14px] text-white/50'}>좋아요</p>
+            </div>
+            <div
+              className={
+                'flex flex-col items-center rounded-lg bg-black/50 p-3 backdrop-blur-lg'
+              }
+            >
+              <p className={'text-white/80'}>숫자키 2</p>
+              <p className={'text-[14px] text-white/50'}>다운로드</p>
+            </div>
+          </div>
+        )}
       </div>
       <div
         className={`h-screen w-screen bg-white ${!start ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} `}
