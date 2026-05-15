@@ -1,8 +1,8 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 
 type RoleCheckResult =
   | { ok: false; status: number; message: string }
-  | { ok: true; user: { id: string } };
+  | { ok: true; user: User };
 export async function checkRole(
   supabase: SupabaseClient
 ): Promise<RoleCheckResult> {
