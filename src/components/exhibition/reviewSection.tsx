@@ -148,7 +148,7 @@ export default function ReviewSection({
                       {review.author}
                     </span>
                     <span className="text-secondary/40 text-xs">
-                      {review.createdAt}
+                      {review.createdAt.slice(0, 10)}
                     </span>
                   </div>
                   <p className="text-secondary/70 text-sm leading-relaxed">
