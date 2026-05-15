@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Trash2, TriangleAlert, Upload, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   AddWorkDialog,
   EditWorkDialog,
@@ -9,6 +9,7 @@ import {
 } from '@/components/exhibition/manage';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { cn } from '@/lib/utils';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -80,14 +81,15 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
 
           <ManageAlertDialog
             trigger={
-              <Button
-                size="lg"
-                variant="destructive"
-                className="shrink-0 rounded-xl"
+              <button
+                className={cn(
+                  buttonVariants({ variant: 'destructive', size: 'lg' }),
+                  'shrink-0 rounded-xl'
+                )}
               >
                 <X className="h-4 w-4" />
                 전시회 종료
-              </Button>
+              </button>
             }
             icon={<TriangleAlert stroke="#FF6900" />}
             iconContainerClassName="bg-primary/10 text-primary"
@@ -166,14 +168,15 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                     <EditWorkDialog work={work} />
                     <ManageAlertDialog
                       trigger={
-                        <Button
-                          size="sm"
-                          variant="surface"
-                          className="flex-1 rounded-lg hover:text-red-500"
+                        <button
+                          className={cn(
+                            buttonVariants({ variant: 'surface', size: 'sm' }),
+                            'flex-1 rounded-lg hover:text-red-500'
+                          )}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           삭제
-                        </Button>
+                        </button>
                       }
                       icon={<Trash2 />}
                       iconContainerClassName="bg-red-100 text-red-500"

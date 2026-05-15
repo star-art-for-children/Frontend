@@ -17,7 +17,7 @@ export default async function Header() {
 
   return (
     <header className="h-16">
-      <div className="border-secondary/8 fixed top-0 z-60 h-16 w-full border-b bg-[#FAF7F2]/95 shadow-[0_2px_8px_rgba(44,40,38,0.06)] backdrop-blur">
+      <div className="border-secondary/8 fixed top-0 z-30 h-16 w-full border-b bg-[#FAF7F2]/95 shadow-[0_2px_8px_rgba(44,40,38,0.06)] backdrop-blur">
         <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-3.5">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
