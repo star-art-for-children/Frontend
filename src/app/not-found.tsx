@@ -7,7 +7,7 @@ export const NotFound = () => {
       <div className="flex h-screen w-full items-center justify-center bg-[#faf7f2]">
         <div className="flex flex-col items-center">
           {/* 팔레트 아이콘 */}
-          <div className="bg- flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-[#F4B942] to-[#FF7B6B]">
+          <div className="flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-[#F4B942] to-[#FF7B6B]">
             <Palette size={48} color="white" strokeWidth={3} />
           </div>
           {/* 하단 텍스트 */}
