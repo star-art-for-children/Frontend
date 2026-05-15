@@ -12,12 +12,7 @@ import {
   ReviewRow,
   ReviewsPagination,
 } from '@/types/exhibitionList';
-
-// 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
-const todayKST = (): string => {
-  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
-  return kst.toISOString().slice(0, 10);
-};
+import { todayKST } from './dateStatus';
 
 export class ExhibitionsAuthRequiredError extends Error {
   constructor() {

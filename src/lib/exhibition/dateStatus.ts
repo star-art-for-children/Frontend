@@ -1,5 +1,15 @@
 export type ExhibitionStatus = 'ongoing' | 'upcoming' | 'ended';
 
+// 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
+export const todayKST = (): string => {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+};
+
 export function getStatus(
   startDate: string,
   endDate?: string
@@ -14,11 +24,11 @@ export function getStatus(
   }
 
   start.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
 
   if (now < start.getTime()) return 'upcoming';
   if (!endDate) return 'ongoing';
-  if (now >= end.getTime()) return 'ended';
+  if (now > end.getTime()) return 'ended';
   return 'ongoing';
 }
 

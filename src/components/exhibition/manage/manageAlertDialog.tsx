@@ -16,12 +16,14 @@ import { cn } from '@/lib/utils';
 import { deleteArtworksByArtworkId } from '@/service/artworks';
 import { useRouter } from 'next/navigation';
 import { endExhibition } from '@/service/exhibitions';
+import { todayKST } from '@/lib/exhibition/dateStatus';
 
 interface ManageAlertDialogProps {
   trigger: ReactElement;
   icon: ReactNode;
   iconContainerClassName?: string;
   title: string;
+  startDate?: string;
   description: ReactNode;
   actionLabel: string;
   artworkId?: string;
@@ -41,6 +43,7 @@ export default function ManageAlertDialog({
   onAction,
   artworkId,
   exhibitionId,
+  startDate,
 }: ManageAlertDialogProps) {
   const router = useRouter();
   const deleteArtworkHandler = async () => {
@@ -57,6 +60,13 @@ export default function ManageAlertDialog({
     }
   };
   const endExhibitionHandler = async () => {
+    const today = todayKST();
+
+    if (today === startDate) {
+      alert('전시 시작 당일에는 종료할 수 없습니다.');
+      return;
+    }
+
     try {
       const updatedId = await endExhibition(exhibitionId);
       console.log(updatedId);
