@@ -51,7 +51,10 @@ export async function GET() {
     }
     if (likedError) {
       console.log(likedError);
-      return NextResponse.json({ message: likedError.message }, { status: 500 });
+      return NextResponse.json(
+        { message: likedError.message },
+        { status: 500 }
+      );
     }
 
     const likedSet = new Set((likedData ?? []).map((l) => l.artwork_id));

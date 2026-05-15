@@ -50,7 +50,9 @@ export async function GET() {
 
     const artworks: Artwork[] = ((data ?? []) as unknown as LikeRow[])
       .filter(
-        (like): like is LikeRow & { artworks: NonNullable<LikeRow['artworks']> } =>
+        (
+          like
+        ): like is LikeRow & { artworks: NonNullable<LikeRow['artworks']> } =>
           like.artworks !== null
       )
       .map((like) => {
