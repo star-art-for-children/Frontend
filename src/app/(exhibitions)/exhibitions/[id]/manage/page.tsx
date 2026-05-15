@@ -96,7 +96,11 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             title="전시회 종료"
             description={
               <>
-                전시회를 종료하면 관람객이 더 이상 입장할 수 없습니다.
+                전시를 종료하면 관람객이 더 이상 입장할 수 없습니다.
+                <br />
+                오늘까지는 정상 운영되며,
+                <br />
+                <strong>내일 0시부터 ‘종료된 전시’</strong>로 표시됩니다.
                 <br />
                 정말 종료하시겠습니까?
               </>
@@ -105,6 +109,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             onAction={'exhibitionEnd'}
             actionLabel="종료하기"
             actionClassName="bg-[#FF6900] hover:bg-[#F64900] text-white"
+            startDate={exhibition.start_date}
           />
         </div>
 
