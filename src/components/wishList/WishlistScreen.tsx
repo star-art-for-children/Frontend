@@ -65,20 +65,12 @@ export default function WishlistScreen({
           key={selectedArtwork.id}
           artwork={selectedArtwork}
           onClose={() => setSelectedArtwork(null)}
-          onLikeChange={(liked, newCount) => {
+          onLikeChange={(liked) => {
             if (!liked) {
               setArtworks((prev) =>
                 prev.filter((a) => a.id !== selectedArtwork.id)
               );
               setSelectedArtwork(null);
-            } else {
-              setArtworks((prev) =>
-                prev.map((a) =>
-                  a.id === selectedArtwork.id
-                    ? { ...a, likesCount: newCount, isLiked: liked }
-                    : a
-                )
-              );
             }
           }}
         />
