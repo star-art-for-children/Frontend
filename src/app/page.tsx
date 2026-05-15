@@ -1,10 +1,12 @@
 import { ExhibitionListContent } from '@/components/home/exhibitionListContent';
+import ExhibitionListSkeleton from '@/components/home/exhibitionListSkeleton';
 import SearchForm from '@/components/home/searchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default async function Home({
   searchParams,
@@ -64,14 +66,18 @@ export default async function Home({
         </div>
       </section>
       {/* // hero section */}
-      <ExhibitionListContent
-        sort={sort}
-        search={search}
-        page={page}
-        userId={user?.id}
-        isTeacher={isTeacher}
-        isLoggedIn={!!user}
-      />
+      <div className="mx-auto max-w-6xl px-3.5 pb-20">
+        <Suspense fallback={<ExhibitionListSkeleton />}>
+          <ExhibitionListContent
+            sort={sort}
+            search={search}
+            page={page}
+            userId={user?.id}
+            isTeacher={isTeacher}
+            isLoggedIn={!!user}
+          />
+        </Suspense>
+      </div>
     </main>
   );
 }

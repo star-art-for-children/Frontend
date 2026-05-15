@@ -31,20 +31,18 @@ export async function ExhibitionListContent({
   if (page > 1 && exhibitions.length === 0) return notFound();
   return (
     <>
-      <div className="mx-auto max-w-6xl px-3.5 pb-20">
-        <ExhibitionList
-          exhibitions={exhibitions}
-          sort={sort}
-          isTeacher={isTeacher}
-          isLoggedIn={isLoggedIn}
-        />
-        <ListPagination
-          currentPage={pagination.page}
-          totalCount={pagination.totalCount}
-          sort={sort}
-          search={search}
-        />
-      </div>
+      <ExhibitionList
+        exhibitions={exhibitions}
+        sort={sort}
+        isTeacher={isTeacher}
+        isLoggedIn={isLoggedIn}
+      />
+      <ListPagination
+        currentPage={pagination.page}
+        totalCount={pagination.totalCount}
+        sort={sort}
+        search={search}
+      />
     </>
   );
 }
