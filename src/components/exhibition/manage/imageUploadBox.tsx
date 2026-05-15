@@ -7,11 +7,17 @@ import { useMemo, useRef } from 'react';
 interface ImageUploadBoxProps {
   value?: File | string | null;
   onChange?: (file: File | null) => void;
+  bgColor?: 'yellow' | 'gray';
 }
 
+const bgColors = {
+  yellow: 'border-secondary/8 bg-primary/2 hover:bg-primary/10 ',
+  gray: 'border-gray-200 bg-gray-50 hover:bg-gray-100',
+};
 export default function ImageUploadBox({
   value,
   onChange,
+  bgColor = 'gray',
 }: ImageUploadBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,7 +85,7 @@ export default function ImageUploadBox({
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-12 transition-colors hover:bg-gray-100"
+          className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-12 transition-colors ${bgColors[bgColor]} `}
         >
           <Upload className="text-secondary/40 h-8 w-8" />
 
