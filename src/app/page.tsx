@@ -1,4 +1,5 @@
 import ExhibitionList from '@/components/home/exhibitionList';
+import { ExhibitionListContent } from '@/components/home/exhibitionListContent';
 import ListPagination from '@/components/home/listPagination';
 import SearchForm from '@/components/home/searchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
@@ -26,15 +27,6 @@ export default async function Home({
   const sort = (
     sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
   ) as ExhibitionSort;
-
-  const { data: exhibitions, pagination } = await fetchExhibitions({
-    sort,
-    search,
-    page,
-    userId: user?.id,
-  });
-
-  if (page > 1 && exhibitions.length === 0) return notFound();
 
   return (
     <main className="bg-[#FAF7F2]">
@@ -75,20 +67,14 @@ export default async function Home({
         </div>
       </section>
       {/* // hero section */}
-      <div className="mx-auto max-w-6xl px-3.5 pb-20">
-        <ExhibitionList
-          exhibitions={exhibitions}
-          sort={sort}
-          isTeacher={isTeacher}
-          isLoggedIn={!!user}
-        />
-        <ListPagination
-          currentPage={pagination.page}
-          totalCount={pagination.totalCount}
-          sort={sort}
-          search={search}
-        />
-      </div>
+      <ExhibitionListContent
+        sort={sort}
+        search={search}
+        page={page}
+        userId={user?.id}
+        isTeacher={isTeacher}
+        isLoggedIn={!!user}
+      />
     </main>
   );
 }
