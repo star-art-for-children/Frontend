@@ -16,6 +16,6 @@ export default async function page() {
     notFound();
   }
 
-  const institution=result.user.user_metadata?.institution || ''
-  return <CreateGalleryPage institution={institution}/>;
+  const institution = result.user.user_metadata?.institution || '';
+  return <CreateGalleryPage institution={institution} />;
 }

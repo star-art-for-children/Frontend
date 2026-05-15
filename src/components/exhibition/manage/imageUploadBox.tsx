@@ -7,7 +7,7 @@ import { useMemo, useRef } from 'react';
 interface ImageUploadBoxProps {
   value?: File | string | null;
   onChange?: (file: File | null) => void;
-  bgColor?: 'yellow'|'gray';
+  bgColor?: 'yellow' | 'gray';
 }
 
 const bgColors = {

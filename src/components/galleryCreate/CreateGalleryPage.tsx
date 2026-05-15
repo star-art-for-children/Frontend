@@ -14,7 +14,11 @@ import { postNewExhibition } from '@/service/exhibitions';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/exhibition/manage/imageUploadBox';
-export default function CreateGalleryPage({institution}:{institution:string}) {
+export default function CreateGalleryPage({
+  institution,
+}: {
+  institution: string;
+}) {
   const router = useRouter();
   const {
     register,
@@ -71,9 +75,7 @@ export default function CreateGalleryPage({institution}:{institution:string}) {
               <p className={'text-secondary] text-[28px] font-bold'}>
                 새 전시회 만들기
               </p>
-              <p className={'text-secondary/50 text-[14px]'}>
-                {institution}
-              </p>
+              <p className={'text-secondary/50 text-[14px]'}>{institution}</p>
             </div>
             <button
               onClick={() => router.back()}
