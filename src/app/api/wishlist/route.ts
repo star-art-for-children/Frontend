@@ -3,13 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import type { Artwork } from '@/components/myArtworks/Types';
 
 type LikeRow = {
-  created_at: string;
   artworks: {
     id: string;
     title: string;
     artist_name: string | null;
     description: string | null;
     image_url: string | null;
+    created_at: string;
     artwork_likes: { count: number }[];
     exhibitions: {
       id: string;
@@ -33,9 +33,8 @@ export async function GET() {
     const { data, error } = await supabase
       .from('artwork_likes')
       .select(
-        `created_at,
-        artworks (
-          id, title, artist_name, description, image_url,
+        `artworks (
+          id, title, artist_name, description, image_url, created_at,
           artwork_likes(count),
           exhibitions ( id, title, profiles!teacher_id ( institution ) )
         )`
@@ -71,7 +70,7 @@ export async function GET() {
           imageUrl: aw.image_url ?? '',
           likesCount: aw.artwork_likes[0]?.count ?? 0,
           isLiked: true,
-          createdAt: like.created_at,
+          createdAt: aw.created_at,
         };
       });
 
