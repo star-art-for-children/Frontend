@@ -60,7 +60,7 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                 'rounded-full px-4 py-2 text-sm font-medium transition-colors',
                 filter === value
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-white text-secondary/60 hover:bg-primary/10 hover:text-secondary'
+                  : 'text-secondary/60 hover:bg-primary/10 hover:text-secondary bg-white'
               )}
             >
               {label}
