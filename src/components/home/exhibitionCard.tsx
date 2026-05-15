@@ -66,7 +66,7 @@ export default function ExhibitionCard({
 
         {/* 종료된 전시 */}
         {status === 'ended' && (
-          <span className="text-secondary absolute top-1/2 left-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
+          <span className="text-secondary absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
             <CheckCircle className="h-3.5 w-3.5" />
             종료된 전시
           </span>
