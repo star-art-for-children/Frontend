@@ -1,13 +1,10 @@
-import ExhibitionList from '@/components/home/exhibitionList';
 import { ExhibitionListContent } from '@/components/home/exhibitionListContent';
-import ListPagination from '@/components/home/listPagination';
 import SearchForm from '@/components/home/searchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
-import { fetchExhibitions } from '@/lib/exhibition/queries';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export default async function Home({
   searchParams,
