@@ -14,11 +14,11 @@ export function getStatus(
   }
 
   start.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
 
   if (now < start.getTime()) return 'upcoming';
   if (!endDate) return 'ongoing';
-  if (now >= end.getTime()) return 'ended';
+  if (now > end.getTime()) return 'ended';
   return 'ongoing';
 }
 
