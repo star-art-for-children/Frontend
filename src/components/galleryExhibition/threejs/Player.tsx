@@ -4,13 +4,14 @@ import * as THREE from 'three';
 import { WAllType } from '../../../types/gallery';
 
 export default function Player({
-  size = 15,
   speed = 5,
   innerWalls,
+  startPos,
 }: {
   size?: number;
   speed: number;
   innerWalls: WAllType[];
+  startPos: { x: number; y: number; z: number };
 }) {
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());
@@ -27,15 +28,19 @@ export default function Player({
 
   const localPos = useRef(new THREE.Vector3());
 
+  const initialized = useRef(false);
+
   const colliders = useMemo(() => {
     return innerWalls.map((wall) => {
       const pos = new THREE.Vector3(...wall.pos);
       const rot = new THREE.Euler(...(wall.rot ?? [0, 0, 0]));
+
       const mat = new THREE.Matrix4().compose(
         pos,
         new THREE.Quaternion().setFromEuler(rot),
         new THREE.Vector3(1, 1, 1)
       );
+
       return {
         inv: mat.clone().invert(),
         halfX: wall.boxSize[0] / 2,
@@ -43,6 +48,7 @@ export default function Player({
       };
     });
   }, [innerWalls]);
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       const key = e.code
@@ -72,7 +78,15 @@ export default function Player({
       window.removeEventListener('keyup', up);
     };
   }, []);
+
   useFrame((state, delta) => {
+    const camera = state.camera;
+
+    if (!initialized.current && startPos) {
+      camera.position.set(startPos.x, startPos.y, startPos.z);
+      initialized.current = true;
+    }
+
     direction.current.set(0, 0, 0);
 
     if (keys.current.w) direction.current.z -= 1;
@@ -82,8 +96,6 @@ export default function Player({
 
     velocity.current.x = direction.current.x * speed * delta;
     velocity.current.z = direction.current.z * speed * delta;
-
-    const camera = state.camera;
 
     camera.getWorldDirection(forward.current);
     forward.current.y = 0;
@@ -106,10 +118,9 @@ export default function Player({
       right.current.z * velocity.current.x -
       forward.current.z * velocity.current.z;
 
-    const newPos = new THREE.Vector3(newX, size / 30, newZ);
+    const newPos = new THREE.Vector3(newX, startPos.y, newZ);
 
     let blocked = false;
-
     const pad = 0.3;
 
     for (const collider of colliders) {
@@ -129,5 +140,6 @@ export default function Player({
       camera.position.copy(newPos);
     }
   });
-  return <>{/*<pointLight position={[0,2,0]} intensity={10} />*/}</>;
+
+  return null;
 }

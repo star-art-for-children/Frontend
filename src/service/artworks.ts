@@ -74,3 +74,23 @@ export async function likesToggle(exhibitionId: string, closestId: string) {
 
   return result.json();
 }
+
+export const toggleArtworkLike = async (
+  exhibitionId: string,
+  artworkId: string,
+  nextLiked: boolean
+) => {
+  const res = await fetch(
+    `/api/exhibitions/${exhibitionId}/artworks/${artworkId}/likes`,
+    {
+      method: nextLiked ? 'POST' : 'DELETE',
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message ?? 'like error');
+  }
+
+  return res.json();
+};

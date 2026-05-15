@@ -2,6 +2,9 @@
 export { default as ExhibitionEnded } from './exhibitionEnded';
 export { default as ExhibitionUpcoming } from './exhibitionUpcoming';
 
+// actionBar
+export { default as ExhibitionActionBar } from './exhibitionActionBar';
+
 // review
 export { default as ReviewSection } from './reviewSection';
 
