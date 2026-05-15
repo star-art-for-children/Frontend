@@ -10,6 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { toggleArtworkLike } from '@/service/artworks';
+import { MouseEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export interface Work {
   id: string;
@@ -17,11 +21,13 @@ export interface Work {
   artist: string;
   image: string;
   description?: string;
-  likes?: number;
+  likes: number;
+  liked: boolean;
 }
 
 interface WorkDialogProps {
   work: Work;
+  exhibitionId: string;
   exhibitionTitle: string;
   exhibitionHost: string;
   isLoggedIn?: boolean;
@@ -29,13 +35,72 @@ interface WorkDialogProps {
 
 export default function WorkDialog({
   work,
+  exhibitionId,
   exhibitionTitle,
   exhibitionHost,
   isLoggedIn = false,
 }: WorkDialogProps) {
+  const handleImageDownload = async (imageUrl: string, title: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = title;
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Image Download Error', err);
+      alert('이미지 다운로드에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const router = useRouter();
+  const [liked, setLiked] = useState(work.liked);
+  const [likes, setLikes] = useState(work.likes); // 총 좋아요 수
+  const [isPending, setIsPending] = useState(false);
+
+  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn) {
+      alert('로그인이 필요한 기능입니다.');
+      router.push('/login');
+      return;
+    }
+
+    if (isPending) return;
+
+    // 백업용
+    const previousLiked = liked;
+    const previousLikes = likes;
+    const nextLiked = !previousLiked;
+
+    // 낙관적
+    setLiked(nextLiked);
+    setLikes(previousLikes + (nextLiked ? 1 : -1));
+
+    try {
+      setIsPending(true);
+      await toggleArtworkLike(exhibitionId, work.id, nextLiked);
+    } catch (err) {
+      console.error('Like Error:', err);
+      setLiked(previousLiked);
+      setLikes(previousLikes);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
   return (
     <Dialog>
-      <DialogTrigger className="group block w-full overflow-hidden rounded-2xl bg-white text-left shadow-[0_2px_8px_rgba(44,40,38,0.06)] transition-all hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]">
+      <DialogTrigger className="group flex w-full flex-col overflow-hidden rounded-2xl bg-white text-left shadow-[0_2px_8px_rgba(44,40,38,0.06)] transition-all hover:shadow-[0_8px_24px_rgba(44,40,38,0.12)]">
         <div className="relative aspect-4/3 overflow-hidden bg-[#F5EFE0]">
           <Image
             src={work.image}
@@ -69,6 +134,7 @@ export default function WorkDialog({
             src={work.image}
             alt={work.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover"
           />
         </div>
@@ -86,14 +152,21 @@ export default function WorkDialog({
               <button
                 type="button"
                 disabled={!isLoggedIn}
+                onClick={handleClick}
                 aria-label="좋아요"
-                className="text-secondary/60 hover:bg-primary/10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+                className={cn(
+                  'text-secondary/60 hover:bg-primary/10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm transition-colors disabled:opacity-50 disabled:hover:bg-transparent',
+                  liked
+                    ? 'bg-red-50 text-red-500'
+                    : 'text-secondary/60 hover:bg-primary/10'
+                )}
               >
-                <Heart className="h-4 w-4" />
-                {work.likes ?? 0}
+                <Heart className={cn('h-4 w-4', liked && 'fill-red-500')} />
+                {likes ?? 0}
               </button>
               <button
                 type="button"
+                onClick={() => handleImageDownload(work.image, work.title)}
                 aria-label="다운로드"
                 className="text-secondary/60 hover:bg-primary/10 inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors"
               >

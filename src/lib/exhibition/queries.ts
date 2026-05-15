@@ -1,6 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
-import { EXHIBITIONS_PER_PAGE } from '@/lib/exhibition/constants';
-import { ExhibitionListItem, ExhibitionRow } from '@/types/exhibitionList';
+import {
+  EXHIBITIONS_PER_PAGE,
+  REVIEWS_PER_PAGE,
+} from '@/lib/exhibition/constants';
+import {
+  ArtworkRow,
+  ExhibitionDetailRow,
+  ExhibitionListItem,
+  ExhibitionReviewItem,
+  ExhibitionRow,
+  ReviewRow,
+  ReviewsPagination,
+} from '@/types/exhibitionList';
 
 // 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
 const todayKST = (): string => {
@@ -175,6 +186,173 @@ export async function fetchExhibitions({
 
   return {
     data: result,
+    pagination: { page: safePage, limit, totalCount, hasNextPage },
+  };
+}
+
+export type ExhibitionWorkItem = {
+  id: string;
+  title: string;
+  artist: string;
+  image: string;
+  description: string | null;
+  likes: number;
+  liked: boolean;
+};
+
+export type ExhibitionDetailItem = {
+  id: string;
+  title: string;
+  image: string | null;
+  startDate: string;
+  endDate: string | null;
+  description: string | null;
+  host: string;
+  totalLikes: number;
+  isLiked: boolean;
+  isOwner: boolean;
+  isLoggedIn: boolean;
+  currentUserId: string | null;
+  works: ExhibitionWorkItem[];
+};
+
+export async function fetchExhibitionDetail(
+  exhibitionId: string
+): Promise<ExhibitionDetailItem | null> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
+  const { data: rawData, error } = await supabase
+    .from('exhibitions')
+    .select(
+      `
+      id,
+      title,
+      thumbnail_url,
+      start_date,
+      end_date,
+      description,
+      teacher_id,
+      likes_count,
+      profile:profiles!teacher_id ( institution ),
+      artworks ( id, title, artist_name, description, image_url, likes_count )
+    `
+    )
+    .eq('id', exhibitionId)
+    .single<ExhibitionDetailRow>();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    console.error('전시회 상세 조회 에러:', error);
+    throw new Error('database error');
+  }
+  if (!rawData) return null;
+
+  // 전시회에 대한 좋아요 여부
+  let isLiked = false;
+  if (currentUserId) {
+    const { data: likeData } = await supabase
+      .from('exhibition_likes')
+      .select('id')
+      .eq('exhibition_id', exhibitionId)
+      .eq('user_id', currentUserId)
+      .maybeSingle();
+    isLiked = !!likeData;
+  }
+
+  // 작품에 대한 liked
+  let likedArtworkIds = new Set<string>();
+  if (currentUserId && rawData.artworks.length) {
+    const artworkId = rawData.artworks.map((row) => row.id);
+    const { data: likedRows } = await supabase
+      .from('artwork_likes')
+      .select('artwork_id')
+      .eq('user_id', currentUserId)
+      .in('artwork_id', artworkId);
+
+    likedArtworkIds = new Set((likedRows ?? []).map((r) => r.artwork_id));
+  }
+
+  const profile = Array.isArray(rawData.profile)
+    ? rawData.profile[0]
+    : rawData.profile;
+
+  return {
+    id: rawData.id,
+    title: rawData.title,
+    image: rawData.thumbnail_url,
+    startDate: rawData.start_date,
+    endDate: rawData.end_date,
+    description: rawData.description,
+    host: profile?.institution ?? '',
+    totalLikes: rawData.likes_count,
+    isLiked,
+    isOwner: rawData.teacher_id === currentUserId,
+    isLoggedIn: !!currentUserId,
+    currentUserId,
+    works: (rawData.artworks ?? []).map((work: ArtworkRow) => ({
+      id: work.id,
+      title: work.title,
+      artist: work.artist_name,
+      image: work.image_url,
+      description: work.description,
+      likes: work.likes_count,
+      liked: likedArtworkIds.has(work.id),
+    })),
+  };
+}
+
+export async function fetchExhibitionReviews(
+  exhibitionId: string,
+  { page = 1, limit = REVIEWS_PER_PAGE }: { page: number; limit?: number }
+): Promise<{ data: ExhibitionReviewItem[]; pagination: ReviewsPagination }> {
+  const supabase = await createClient();
+  const MAX_PAGE = 1000;
+  const safePage = Number.isFinite(page)
+    ? Math.min(MAX_PAGE, Math.max(1, Math.floor(page)))
+    : 1;
+  const from = (safePage - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, error, count } = await supabase
+    .from('reviews')
+    .select(
+      'id, content, created_at, updated_at, user_id, profiles:user_id(username)',
+      {
+        count: 'exact',
+      }
+    )
+    .eq('exhibition_id', exhibitionId)
+    .order('created_at', { ascending: false })
+    .range(from, to)
+    .returns<ReviewRow[]>();
+
+  if (error) {
+    console.error(error);
+    throw new Error('failed to fetch reviews');
+  }
+
+  const reviews = (data ?? []).map((row) => {
+    const profiles = row.profiles as { username?: string } | null;
+    return {
+      id: row.id,
+      content: row.content,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      userId: row.user_id,
+      author: profiles?.username ?? '사용자',
+    };
+  });
+
+  const totalCount = count ?? 0;
+  const hasNextPage = from + limit < totalCount;
+
+  return {
+    data: reviews,
     pagination: { page: safePage, limit, totalCount, hasNextPage },
   };
 }

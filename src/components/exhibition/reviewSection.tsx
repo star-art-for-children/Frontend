@@ -1,58 +1,126 @@
 'use client';
 
-import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { FormEvent, useState } from 'react';
 import { cn } from '@/lib/utils';
+import ReviewPagination from './reviewPagination';
+import ReviewAlertDialog from './reviewAlertDialog';
+import {
+  deleteReview,
+  fetchReviewsPage,
+  postReview,
+} from '@/service/exhibitions';
+import { ExhibitionReviewItem } from '@/types/exhibitionList';
 
-export interface Review {
-  id: string;
-  author: string;
-  date: string;
-  content: string;
-}
+export type Review = ExhibitionReviewItem;
 
 interface ReviewSectionProps {
-  initialReviews?: Review[];
+  exhibitionId: string;
+  reviews: Review[];
+  totalCount: number;
+  totalPages: number;
   isLoggedIn?: boolean;
-  currentUser?: string;
+  currentUserId?: string;
 }
 
 export default function ReviewSection({
-  initialReviews,
+  exhibitionId,
+  reviews: initialReviews,
+  totalCount: initialTotalCount,
+  totalPages: initialTotalPages,
   isLoggedIn = false,
-  currentUser,
+  currentUserId,
 }: ReviewSectionProps) {
-  const [reviews] = useState<Review[]>(initialReviews ?? []);
+  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+  const [currentPage, setCurrentPage] = useState(1);
   const [input, setInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const loadPage = async (page: number) => {
+    const data = await fetchReviewsPage(exhibitionId, page);
+    setReviews(data.reviews);
+    setTotalCount(data.totalCount);
+    setTotalPages(data.totalPages);
+    setCurrentPage(page);
+  };
+
+  const handlePageChange = async (page: number) => {
+    if (page === currentPage) return;
+    try {
+      await loadPage(page);
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : '후기를 불러오지 못했습니다');
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const content = input.trim();
+    if (!content || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await postReview(exhibitionId, content);
+      setInput('');
+      await loadPage(1);
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : '후기 등록에 실패했습니다');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    if (deletingId) return;
+    setDeletingId(reviewId);
+
+    try {
+      await deleteReview(exhibitionId, reviewId);
+      const nextLength = reviews.length - 1;
+      const targetPage =
+        nextLength === 0 && currentPage > 1 ? currentPage - 1 : currentPage;
+      await loadPage(targetPage);
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : '후기 삭제에 실패했습니다');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <section className="space-y-4 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
       <strong className="text-secondary mb-3 block text-lg font-bold">
-        관람 후기 ({reviews.length})
+        관람 후기 ({totalCount})
       </strong>
 
       {/* 입력 영역 */}
       {isLoggedIn ? (
-        <form className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="전시회 관람 후기를 남겨주세요..."
             rows={3}
-            className="text-secondary placeholder:text-secondary/40 focus:border-primary w-full resize-none rounded-xl border border-[#E8DFC8] bg-[#FAF7F2] px-4 py-3 text-sm focus:outline-none"
+            disabled={isSubmitting}
+            className="text-secondary placeholder:text-secondary/40 focus:border-primary w-full resize-none rounded-xl border border-[#E8DFC8] bg-[#FAF7F2] px-4 py-3 text-sm focus:outline-none disabled:opacity-60"
           />
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isSubmitting}
               className={cn(
                 'rounded-xl px-5 py-2 text-sm font-semibold transition-colors',
-                input.trim()
+                input.trim() && !isSubmitting
                   ? 'bg-primary text-white hover:bg-[#E09415]'
                   : 'bg-primary/40 cursor-not-allowed text-white'
               )}
             >
-              후기 등록
+              {isSubmitting ? '등록중...' : '후기 등록'}
             </button>
           </div>
         </form>
@@ -67,7 +135,7 @@ export default function ReviewSection({
       <ul className="space-y-4 pt-2">
         {reviews.length !== 0 ? (
           reviews.map((review) => {
-            const isMine = currentUser && review.author === currentUser;
+            const isMine = !!currentUserId && currentUserId === review.userId;
 
             return (
               <li key={review.id} className="flex gap-3">
@@ -80,7 +148,7 @@ export default function ReviewSection({
                       {review.author}
                     </span>
                     <span className="text-secondary/40 text-xs">
-                      {review.date}
+                      {review.createdAt}
                     </span>
                   </div>
                   <p className="text-secondary/70 text-sm leading-relaxed">
@@ -89,13 +157,10 @@ export default function ReviewSection({
                 </div>
 
                 {isMine && (
-                  <button
-                    type="button"
-                    aria-label="후기 삭제"
-                    className="text-secondary/40 hover:text-secondary/80 hover:bg-secondary/5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <ReviewAlertDialog
+                    isDeleting={deletingId === review.id}
+                    onAction={() => handleDelete(review.id)}
+                  />
                 )}
               </li>
             );
@@ -106,6 +171,12 @@ export default function ReviewSection({
           </p>
         )}
       </ul>
+
+      <ReviewPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 }

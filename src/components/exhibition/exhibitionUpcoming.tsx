@@ -37,7 +37,7 @@ export default function ExhibitionUpcoming({
         <div className="mt-6 flex w-full max-w-xs flex-col gap-3">
           {isTeacher && (
             <Link
-              href="/"
+              href={`/exhibitions/${id}/manage`}
               className="bg-secondary hover:bg-secondary/70 inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold text-white shadow-lg transition-colors"
             >
               <Settings className="h-4 w-4" />
