@@ -28,27 +28,32 @@ export async function GET() {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
-    const [{ data, error }, { data: likedData, error: likedError }] =
-      await Promise.all([
-        supabase
-          .from('artworks')
-          .select(
-            `id, title, artist_name, description, image_url, created_at,
-            artwork_likes(count),
-            exhibitions ( id, title, profiles!teacher_id ( institution ) )`
-          )
-          .eq('artist_id', user.id)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('artwork_likes')
-          .select('artwork_id')
-          .eq('user_id', user.id),
-      ]);
+    const { data, error } = await supabase
+      .from('artworks')
+      .select(
+        `id, title, artist_name, description, image_url, created_at,
+        artwork_likes(count),
+        exhibitions ( id, title, profiles!teacher_id ( institution ) )`
+      )
+      .eq('artist_id', user.id)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.log(error);
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
+
+    const artworkIds = (data ?? []).map((a) => a.id);
+
+    const { data: likedData, error: likedError } =
+      artworkIds.length > 0
+        ? await supabase
+            .from('artwork_likes')
+            .select('artwork_id')
+            .eq('user_id', user.id)
+            .in('artwork_id', artworkIds)
+        : { data: [], error: null };
+
     if (likedError) {
       console.log(likedError);
       return NextResponse.json(
