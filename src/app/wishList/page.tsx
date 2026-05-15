@@ -1,27 +1,70 @@
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import type { Artwork } from '@/components/myArtworks/Types';
 import WishlistScreen from '@/components/wishList/WishlistScreen';
 
-function getBaseUrl() {
-  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return 'http://localhost:3000';
-}
+type LikeRow = {
+  artworks: {
+    id: string;
+    title: string;
+    artist_name: string | null;
+    description: string | null;
+    image_url: string | null;
+    created_at: string;
+    artwork_likes: { count: number }[];
+    exhibitions: {
+      id: string;
+      title: string;
+      profiles: { institution: string | null } | null;
+    } | null;
+  } | null;
+};
 
 export default async function WishlistPage() {
-  const headersList = await headers();
-  const cookie = headersList.get('cookie') ?? '';
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const res = await fetch(`${getBaseUrl()}/api/wishlist`, {
-    headers: { cookie },
-    cache: 'no-store',
-  });
+  if (!user) redirect('/login');
 
-  if (res.status === 401) redirect('/login');
-  if (!res.ok) throw new Error('wishlist fetch failed');
+  const { data, error } = await supabase
+    .from('artwork_likes')
+    .select(
+      `artworks (
+        id, title, artist_name, description, image_url, created_at,
+        artwork_likes(count),
+        exhibitions ( id, title, profiles!teacher_id ( institution ) )
+      )`
+    )
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
-  const { artworks }: { artworks: Artwork[] } = await res.json();
+  if (error) throw new Error(error.message);
+
+  const artworks: Artwork[] = ((data ?? []) as unknown as LikeRow[])
+    .filter(
+      (
+        like
+      ): like is LikeRow & { artworks: NonNullable<LikeRow['artworks']> } =>
+        like.artworks !== null
+    )
+    .map((like) => {
+      const aw = like.artworks;
+      return {
+        id: aw.id,
+        exhibitionId: aw.exhibitions?.id ?? '',
+        title: aw.title,
+        artist: aw.artist_name ?? '',
+        description: aw.description ?? '',
+        exhibitionTitle: aw.exhibitions?.title ?? '',
+        academyName: aw.exhibitions?.profiles?.institution ?? '',
+        imageUrl: aw.image_url ?? '',
+        likesCount: aw.artwork_likes[0]?.count ?? 0,
+        isLiked: true,
+        createdAt: aw.created_at,
+      };
+    });
 
   return <WishlistScreen artworks={artworks} />;
 }
