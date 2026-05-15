@@ -40,7 +40,10 @@ export async function GET() {
 
     if (error) {
       console.log(error);
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { message: 'artworks fetch failed' },
+        { status: 500 }
+      );
     }
 
     const artworkIds = (data ?? []).map((a) => a.id);
@@ -57,7 +60,7 @@ export async function GET() {
     if (likedError) {
       console.log(likedError);
       return NextResponse.json(
-        { message: likedError.message },
+        { message: 'likes fetch failed' },
         { status: 500 }
       );
     }

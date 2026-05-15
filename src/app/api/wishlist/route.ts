@@ -45,7 +45,10 @@ export async function GET() {
 
     if (error) {
       console.log(error);
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { message: 'wishlist fetch failed' },
+        { status: 500 }
+      );
     }
 
     const artworks: Artwork[] = ((data ?? []) as unknown as LikeRow[])
