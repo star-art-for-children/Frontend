@@ -1,12 +1,12 @@
-import ExhibitionList from '@/components/home/exhibitionList';
-import ListPagination from '@/components/home/listPagination';
+import { ExhibitionListContent } from '@/components/home/exhibitionListContent';
+import ExhibitionListSkeleton from '@/components/home/exhibitionListSkeleton';
 import SearchForm from '@/components/home/searchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
-import { fetchExhibitions } from '@/lib/exhibition/queries';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default async function Home({
   searchParams,
@@ -26,15 +26,6 @@ export default async function Home({
   const sort = (
     sortParam === 'mine' && !isTeacher ? 'latest' : (sortParam ?? 'latest')
   ) as ExhibitionSort;
-
-  const { data: exhibitions, pagination } = await fetchExhibitions({
-    sort,
-    search,
-    page,
-    userId: user?.id,
-  });
-
-  if (page > 1 && exhibitions.length === 0) return notFound();
 
   return (
     <main className="bg-[#FAF7F2]">
@@ -76,18 +67,16 @@ export default async function Home({
       </section>
       {/* // hero section */}
       <div className="mx-auto max-w-6xl px-3.5 pb-20">
-        <ExhibitionList
-          exhibitions={exhibitions}
-          sort={sort}
-          isTeacher={isTeacher}
-          isLoggedIn={!!user}
-        />
-        <ListPagination
-          currentPage={pagination.page}
-          totalCount={pagination.totalCount}
-          sort={sort}
-          search={search}
-        />
+        <Suspense fallback={<ExhibitionListSkeleton />}>
+          <ExhibitionListContent
+            sort={sort}
+            search={search}
+            page={page}
+            userId={user?.id}
+            isTeacher={isTeacher}
+            isLoggedIn={!!user}
+          />
+        </Suspense>
       </div>
     </main>
   );
