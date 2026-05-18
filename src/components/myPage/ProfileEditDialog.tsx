@@ -106,9 +106,7 @@ export default function ProfileEditDialog({ profile }: Props) {
             </div>
           )}
 
-          {error && (
-            <p className="text-[12px] text-red-500">{error}</p>
-          )}
+          {error && <p className="text-[12px] text-red-500">{error}</p>}
         </div>
 
         <DialogFooter>
