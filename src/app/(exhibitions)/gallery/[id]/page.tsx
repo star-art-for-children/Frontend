@@ -70,12 +70,21 @@ export default function GalleryExhibitionPage() {
             >
               🎨
             </div>
-            <p className={'text-secondary text-[20px] font-bold'}>
-              봄의 소리전
-            </p>
-            <p className={'text-secondary/40 -mt-5 text-[14px]'}>
-              해피아트 미술학원
-            </p>
+            {isInitReady ? (
+              <>
+                <p className={'text-secondary text-[20px] font-bold'}>
+                  {exhibitionDetails.title ?? '전시회'}
+                </p>
+                <p className={'text-secondary/40 -mt-5 text-[14px]'}>
+                  {exhibitionDetails.host ?? '학원'}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="h-5 w-20 animate-pulse rounded-md bg-gray-200"></div>
+                <div className="-mt-3 h-3 w-32 animate-pulse rounded-md bg-gray-200"></div>
+              </>
+            )}
             <div
               className={
                 'bg-primary/10 flex w-full flex-col gap-1 rounded-lg p-4'

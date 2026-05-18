@@ -1,5 +1,5 @@
 'use client';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import CreateGalleryFormWrapper from '@/components/galleryCreate/FormWrapper';
 import { FaArrowRight } from 'react-icons/fa';
 import {
@@ -14,6 +14,7 @@ import { postNewExhibition } from '@/service/exhibitions';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/exhibition/manage/imageUploadBox';
+import { useEffect } from 'react';
 export default function CreateGalleryPage({
   institution,
 }: {
@@ -22,8 +23,8 @@ export default function CreateGalleryPage({
   const router = useRouter();
   const {
     register,
-    watch,
     control,
+    setValue,
     formState: { isValid, errors, isSubmitting },
     handleSubmit,
   } = useForm<UIFormProps>({
@@ -37,6 +38,9 @@ export default function CreateGalleryPage({
       endDate: null,
     },
   });
+  const today = new Date().toISOString().split('T')[0];
+  const startDate = useWatch({ control, name: 'startDate' });
+  const endDate = useWatch({ control, name: 'endDate' });
 
   const submitHandler = async (e: UIFormProps) => {
     const formData = new FormData();
@@ -66,6 +70,15 @@ export default function CreateGalleryPage({
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    if (!startDate || !endDate) return;
+
+    if (endDate < startDate) {
+      setValue('endDate', null);
+    }
+  }, [startDate, endDate, setValue]);
+
   return (
     <>
       <div className={'flex w-full flex-col items-center px-[20px] py-[40px]'}>
@@ -168,6 +181,7 @@ export default function CreateGalleryPage({
                         'w-full bg-transparent text-[16px] font-bold text-black outline-none'
                       }
                       type={'date'}
+                      min={today}
                     />
                   </CreateGalleryFormWrapper>
                 </div>
@@ -180,15 +194,15 @@ export default function CreateGalleryPage({
                     <input
                       {...register('endDate', {
                         validate: (value) => {
-                          const start = watch('startDate');
-                          if (!value) return true;
-                          return value >= start || false;
+                          if (!value || !startDate) return true;
+                          return value >= startDate;
                         },
                       })}
                       className={
                         'w-full bg-transparent text-[16px] font-bold text-black outline-none'
                       }
                       type={'date'}
+                      min={startDate || today}
                     />
                   </CreateGalleryFormWrapper>
                   {errors.endDate && (
