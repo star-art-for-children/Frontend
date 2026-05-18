@@ -260,7 +260,7 @@ export async function fetchExhibitionDetail(
   }
 
   // 작품에 대한 liked
-  const artworkIds = rawData.artworks.map((row) => row.id);
+  const artworkIds = (rawData.artworks ?? []).map((row) => row.id);
   const likesCountMap = new Map<string, number>();
   const likedArtworkIds = new Set<string>();
 
