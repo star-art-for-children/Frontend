@@ -24,7 +24,7 @@ export default function ExhibitionList({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <section className="space-y-6">
+    <section id="exhibition-list" className="scroll-mt-20 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <ExhibitionFilter
           value={sort}

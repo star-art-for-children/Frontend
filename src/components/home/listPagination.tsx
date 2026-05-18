@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Pagination,
   PaginationContent,
@@ -34,6 +36,12 @@ export default function ListPagination({
     return queryString ? `/?${queryString}` : '/';
   };
 
+  const scrollToList = () => {
+    document
+      .getElementById('exhibition-list')
+      ?.scrollIntoView({ block: 'start' });
+  };
+
   const start = Math.max(1, currentPage - 2);
   const end = Math.min(totalPages, currentPage + 2);
   const range = Array.from({ length: end - start + 1 }, (_, i) => start + i);
@@ -43,14 +51,19 @@ export default function ListPagination({
       <PaginationContent>
         {currentPage > 1 && (
           <PaginationItem>
-            <PaginationPrevious href={makeHref(currentPage - 1)} />
+            <PaginationPrevious
+              href={makeHref(currentPage - 1)}
+              onClick={scrollToList}
+            />
           </PaginationItem>
         )}
 
         {start > 1 && (
           <>
             <PaginationItem>
-              <PaginationLink href={makeHref(1)}>1</PaginationLink>
+              <PaginationLink href={makeHref(1)} onClick={scrollToList}>
+                1
+              </PaginationLink>
             </PaginationItem>
             {start > 2 && (
               <PaginationItem>
@@ -62,7 +75,11 @@ export default function ListPagination({
 
         {range.map((p) => (
           <PaginationItem key={p}>
-            <PaginationLink href={makeHref(p)} isActive={p === currentPage}>
+            <PaginationLink
+              href={makeHref(p)}
+              isActive={p === currentPage}
+              onClick={scrollToList}
+            >
               {p}
             </PaginationLink>
           </PaginationItem>
@@ -76,7 +93,10 @@ export default function ListPagination({
               </PaginationItem>
             )}
             <PaginationItem>
-              <PaginationLink href={makeHref(totalPages)}>
+              <PaginationLink
+                href={makeHref(totalPages)}
+                onClick={scrollToList}
+              >
                 {totalPages}
               </PaginationLink>
             </PaginationItem>
@@ -85,7 +105,10 @@ export default function ListPagination({
 
         {currentPage < totalPages && (
           <PaginationItem>
-            <PaginationNext href={makeHref(currentPage + 1)} />
+            <PaginationNext
+              href={makeHref(currentPage + 1)}
+              onClick={scrollToList}
+            />
           </PaginationItem>
         )}
       </PaginationContent>
