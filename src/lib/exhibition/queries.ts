@@ -234,7 +234,7 @@ export async function fetchExhibitionDetail(
       teacher_id,
       likes_count,
       profile:profiles!teacher_id ( institution ),
-      artworks ( id, title, artist_name, description, image_url, likes_count )
+      artworks ( id, title, artist_name, description, image_url )
     `
     )
     .eq('id', exhibitionId)
@@ -260,16 +260,25 @@ export async function fetchExhibitionDetail(
   }
 
   // 작품에 대한 liked
-  let likedArtworkIds = new Set<string>();
-  if (currentUserId && rawData.artworks.length) {
-    const artworkId = rawData.artworks.map((row) => row.id);
-    const { data: likedRows } = await supabase
-      .from('artwork_likes')
-      .select('artwork_id')
-      .eq('user_id', currentUserId)
-      .in('artwork_id', artworkId);
+  const artworkIds = rawData.artworks.map((row) => row.id);
+  const likesCountMap = new Map<string, number>();
+  const likedArtworkIds = new Set<string>();
 
-    likedArtworkIds = new Set((likedRows ?? []).map((r) => r.artwork_id));
+  if (artworkIds.length > 0) {
+    const { data: allLikes } = await supabase
+      .from('artwork_likes')
+      .select('artwork_id, user_id')
+      .in('artwork_id', artworkIds);
+
+    for (const row of allLikes ?? []) {
+      likesCountMap.set(
+        row.artwork_id,
+        (likesCountMap.get(row.artwork_id) ?? 0) + 1
+      );
+      if (currentUserId && row.user_id === currentUserId) {
+        likedArtworkIds.add(row.artwork_id);
+      }
+    }
   }
 
   const profile = Array.isArray(rawData.profile)
@@ -295,7 +304,7 @@ export async function fetchExhibitionDetail(
       artist: work.artist_name,
       image: work.image_url,
       description: work.description,
-      likes: work.likes_count,
+      likes: likesCountMap.get(work.id) ?? 0,
       liked: likedArtworkIds.has(work.id),
     })),
   };
