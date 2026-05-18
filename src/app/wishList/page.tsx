@@ -4,15 +4,16 @@ import type { Artwork } from '@/components/myArtworks/Types';
 import WishlistScreen from '@/components/wishList/WishlistScreen';
 
 type LikeRow = {
-  created_at: string;
   artworks: {
     id: string;
     title: string;
     artist_name: string | null;
     description: string | null;
     image_url: string | null;
+    created_at: string;
     artwork_likes: { count: number }[];
     exhibitions: {
+      id: string;
       title: string;
       profiles: { institution: string | null } | null;
     } | null;
@@ -30,11 +31,10 @@ export default async function WishlistPage() {
   const { data, error } = await supabase
     .from('artwork_likes')
     .select(
-      `created_at,
-      artworks (
-        id, title, artist_name, description, image_url,
+      `artworks (
+        id, title, artist_name, description, image_url, created_at,
         artwork_likes(count),
-        exhibitions ( title, profiles!teacher_id ( institution ) )
+        exhibitions ( id, title, profiles!teacher_id ( institution ) )
       )`
     )
     .eq('user_id', user.id)
@@ -53,6 +53,7 @@ export default async function WishlistPage() {
       const aw = like.artworks;
       return {
         id: aw.id,
+        exhibitionId: aw.exhibitions?.id ?? '',
         title: aw.title,
         artist: aw.artist_name ?? '',
         description: aw.description ?? '',
@@ -60,7 +61,8 @@ export default async function WishlistPage() {
         academyName: aw.exhibitions?.profiles?.institution ?? '',
         imageUrl: aw.image_url ?? '',
         likesCount: aw.artwork_likes[0]?.count ?? 0,
-        createdAt: like.created_at,
+        isLiked: true,
+        createdAt: aw.created_at,
       };
     });
 

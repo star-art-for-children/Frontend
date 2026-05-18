@@ -10,6 +10,7 @@ import Walls from '@/components/galleryExhibition/threejs/Walls';
 import InnerWalls from '@/components/galleryExhibition/threejs/InnerWall';
 import Ceiling from '@/components/galleryExhibition/threejs/Ceiling';
 import { User } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 export default function Room({
   init,
@@ -46,6 +47,7 @@ export default function Room({
   const prevIndexRef = useRef<number>(-1);
 
   const closestPaintingRef = useRef<GalleryUIArtworkProps | null>(null);
+  const router = useRouter();
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempForward.current);
@@ -132,6 +134,8 @@ export default function Room({
 
       try {
         await likesToggle(exhibitionId, closestId);
+
+        router.refresh();
       } catch (e) {
         console.log(e);
         setArtworks(prevArtworks!);
