@@ -2,6 +2,7 @@ export type FilterType = 'latest' | 'oldest' | 'popular';
 
 export type Artwork = {
   id: string;
+  exhibitionId: string;
   title: string;
   artist: string;
   description: string;
@@ -9,5 +10,6 @@ export type Artwork = {
   academyName: string;
   imageUrl: string;
   likesCount: number;
+  isLiked: boolean;
   createdAt: string; // ISO string
 };

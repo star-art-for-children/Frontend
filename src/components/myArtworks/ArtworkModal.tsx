@@ -1,15 +1,25 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Artwork } from './Types';
+import { likesToggle } from '@/service/artworks';
 
 interface ArtworkModalProps {
   artwork: Artwork;
   onClose: () => void;
+  onLikeChange?: (liked: boolean, newCount: number) => void;
 }
 
-export default function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
+export default function ArtworkModal({
+  artwork,
+  onClose,
+  onLikeChange,
+}: ArtworkModalProps) {
+  const [liked, setLiked] = useState(artwork.isLiked);
+  const [likesCount, setLikesCount] = useState(artwork.likesCount);
+  const [isPending, setIsPending] = useState(false);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -21,6 +31,40 @@ export default function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
       document.body.style.overflow = '';
     };
   }, [onClose]);
+
+  const handleLike = async () => {
+    if (isPending) return;
+    const prev = liked;
+    const newCount = likesCount + (prev ? -1 : 1);
+    setLiked(!prev);
+    setLikesCount(newCount);
+    setIsPending(true);
+    try {
+      await likesToggle(artwork.exhibitionId, artwork.id);
+      onLikeChange?.(!prev, newCount);
+    } catch {
+      setLiked(prev);
+      setLikesCount(likesCount);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(artwork.imageUrl);
+      if (!response.ok) throw new Error('download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${artwork.title}.jpg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('이미지 다운로드 실패:', e);
+    }
+  };
 
   return (
     <div
@@ -66,41 +110,29 @@ export default function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
             </h2>
             <div className="flex shrink-0 items-center gap-1.5">
               {/* 좋아요 */}
-              <div className="flex items-center gap-1.5 rounded-full border border-[#EDEBE4] px-3.5 py-1.5">
+              <button
+                onClick={handleLike}
+                disabled={isPending}
+                className="flex items-center gap-1.5 rounded-full border border-[#EDEBE4] px-3.5 py-1.5 transition-colors hover:bg-[#F5F0E8] disabled:opacity-50"
+              >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M8 13.5S2 9.8 2 5.9A3.4 3.4 0 018 3.6 3.4 3.4 0 0114 5.9C14 9.8 8 13.5 8 13.5z"
-                    stroke="#1A1A1A"
+                    stroke={liked ? '#F4845F' : '#1A1A1A'}
+                    fill={liked ? '#F4845F' : 'none'}
                     strokeWidth="1.4"
                     strokeLinejoin="round"
                   />
                 </svg>
                 <span className="text-[13px] font-medium text-[#1A1A1A]">
-                  {artwork.likesCount}
+                  {likesCount}
                 </span>
-              </div>
-              {/* 저장 */}
-              <button className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EDEBE4] text-[#1A1A1A] transition-colors hover:bg-[#F5F0E8]">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <rect
-                    x="3"
-                    y="2"
-                    width="10"
-                    height="12"
-                    rx="1.5"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                  />
-                  <path
-                    d="M3 6h10"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                  />
-                </svg>
               </button>
               {/* 다운로드 */}
-              <button className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EDEBE4] text-[#1A1A1A] transition-colors hover:bg-[#F5F0E8]">
+              <button
+                onClick={handleDownload}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EDEBE4] text-[#1A1A1A] transition-colors hover:bg-[#F5F0E8]"
+              >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M8 2v8M5 7l3 3 3-3"
