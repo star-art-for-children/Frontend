@@ -27,8 +27,21 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !profile) {
+    return NextResponse.json({ message: 'profile not found' }, { status: 404 });
+  }
+
   const updates: Record<string, string> = { username: result.data.name };
   if (result.data.institution !== undefined) {
+    if (profile.role !== 'teacher') {
+      return NextResponse.json({ message: 'forbidden' }, { status: 403 });
+    }
     updates.institution = result.data.institution;
   }
 
