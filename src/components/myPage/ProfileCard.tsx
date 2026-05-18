@@ -1,3 +1,4 @@
+import ProfileEditDialog from '@/components/myPage/ProfileEditDialog';
 import type { Profile } from '@/types/myPage';
 
 interface ProfileCardProps {
@@ -13,13 +14,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   return (
     <section className="rounded-[26px] border border-[#e8e1d7] bg-white px-9 py-7 shadow-[0_2px_8px_rgba(64,48,33,0.04)]">
-      <div className="flex items-center gap-5">
+      <div className="flex items-start gap-5">
         {/* 아바타 */}
         <div className="flex h-[68px] w-[68px] items-center justify-center rounded-[20px] bg-gradient-to-br from-[#f5bf45] to-[#ff8f74] text-[22px] font-bold text-white">
           {profile.name.slice(0, 1)}
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-3">
             <h1 className="text-[18px] font-bold text-[#2b2724]">
               {profile.name}
@@ -39,6 +40,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           )}
         </div>
+
+        <ProfileEditDialog profile={profile} />
       </div>
     </section>
   );
