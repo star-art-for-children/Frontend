@@ -41,22 +41,26 @@ export default function ProfileEditDialog({ profile }: Props) {
       body.institution = institution.trim();
     }
 
-    const res = await fetch('/api/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
 
-    setLoading(false);
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.message ?? '저장에 실패했습니다.');
+        return;
+      }
 
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.message ?? '저장에 실패했습니다.');
-      return;
+      setOpen(false);
+      router.refresh();
+    } catch {
+      setError('네트워크 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
-
-    setOpen(false);
-    router.refresh();
   }
 
   return (
