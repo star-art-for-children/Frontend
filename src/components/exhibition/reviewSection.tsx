@@ -48,6 +48,9 @@ export default function ReviewSection({
 
   const handlePageChange = async (page: number) => {
     if (page === currentPage) return;
+    document
+      .getElementById('review-section')
+      ?.scrollIntoView({ block: 'start' });
     try {
       await loadPage(page);
     } catch (err) {
@@ -93,7 +96,10 @@ export default function ReviewSection({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
+    <section
+      id="review-section"
+      className="scroll-mt-20 space-y-4 rounded-2xl bg-white p-6 shadow-[0_2px_8px_rgba(44,40,38,0.06)]"
+    >
       <strong className="text-secondary mb-3 block text-lg font-bold">
         관람 후기 ({totalCount})
       </strong>
