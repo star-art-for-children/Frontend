@@ -69,12 +69,6 @@ export default function WorkDialog({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isLoggedIn) {
-      alert('로그인이 필요한 기능입니다.');
-      router.push('/login');
-      return;
-    }
-
     if (isPending) return;
 
     // 백업용
@@ -89,6 +83,7 @@ export default function WorkDialog({
     try {
       setIsPending(true);
       await toggleArtworkLike(exhibitionId, work.id, nextLiked);
+      router.refresh();
     } catch (err) {
       console.error('Like Error:', err);
       setLiked(previousLiked);
@@ -192,7 +187,7 @@ export default function WorkDialog({
 
           {!isLoggedIn && (
             <p className="text-secondary/50 text-center text-xs">
-              좋아요 및 위시리스트 기능은 로그인 후 이용 가능합니다
+              좋아요&#40;위시리스트&#41; 기능은 로그인 후 이용 가능합니다
             </p>
           )}
         </div>
