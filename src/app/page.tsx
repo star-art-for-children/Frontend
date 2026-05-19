@@ -1,6 +1,6 @@
-import { ExhibitionListContent } from '@/components/home/exhibitionListContent';
-import ExhibitionListSkeleton from '@/components/home/exhibitionListSkeleton';
-import SearchForm from '@/components/home/searchForm';
+import ExhibitionListContent from '@/components/home/ExhibitionListContent';
+import ExhibitionListSkeleton from '@/components/home/ExhibitionListSkeleton';
+import SearchForm from '@/components/home/SearchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { Sparkles } from 'lucide-react';

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, LogOut } from 'lucide-react';
-import { USER_NAV_ITEMS } from './navItems';
+import { USER_NAV_ITEMS } from './NavItems';
 import { cn } from '@/lib/utils';
 import { useLogout } from '@/hooks/useLogout';
 import {
