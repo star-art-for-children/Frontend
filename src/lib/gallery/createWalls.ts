@@ -1,8 +1,11 @@
 import { Cell, WAllType } from '@/types/gallery';
 
-export function generateGalleryWalls(roomSize: number) {
-  const cellSize = 7;
-  const size = Math.floor(roomSize / cellSize);
+export function generateGalleryWalls(
+  roomSize: number,
+  gridSize: number,
+  cellSize: number
+) {
+  const size = gridSize;
   const half = roomSize / 2;
 
   const startPosition = {

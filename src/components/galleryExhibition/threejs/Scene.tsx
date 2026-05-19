@@ -26,14 +26,17 @@ export default function Scene2({
   const artworkCount = init.length;
   const cellSize = 7;
   const gridSize = getGridSize(artworkCount);
-  const size = gridSize * cellSize;
+  const roomSize = gridSize * cellSize;
 
   const height = 6;
   const { innerWalls, startPosition } = useMemo(
-    () => generateGalleryWalls(size),
-    [size]
+    () => generateGalleryWalls(roomSize, gridSize, cellSize),
+    [roomSize, gridSize, cellSize]
   );
-  const walls = useMemo(() => createWalls(size, height), [size, height]);
+  const walls = useMemo(
+    () => createWalls(roomSize, height),
+    [roomSize, height]
+  );
 
   const { active, loaded, total } = useProgress();
 
@@ -49,7 +52,7 @@ export default function Scene2({
           walls={walls}
           innerWalls={innerWalls}
           init={init}
-          size={size}
+          size={roomSize}
           height={height}
         />
         <ambientLight intensity={1} />
