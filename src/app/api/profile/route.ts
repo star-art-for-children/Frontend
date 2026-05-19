@@ -1,11 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const patchSchema = z.object({
-  name: z.string().trim().min(1, '이름을 입력해주세요.'),
-  institution: z.string().trim().optional(),
-});
+import { profilePatchSchema } from '@/lib/schemas/profile';
 
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
@@ -18,7 +13,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const result = patchSchema.safeParse(body);
+  const result = profilePatchSchema.safeParse(body);
 
   if (!result.success) {
     return NextResponse.json(
