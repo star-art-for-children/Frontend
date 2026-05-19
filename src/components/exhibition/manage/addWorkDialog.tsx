@@ -16,7 +16,7 @@ import ImageUploadBox from './imageUploadBox';
 import { Controller, useForm } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import { postArtWorksByExhibitionId } from '@/service/artworks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AddWorkDialogProps {
   triggerLabel?: string;
@@ -44,6 +44,7 @@ export default function AddWorkDialog({
     register,
     control,
     setError,
+    reset,
     formState: { isValid, isSubmitting, errors },
     handleSubmit,
   } = useForm<ArtworkFormUi>({
@@ -85,6 +86,9 @@ export default function AddWorkDialog({
     }
   };
 
+  useEffect(() => {
+    if (!open) reset();
+  }, [open, reset]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger

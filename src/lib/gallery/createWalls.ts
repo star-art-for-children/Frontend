@@ -1,8 +1,8 @@
 import { Cell, WAllType } from '@/types/gallery';
 
 export function generateGalleryWalls(roomSize: number) {
-  const size = 3;
-  const cellSize = roomSize / size;
+  const cellSize = 7;
+  const size = Math.floor(roomSize / cellSize);
   const half = roomSize / 2;
 
   const startPosition = {
@@ -96,7 +96,6 @@ export function generateGalleryWalls(roomSize: number) {
 
   // 3. 벽 생성
   const walls: WAllType[] = [];
-
   for (let x = 0; x < size; x++) {
     for (let z = 0; z < size; z++) {
       const cell = grid[x][z];
@@ -104,7 +103,7 @@ export function generateGalleryWalls(roomSize: number) {
       const cx = -half + x * cellSize + cellSize / 2;
       const cz = -half + z * cellSize + cellSize / 2;
 
-      const h = roomSize * 0.2;
+      const h = 5;
       const t = 0.3;
 
       //똑같은 두께의 벽이 동일좌표에 생성되니까 텍스쳐가 깨질 가능성? -> 벽을 z축으로 조금 더 미는거?

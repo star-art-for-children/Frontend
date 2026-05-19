@@ -7,6 +7,11 @@ import Room from '@/components/galleryExhibition/threejs/Room';
 import Player from '@/components/galleryExhibition/threejs/Player';
 import { User } from '@supabase/supabase-js';
 
+function getGridSize(artworkCount: number) {
+  if (artworkCount <= 4) return 1;
+  if (artworkCount <= 10) return 2;
+  return 3;
+}
 export default function Scene2({
   exhibitionId,
   ready,
@@ -18,9 +23,12 @@ export default function Scene2({
   init: GalleryUIArtworkProps[];
   user: User | null;
 }) {
-  // console.log(init)
-  const size = 21;
-  const height = size * 0.3;
+  const artworkCount = init.length;
+  const cellSize = 7;
+  const gridSize = getGridSize(artworkCount);
+  const size = gridSize * cellSize;
+
+  const height = 6;
   const { innerWalls, startPosition } = useMemo(
     () => generateGalleryWalls(size),
     [size]

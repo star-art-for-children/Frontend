@@ -163,7 +163,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [exhibitionId, user]);
+  }, [exhibitionId, user, router]);
 
   return (
     <>
