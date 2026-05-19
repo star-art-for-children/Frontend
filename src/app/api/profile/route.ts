@@ -12,7 +12,12 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ message: 'unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ message: 'invalid json body' }, { status: 400 });
+  }
   const result = profilePatchSchema.safeParse(body);
 
   if (!result.success) {
