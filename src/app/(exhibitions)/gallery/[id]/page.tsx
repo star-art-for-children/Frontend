@@ -36,6 +36,7 @@ export default function GalleryExhibitionPage() {
           supabase.auth.getUser(),
           getExhibitionDetails(id),
         ]);
+        if (artworksRes.length === 0) throw new Error('no artworks found');
 
         setExhibitionDetails(exhibitionDetails);
         setGalleryInit(artworksRes);
