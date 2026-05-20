@@ -4,7 +4,7 @@
 
 KT Cloud Tech Up 기본 프로젝트 멸종위기프론트 팀 프론트엔드 깃허브입니다.
 
-https://github.com/user-attachments/assets/862b72d8-39ee-4ef8-9652-0d7fee59d9dc
+![Star-Art 배너](https://github.com/user-attachments/assets/862b72d8-39ee-4ef8-9652-0d7fee59d9dc)
 
 <br />
 
