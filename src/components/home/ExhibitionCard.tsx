@@ -4,7 +4,7 @@ import { Calendar, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDate, getStatus } from '@/lib/exhibition/dateStatus';
 import { ExhibitionListItem } from '@/types/exhibitionList';
-import LikeButton from './likeButton';
+import LikeButton from './LikeButton';
 
 interface ExhibitionCardProps {
   exhibition: ExhibitionListItem;

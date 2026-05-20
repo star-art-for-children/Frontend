@@ -5,8 +5,8 @@ import { Plus, Star } from 'lucide-react';
 import { useTransition } from 'react';
 import { ExhibitionListItem, ExhibitionSort } from '@/types/exhibitionList';
 import { cn } from '@/lib/utils';
-import ExhibitionFilter from './exhibitionFilter';
-import ExhibitionCard from './exhibitionCard';
+import ExhibitionFilter from './ExhibitionFilter';
+import ExhibitionCard from './ExhibitionCard';
 
 interface ExhibitionListProps {
   exhibitions: ExhibitionListItem[];

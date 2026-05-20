@@ -1,6 +1,6 @@
 import { fetchExhibitions } from '@/lib/exhibition/queries';
-import ExhibitionList from './exhibitionList';
-import ListPagination from './listPagination';
+import ExhibitionList from './ExhibitionList';
+import ListPagination from './ListPagination';
 import { ExhibitionSort } from '@/types/exhibitionList';
 import { notFound } from 'next/navigation';
 
@@ -13,7 +13,7 @@ interface ExhibitionListContentProps {
   isLoggedIn: boolean;
 }
 
-export async function ExhibitionListContent({
+export default async function ExhibitionListContent({
   sort,
   search,
   page,
