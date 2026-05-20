@@ -13,7 +13,7 @@ import {
 import { postNewExhibition } from '@/service/exhibitions';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
-import ImageUploadBox from '@/components/exhibition/manage/imageUploadBox';
+import ImageUploadBox from '@/components/exhibition/manage/ImageUploadBox';
 import { useEffect } from 'react';
 export default function CreateGalleryPage({
   institution,

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import UserMenu from './userMenu';
-import MobileMenu from './mobileMenu';
+import UserMenu from './UserMenu';
+import MobileMenu from './MobileMenu';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
 
 export default async function Header() {

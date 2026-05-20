@@ -2,8 +2,8 @@
 
 import { FormEvent, useState } from 'react';
 import { cn } from '@/lib/utils';
-import ReviewPagination from './reviewPagination';
-import ReviewAlertDialog from './reviewAlertDialog';
+import ReviewPagination from './ReviewPagination';
+import ReviewAlertDialog from './ReviewAlertDialog';
 import {
   deleteReview,
   fetchReviewsPage,

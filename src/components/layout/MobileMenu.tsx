@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { USER_NAV_ITEMS } from './navItems';
+import { USER_NAV_ITEMS } from './NavItems';
 import { useLogout } from '@/hooks/useLogout';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 
