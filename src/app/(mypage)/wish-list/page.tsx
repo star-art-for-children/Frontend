@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import type { Artwork } from '@/components/my-artworks/Types';
+import type { Artwork } from '@/types/artwork';
 import WishlistScreen from '@/components/my-wishlist/WishlistScreen';
 
 type LikeRow = {

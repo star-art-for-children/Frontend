@@ -1,4 +1,4 @@
-import { ExhibitionReviewItem } from '@/types/exhibitionList';
+import { ExhibitionReviewItem } from '@/types/exhibition';
 
 export const postNewExhibition = async (formDate: FormData) => {
   const res = await fetch('/api/exhibitions', {

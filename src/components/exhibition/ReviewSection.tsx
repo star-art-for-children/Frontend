@@ -9,7 +9,7 @@ import {
   fetchReviewsPage,
   postReview,
 } from '@/service/exhibitions';
-import { ExhibitionReviewItem } from '@/types/exhibitionList';
+import { ExhibitionReviewItem } from '@/types/exhibition';
 
 export type Review = ExhibitionReviewItem;
 

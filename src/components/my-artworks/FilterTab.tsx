@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { FilterType } from './Types';
+import { FilterType } from '../../types/artwork';
 
 interface FilterTabProps {
   value: FilterType;

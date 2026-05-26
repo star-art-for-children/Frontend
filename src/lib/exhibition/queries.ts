@@ -11,7 +11,7 @@ import {
   ExhibitionRow,
   ReviewRow,
   ReviewsPagination,
-} from '@/types/exhibitionList';
+} from '@/types/exhibition';
 import { todayKST } from './dateStatus';
 
 export class ExhibitionsAuthRequiredError extends Error {

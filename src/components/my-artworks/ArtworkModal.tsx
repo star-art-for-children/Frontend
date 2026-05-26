@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Artwork } from './Types';
+import { Artwork } from '../../types/artwork';
 import { likesToggle } from '@/service/artworks';
 
 interface ArtworkModalProps {

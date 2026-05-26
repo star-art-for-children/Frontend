@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ArtworkCard from '@/components/my-artworks/ArtworkCard';
 import ArtworkModal from '@/components/my-artworks/ArtworkModal';
 import FilterTab from '@/components/my-artworks/FilterTab';
-import type { Artwork, FilterType } from '@/components/my-artworks/Types';
+import type { Artwork, FilterType } from '@/types/artwork';
 
 interface ArtworksScreenProps {
   artworks: Artwork[];

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Artwork } from './Types';
+import { Artwork } from '../../types/artwork';
 
 interface ArtworkCardProps {
   artwork: Artwork;

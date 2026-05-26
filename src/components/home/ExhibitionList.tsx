@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Plus, Star } from 'lucide-react';
 import { useTransition } from 'react';
-import { ExhibitionListItem, ExhibitionSort } from '@/types/exhibitionList';
+import { ExhibitionListItem, ExhibitionSort } from '@/types/exhibition';
 import { cn } from '@/lib/utils';
 import ExhibitionFilter from './ExhibitionFilter';
 import ExhibitionCard from './ExhibitionCard';

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Artwork } from '@/components/my-artworks/Types';
+import { Artwork } from '@/types/artwork';
 
 interface WishlistCardProps {
   artwork: Artwork;

@@ -2,7 +2,7 @@ import ExhibitionListContent from '@/components/home/ExhibitionListContent';
 import ExhibitionListSkeleton from '@/components/home/ExhibitionListSkeleton';
 import SearchForm from '@/components/home/SearchForm';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
-import { ExhibitionSort } from '@/types/exhibitionList';
+import { ExhibitionSort } from '@/types/exhibition';
 import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
