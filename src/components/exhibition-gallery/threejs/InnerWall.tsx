@@ -1,7 +1,7 @@
 import React from 'react';
 import { GalleryUIArtworkProps, WAllType } from '../../../types/gallery';
 import { Group, Texture } from 'three';
-import Painting from '@/components/galleryExhibition/threejs/Painting';
+import Painting from './Painting';
 
 export default function InnerWalls({
   paintingTextures,

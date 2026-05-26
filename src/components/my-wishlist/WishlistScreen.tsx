@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import WishlistCard from '@/components/wishList/WishlistCard';
-import ArtworkModal from '@/components/myArtworks/ArtworkModal';
-import FilterTab from '@/components/myArtworks/FilterTab';
-import type { Artwork, FilterType } from '@/components/myArtworks/Types';
+import ArtworkModal from '@/components/my-artworks/ArtworkModal';
+import FilterTab from '@/components/my-artworks/FilterTab';
+import type { Artwork, FilterType } from '@/components/my-artworks/Types';
+import WishlistCard from './WishlistCard';
 
 interface WishlistScreenProps {
   artworks: Artwork[];

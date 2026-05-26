@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import ArtworkCard from '@/components/myArtworks/ArtworkCard';
-import ArtworkModal from '@/components/myArtworks/ArtworkModal';
-import FilterTab from '@/components/myArtworks/FilterTab';
-import type { Artwork, FilterType } from '@/components/myArtworks/Types';
+import ArtworkCard from '@/components/my-artworks/ArtworkCard';
+import ArtworkModal from '@/components/my-artworks/ArtworkModal';
+import FilterTab from '@/components/my-artworks/FilterTab';
+import type { Artwork, FilterType } from '@/components/my-artworks/Types';
 
 interface ArtworksScreenProps {
   artworks: Artwork[];

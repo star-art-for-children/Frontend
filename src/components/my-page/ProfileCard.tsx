@@ -1,4 +1,4 @@
-import ProfileEditDialog from '@/components/myPage/ProfileEditDialog';
+import ProfileEditDialog from './ProfileEditDialog';
 import type { Profile } from '@/types/myPage';
 
 interface ProfileCardProps {

@@ -1,8 +1,8 @@
-import ExhibitionList from '@/components/myPage/ExhibitionList';
-import LogoutButton from '@/components/myPage/LogoutButton';
-import NewExhibitionBanner from '@/components/myPage/NewExhibitionBanner';
-import ProfileCard from '@/components/myPage/ProfileCard';
-import QuickLinks from '@/components/myPage/QuickLinks';
+import ExhibitionList from './ExhibitionList';
+import LogoutButton from './LogoutButton';
+import NewExhibitionBanner from './NewExhibitionBanner';
+import ProfileCard from './ProfileCard';
+import QuickLinks from './QuickLinks';
 import type { Profile } from '@/types/myPage';
 
 interface Props {

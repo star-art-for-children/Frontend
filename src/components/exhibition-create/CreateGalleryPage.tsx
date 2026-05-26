@@ -1,6 +1,5 @@
 'use client';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import CreateGalleryFormWrapper from '@/components/galleryCreate/FormWrapper';
 import { FaArrowRight } from 'react-icons/fa';
 import {
   Palette,
@@ -15,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/exhibition/manage/ImageUploadBox';
 import { useEffect } from 'react';
+import CreateGalleryFormWrapper from './FormWrapper';
 export default function CreateGalleryPage({
   institution,
 }: {

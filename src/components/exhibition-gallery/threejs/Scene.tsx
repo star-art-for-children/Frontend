@@ -3,8 +3,8 @@ import { PointerLockControls, useProgress } from '@react-three/drei';
 import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { GalleryUIArtworkProps } from '@/types/gallery';
 import { createWalls, generateGalleryWalls } from '@/lib/gallery/createWalls';
-import Room from '@/components/galleryExhibition/threejs/Room';
-import Player from '@/components/galleryExhibition/threejs/Player';
+import Room from './Room';
+import Player from './Player';
 import { User } from '@supabase/supabase-js';
 
 function getGridSize(artworkCount: number) {

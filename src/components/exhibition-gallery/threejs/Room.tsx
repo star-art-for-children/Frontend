@@ -5,12 +5,13 @@ import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
 import { likesToggle } from '@/service/artworks';
 import { downloadImgHandler } from '@/lib/gallery/image';
-import Floor from '@/components/galleryExhibition/threejs/Floor';
-import Walls from '@/components/galleryExhibition/threejs/Walls';
-import InnerWalls from '@/components/galleryExhibition/threejs/InnerWall';
-import Ceiling from '@/components/galleryExhibition/threejs/Ceiling';
+
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import Floor from './Floor';
+import Walls from './Walls';
+import InnerWalls from './InnerWall';
+import Ceiling from './Ceiling';
 
 export default function Room({
   init,

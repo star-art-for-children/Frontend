@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { checkRole } from '@/lib/gallery/checkRole';
-import CreateGalleryPage from '@/components/galleryCreate/CreateGalleryPage';
+import CreateGalleryPage from '@/components/exhibition-create/CreateGalleryPage';
 
 export default async function page() {
   const supabase = await createClient();
