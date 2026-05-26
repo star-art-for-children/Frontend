@@ -2,9 +2,9 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
-import ModalWrapper from '@/components/galleryExhibition/threejs/ModalWrapper';
+import ModalWrapper from '@/components/exhibition-gallery/threejs/ModalWrapper';
 import { getArtworksByExhibitionId } from '@/service/artworks';
-import Scene2 from '@/components/galleryExhibition/threejs/Scene';
+import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { getExhibitionDetails } from '@/service/exhibitions';

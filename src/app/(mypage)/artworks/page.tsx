@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import type { Artwork } from '@/components/myArtworks/Types';
-import ArtworksScreen from '@/components/myArtworks/ArtworksScreen';
+import type { Artwork } from '@/components/my-artworks/Types';
+import ArtworksScreen from '@/components/my-artworks/ArtworksScreen';
 
 type RawArtwork = {
   id: string;

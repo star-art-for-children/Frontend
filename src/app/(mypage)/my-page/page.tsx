@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
-import MyPageScreen from '@/components/myPage/MyPageScreen';
 import type { Profile } from '@/types/myPage';
+import MyPageScreen from '@/components/my-page/MyPageScreen';
 
 export default async function MyPage() {
   const supabase = await createClient();
