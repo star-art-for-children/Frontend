@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import FormField from './formField';
+import FormField from '@/components/auth/LoginFormField';
 
 export default function LoginPage() {
   return (
