@@ -11,9 +11,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toggleArtworkLike } from '@/lib/artwork/service';
-import { MouseEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 
 export interface Work {
   id: string;
@@ -60,38 +59,17 @@ export default function WorkDialog({
     }
   };
 
-  const router = useRouter();
-  const [liked, setLiked] = useState(work.liked);
-  const [likes, setLikes] = useState(work.likes); // 총 좋아요 수
-  const [isPending, setIsPending] = useState(false);
-
-  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isPending) return;
-
-    // 백업용
-    const previousLiked = liked;
-    const previousLikes = likes;
-    const nextLiked = !previousLiked;
-
-    // 낙관적
-    setLiked(nextLiked);
-    setLikes(previousLikes + (nextLiked ? 1 : -1));
-
-    try {
-      setIsPending(true);
-      await toggleArtworkLike(exhibitionId, work.id, nextLiked);
-      router.refresh();
-    } catch (err) {
-      console.error('Like Error:', err);
-      setLiked(previousLiked);
-      setLikes(previousLikes);
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const {
+    liked,
+    likes,
+    toggle: handleClick,
+  } = useOptimisticLike({
+    initialLiked: work.liked,
+    initialLikes: work.likes,
+    onToggle: (nextLiked) =>
+      toggleArtworkLike(exhibitionId, work.id, nextLiked),
+    refreshOnSuccess: true,
+  });
 
   return (
     <Dialog>

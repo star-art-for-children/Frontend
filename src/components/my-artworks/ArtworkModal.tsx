@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { likesToggle } from '@/lib/artwork/service';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { Artwork } from '@/types/artwork';
 
 interface ArtworkModalProps {
@@ -16,9 +17,17 @@ export default function ArtworkModal({
   onClose,
   onLikeChange,
 }: ArtworkModalProps) {
-  const [liked, setLiked] = useState(artwork.isLiked);
-  const [likesCount, setLikesCount] = useState(artwork.likesCount);
-  const [isPending, setIsPending] = useState(false);
+  const {
+    liked,
+    likes: likesCount,
+    isPending,
+    toggle: handleLike,
+  } = useOptimisticLike({
+    initialLiked: artwork.isLiked,
+    initialLikes: artwork.likesCount,
+    onToggle: () => likesToggle(artwork.exhibitionId, artwork.id),
+    onSuccess: (nextLiked, nextLikes) => onLikeChange?.(nextLiked, nextLikes),
+  });
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -31,24 +40,6 @@ export default function ArtworkModal({
       document.body.style.overflow = '';
     };
   }, [onClose]);
-
-  const handleLike = async () => {
-    if (isPending) return;
-    const prev = liked;
-    const newCount = likesCount + (prev ? -1 : 1);
-    setLiked(!prev);
-    setLikesCount(newCount);
-    setIsPending(true);
-    try {
-      await likesToggle(artwork.exhibitionId, artwork.id);
-      onLikeChange?.(!prev, newCount);
-    } catch {
-      setLiked(prev);
-      setLikesCount(likesCount);
-    } finally {
-      setIsPending(false);
-    }
-  };
 
   const handleDownload = async () => {
     try {
