@@ -2,7 +2,7 @@
 
 import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
 import Link from 'next/link';
-import { ExhibitionDetailItem } from '@/lib/exhibition/server';
+import type { ExhibitionDetailItem } from '@/lib/exhibition/server';
 import { MouseEvent, useState } from 'react';
 import { formatDate } from '@/lib/exhibition/dateStatus';
 import { Button } from '../ui/button';

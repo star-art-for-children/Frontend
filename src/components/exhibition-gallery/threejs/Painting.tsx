@@ -1,9 +1,8 @@
 import { Group, Texture } from 'three';
-import { GalleryUIArtworkProps } from '../../../types/gallery';
-import React from 'react';
 import { Html } from '@react-three/drei';
 import { Download, Heart } from 'lucide-react';
 import { checkImgSize } from '@/lib/gallery/image';
+import { GalleryUIArtworkProps } from '@/types/gallery';
 export default function Painting({
   img,
   details,

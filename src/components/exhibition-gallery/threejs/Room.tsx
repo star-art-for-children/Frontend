@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GalleryUIArtworkProps, WAllType } from '../../../types/gallery';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
@@ -12,6 +11,7 @@ import Floor from './Floor';
 import Walls from './Walls';
 import InnerWalls from './InnerWall';
 import Ceiling from './Ceiling';
+import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
 
 export default function Room({
   init,

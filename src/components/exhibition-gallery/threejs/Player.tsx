@@ -1,7 +1,7 @@
+import { WAllType } from '@/types/gallery';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { WAllType } from '../../../types/gallery';
 
 export default function Player({
   speed = 5,
