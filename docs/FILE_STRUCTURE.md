@@ -53,18 +53,18 @@ src/
 
 ## 2. 폴더별 역할
 
-| 폴더 | 역할 |
-|---|---|
-| `app/` | 라우트, 페이지, 레이아웃, Route Handler, Server Action |
-| `app/api/` | 외부에서 호출되는 REST 엔드포인트 |
-| `components/ui/` | shadcn/ui 기본 컴포넌트 |
-| `components/<도메인>/` | 도메인별 재사용 UI |
-| `lib/supabase/` | Supabase 클라이언트 setup |
-| `lib/schemas/` | 도메인 zod 스키마 |
-| `lib/<도메인>/` | **한 도메인의 모든 데이터/로직 응집** |
-| `lib/` (루트) | 순수 유틸 + 외부 클라이언트 설정 |
-| `hooks/` | 여러 도메인에서 공유되는 React Hook |
-| `types/` | 여러 곳에서 공유되는 전역 타입 |
+| 폴더                   | 역할                                                   |
+| ---------------------- | ------------------------------------------------------ |
+| `app/`                 | 라우트, 페이지, 레이아웃, Route Handler, Server Action |
+| `app/api/`             | 외부에서 호출되는 REST 엔드포인트                      |
+| `components/ui/`       | shadcn/ui 기본 컴포넌트                                |
+| `components/<도메인>/` | 도메인별 재사용 UI                                     |
+| `lib/supabase/`        | Supabase 클라이언트 setup                              |
+| `lib/schemas/`         | 도메인 zod 스키마                                      |
+| `lib/<도메인>/`        | **한 도메인의 모든 데이터/로직 응집**                  |
+| `lib/` (루트)          | 순수 유틸 + 외부 클라이언트 설정                       |
+| `hooks/`               | 여러 도메인에서 공유되는 React Hook                    |
+| `types/`               | 여러 곳에서 공유되는 전역 타입                         |
 
 ---
 
@@ -81,11 +81,11 @@ lib/<domain>/
 └── (헬퍼).ts           # 순수 함수
 ```
 
-| 파일 | 책임 | 실행 위치 | `import 'server-only'` |
-|---|---|---|---|
-| `server.ts` | Supabase 직접 호출 (read + write) | 서버 전용 | ✅ 필수 |
-| `service.ts` | `fetch('/api/...')` 래퍼 | 클라이언트 | ❌ |
-| `constants.ts`, `types.ts`, 헬퍼 | 데이터/상수/순수함수 | 양쪽 | ❌ |
+| 파일                             | 책임                              | 실행 위치  | `import 'server-only'` |
+| -------------------------------- | --------------------------------- | ---------- | ---------------------- |
+| `server.ts`                      | Supabase 직접 호출 (read + write) | 서버 전용  | ✅ 필수                |
+| `service.ts`                     | `fetch('/api/...')` 래퍼          | 클라이언트 | ❌                     |
+| `constants.ts`, `types.ts`, 헬퍼 | 데이터/상수/순수함수              | 양쪽       | ❌                     |
 
 ---
 
@@ -93,63 +93,63 @@ lib/<domain>/
 
 ### 폴더
 
-| 위치 | 규칙 | 예시 |
-|---|---|---|
+| 위치                                         | 규칙           | 예시                             |
+| -------------------------------------------- | -------------- | -------------------------------- |
 | `app/`, `components/`, `lib/`, `hooks/` 하위 | **kebab-case** | `my-page/`, `exhibition-create/` |
-| Route Group | `(kebab-case)` | `(auth)`, `(mypage)` |
-| Private Folder | `_kebab-case` | `_components/`, `_lib/` |
-| Dynamic Segment | `[camelCase]` | `[exhibitionId]` |
+| Route Group                                  | `(kebab-case)` | `(auth)`, `(mypage)`             |
+| Private Folder                               | `_kebab-case`  | `_components/`, `_lib/`          |
+| Dynamic Segment                              | `[camelCase]`  | `[exhibitionId]`                 |
 
 ### 파일
 
-| 종류 | 규칙 | 예시 |
-|---|---|---|
-| React Component | `PascalCase.tsx` | `ExhibitionCard.tsx` |
-| Hook | `useCamelCase.ts` | `useLogout.ts` |
-| 유틸 / 로직 | `camelCase.ts` | `getAuthContext.ts` |
-| Next.js 예약 | 소문자 그대로 | `page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` |
-| Server Actions | `actions.ts` (route colocation) | `app/<route>/actions.ts` |
-| 서버 DAL | `server.ts` | `lib/exhibition/server.ts` |
-| 클라이언트 fetch | `service.ts` | `lib/exhibition/service.ts` |
-| zod 스키마 | `camelCase.ts` (도메인명) | `lib/schemas/auth.ts` |
-| 도메인 타입 (전역) | `camelCase.ts` (단수형) | `types/exhibition.ts` |
-| 도메인 내부 타입 | `types.ts` | `lib/exhibition/types.ts` |
+| 종류               | 규칙                            | 예시                                             |
+| ------------------ | ------------------------------- | ------------------------------------------------ |
+| React Component    | `PascalCase.tsx`                | `ExhibitionCard.tsx`                             |
+| Hook               | `useCamelCase.ts`               | `useLogout.ts`                                   |
+| 유틸 / 로직        | `camelCase.ts`                  | `getAuthContext.ts`                              |
+| Next.js 예약       | 소문자 그대로                   | `page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` |
+| Server Actions     | `actions.ts` (route colocation) | `app/<route>/actions.ts`                         |
+| 서버 DAL           | `server.ts`                     | `lib/exhibition/server.ts`                       |
+| 클라이언트 fetch   | `service.ts`                    | `lib/exhibition/service.ts`                      |
+| zod 스키마         | `camelCase.ts` (도메인명)       | `lib/schemas/auth.ts`                            |
+| 도메인 타입 (전역) | `camelCase.ts` (단수형)         | `types/exhibition.ts`                            |
+| 도메인 내부 타입   | `types.ts`                      | `lib/exhibition/types.ts`                        |
 
 ---
 
 ## 5. Route Group 인증 정책
 
-| Route Group | 접근 권한 | Layout |
-|---|---|---|
-| `(auth)` | 비로그인 전용 | 이미 로그인 시 `/`로 redirect |
-| `(mypage)` | **로그인 필수** | Auth Guard (비로그인 시 `/login` redirect) |
-| `(exhibitions)` | 누구나 공개 | 전시 전용 레이아웃 |
-| root `app/page.tsx` | 누구나 공개 | root layout |
+| Route Group         | 접근 권한       | Layout                                     |
+| ------------------- | --------------- | ------------------------------------------ |
+| `(auth)`            | 비로그인 전용   | 이미 로그인 시 `/`로 redirect              |
+| `(mypage)`          | **로그인 필수** | Auth Guard (비로그인 시 `/login` redirect) |
+| `(exhibitions)`     | 누구나 공개     | 전시 전용 레이아웃                         |
+| root `app/page.tsx` | 누구나 공개     | root layout                                |
 
 ---
 
 ## 6. 도메인 용어
 
-| 개념 | 통일 용어 |
-|---|---|
-| 전시 (도메인) | **exhibition** |
-| 전시 생성 폼 | **exhibition-create** |
-| 전시 3D 뷰어 (Three.js) | **exhibition-gallery** |
-| 3D 헬퍼 (벽 생성 등) | **gallery** (도메인 중립 헬퍼) |
-| 리뷰 | **review** (별도 도메인) |
-| 작품 | **artwork** |
+| 개념                    | 통일 용어                      |
+| ----------------------- | ------------------------------ |
+| 전시 (도메인)           | **exhibition**                 |
+| 전시 생성 폼            | **exhibition-create**          |
+| 전시 3D 뷰어 (Three.js) | **exhibition-gallery**         |
+| 3D 헬퍼 (벽 생성 등)    | **gallery** (도메인 중립 헬퍼) |
+| 리뷰                    | **review** (별도 도메인)       |
+| 작품                    | **artwork**                    |
 
 ---
 
 ## 7. types/ 위치 규칙
 
-| 타입 종류 | 위치 |
-|---|---|
+| 타입 종류                     | 위치                                        |
+| ----------------------------- | ------------------------------------------- |
 | 여러 도메인/컴포넌트에서 공유 | `src/types/<domain>.ts` (단수형, camelCase) |
-| 한 도메인 내부에서만 사용 | `src/lib/<domain>/types.ts` |
-| 한 컴포넌트 폴더에서만 사용 | 같은 폴더의 `types.ts` |
-| 컴포넌트 Props | 컴포넌트 파일 내부 인라인 |
-| Supabase 자동생성 | `src/types/database.ts` |
+| 한 도메인 내부에서만 사용     | `src/lib/<domain>/types.ts`                 |
+| 한 컴포넌트 폴더에서만 사용   | 같은 폴더의 `types.ts`                      |
+| 컴포넌트 Props                | 컴포넌트 파일 내부 인라인                   |
+| Supabase 자동생성             | `src/types/database.ts`                     |
 
 ---
 
