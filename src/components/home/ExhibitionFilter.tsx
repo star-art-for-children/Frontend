@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { ExhibitionSort } from '@/types/exhibitionList';
+import { ExhibitionSort } from '@/types/exhibition';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { TransitionStartFunction, useOptimistic } from 'react';

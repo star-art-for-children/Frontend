@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import {
   ExhibitionsAuthRequiredError,
   fetchExhibitions,
-} from '@/lib/exhibition/queries';
+} from '@/lib/exhibition/server';
 import { checkRole } from '@/lib/gallery/checkRole';
 import { parseFormDataToObj } from '@/lib/gallery/parseForm';
 import { validateExhibition } from '@/lib/gallery/validateExhibitionForm';

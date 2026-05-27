@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { getStatus } from '@/lib/exhibition/dateStatus';
 import { ExhibitionEnded, ExhibitionUpcoming } from '@/components/exhibition';
-import { ExhibitionRow } from '@/types/exhibitionList';
+import { ExhibitionRow } from '@/types/exhibition';
 
 export default async function Layout({
   children,

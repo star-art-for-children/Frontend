@@ -1,7 +1,7 @@
-import { fetchExhibitions } from '@/lib/exhibition/queries';
+import { fetchExhibitions } from '@/lib/exhibition/server';
 import ExhibitionList from './ExhibitionList';
 import ListPagination from './ListPagination';
-import { ExhibitionSort } from '@/types/exhibitionList';
+import { ExhibitionSort } from '@/types/exhibition';
 import { notFound } from 'next/navigation';
 
 interface ExhibitionListContentProps {

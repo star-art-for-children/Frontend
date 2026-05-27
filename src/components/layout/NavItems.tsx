@@ -7,9 +7,9 @@ export type UserNavItem = {
 };
 
 export const USER_NAV_ITEMS: UserNavItem[] = [
-  { href: '/myPage', label: '마이페이지', icon: <User className="h-4 w-4" /> },
+  { href: '/my-page', label: '마이페이지', icon: <User className="h-4 w-4" /> },
   {
-    href: '/wishList',
+    href: '/wish-list',
     label: '위시리스트',
     icon: <BookMarked className="h-4 w-4" />,
   },

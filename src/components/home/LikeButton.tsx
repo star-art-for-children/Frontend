@@ -3,8 +3,8 @@
 import { useState, type MouseEvent } from 'react';
 import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { toggleExhibitionLike } from '@/service/exhibitions';
 import { useRouter } from 'next/navigation';
+import { toggleExhibitionLike } from '@/lib/exhibition/service';
 
 interface LikeButtonProps {
   exhibitionId: string;

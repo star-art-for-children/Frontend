@@ -4,12 +4,12 @@ import { FormEvent, useState } from 'react';
 import { cn } from '@/lib/utils';
 import ReviewPagination from './ReviewPagination';
 import ReviewAlertDialog from './ReviewAlertDialog';
+import { ExhibitionReviewItem } from '@/types/exhibition';
 import {
   deleteReview,
   fetchReviewsPage,
   postReview,
-} from '@/service/exhibitions';
-import { ExhibitionReviewItem } from '@/types/exhibitionList';
+} from '@/lib/review/service';
 
 export type Review = ExhibitionReviewItem;
 
