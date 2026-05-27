@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Artwork } from '../../types/artwork';
-import { likesToggle } from '@/service/artworks';
+import { likesToggle } from '@/lib/artwork/service';
 
 interface ArtworkModalProps {
   artwork: Artwork;

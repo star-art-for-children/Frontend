@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { toggleArtworkLike } from '@/service/artworks';
+import { toggleArtworkLike } from '@/lib/artwork/service';
 import { MouseEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';

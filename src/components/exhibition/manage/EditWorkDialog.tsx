@@ -15,7 +15,7 @@ import ImageUploadBox from './ImageUploadBox';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
-import { putArtWorkByArtWorkId } from '@/service/artworks';
+import { putArtWorkByArtWorkId } from '@/lib/artwork/service';
 import { ArtworkFormUi } from '@/components/exhibition/manage/AddWorkDialog';
 import { ArtworkWithEmail } from '@/app/(exhibitions)/exhibitions/[id]/manage/page';
 

@@ -3,7 +3,7 @@ import LogoutButton from './LogoutButton';
 import NewExhibitionBanner from './NewExhibitionBanner';
 import ProfileCard from './ProfileCard';
 import QuickLinks from './QuickLinks';
-import type { Profile } from '@/types/myPage';
+import type { Profile } from '@/types/profile';
 
 interface Props {
   profile: Profile;

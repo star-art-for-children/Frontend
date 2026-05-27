@@ -3,12 +3,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
 import ModalWrapper from '@/components/exhibition-gallery/threejs/ModalWrapper';
-import { getArtworksByExhibitionId } from '@/service/artworks';
+import { getArtworksByExhibitionId } from '@/lib/artwork/service';
 import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { getExhibitionDetails } from '@/service/exhibitions';
 import { X } from 'lucide-react';
+import { getExhibitionDetails } from '@/lib/exhibition/service';
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);

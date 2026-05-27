@@ -2,13 +2,13 @@
 
 import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
 import Link from 'next/link';
-import { ExhibitionDetailItem } from '@/lib/exhibition/queries';
-import { toggleExhibitionLike } from '@/service/exhibitions';
+import { ExhibitionDetailItem } from '@/lib/exhibition/server';
 import { MouseEvent, useState } from 'react';
 import { formatDate } from '@/lib/exhibition/dateStatus';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { toggleExhibitionLike } from '@/lib/exhibition/service';
 
 interface ActionProps {
   exhibition: ExhibitionDetailItem;

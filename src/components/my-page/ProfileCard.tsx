@@ -1,5 +1,5 @@
 import ProfileEditDialog from './ProfileEditDialog';
-import type { Profile } from '@/types/myPage';
+import type { Profile } from '@/types/profile';
 
 interface ProfileCardProps {
   profile: Profile;

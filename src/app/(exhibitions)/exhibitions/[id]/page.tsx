@@ -10,10 +10,8 @@ import {
   WorkDialog,
   ExhibitionActionBar,
 } from '@/components/exhibition';
-import {
-  fetchExhibitionDetail,
-  fetchExhibitionReviews,
-} from '@/lib/exhibition/queries';
+import { fetchExhibitionDetail } from '@/lib/exhibition/server';
+import { fetchExhibitionReviews } from '@/lib/review/server';
 
 export default async function ExhibitionDetail({
   params,

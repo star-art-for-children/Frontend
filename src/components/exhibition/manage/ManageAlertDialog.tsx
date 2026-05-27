@@ -13,10 +13,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { deleteArtworksByArtworkId } from '@/service/artworks';
+import { deleteArtworksByArtworkId } from '@/lib/artwork/service';
 import { useRouter } from 'next/navigation';
-import { endExhibition } from '@/service/exhibitions';
 import { todayKST } from '@/lib/exhibition/dateStatus';
+import { endExhibition } from '@/lib/exhibition/service';
 
 interface ManageAlertDialogProps {
   trigger: ReactElement;

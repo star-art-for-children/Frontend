@@ -9,12 +9,12 @@ import {
   X,
   ShieldAlert,
 } from 'lucide-react';
-import { postNewExhibition } from '@/service/exhibitions';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/exhibition/manage/ImageUploadBox';
 import { useEffect } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
+import { postNewExhibition } from '@/lib/exhibition/service';
 export default function CreateGalleryPage({
   institution,
 }: {

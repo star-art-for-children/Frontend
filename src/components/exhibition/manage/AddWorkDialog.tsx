@@ -15,7 +15,7 @@ import {
 import ImageUploadBox from './ImageUploadBox';
 import { Controller, useForm } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
-import { postArtWorksByExhibitionId } from '@/service/artworks';
+import { postArtWorksByExhibitionId } from '@/lib/artwork/service';
 import { useEffect, useState } from 'react';
 
 interface AddWorkDialogProps {

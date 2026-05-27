@@ -3,7 +3,7 @@ import { GalleryUIArtworkProps, WAllType } from '../../../types/gallery';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Group, Vector3 } from 'three';
-import { likesToggle } from '@/service/artworks';
+import { likesToggle } from '@/lib/artwork/service';
 import { downloadImgHandler } from '@/lib/gallery/image';
 
 import { User } from '@supabase/supabase-js';

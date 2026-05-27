@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { Profile } from '@/types/myPage';
+import type { Profile } from '@/types/profile';
 
 interface Props {
   profile: Profile;

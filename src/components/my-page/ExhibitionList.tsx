@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Exhibition } from '@/types/myPage';
+import type { Exhibition } from '@/types/profile';
 
 type Filter = 'all' | 'active' | 'upcoming' | 'ended';
 

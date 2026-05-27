@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
-import type { Profile } from '@/types/myPage';
+import type { Profile } from '@/types/profile';
 import MyPageScreen from '@/components/my-page/MyPageScreen';
 
 export default async function MyPage() {
