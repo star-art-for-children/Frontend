@@ -68,7 +68,9 @@ export default function WorkDialog(props: WorkDialogProps) {
 
   const submitHandler = async (e: ArtworkFormUi) => {
     const formData = new FormData();
-    if (e.artist_email) {
+    if (props.mode === 'edit') {
+      formData.append('artist_email', e.artist_email ?? '');
+    } else if (e.artist_email) {
       formData.append('artist_email', e.artist_email);
     }
     if (e.description) {
@@ -96,8 +98,18 @@ export default function WorkDialog(props: WorkDialogProps) {
   };
 
   useEffect(() => {
-    if (!open) reset();
-  }, [open, reset]);
+    if (open && work) {
+      reset({
+        artist_email: work.artist_email || null,
+        title: work.title,
+        artist_name: work.artist_name,
+        description: work.description,
+        image_url: work.image_url,
+      });
+    } else if (!open) {
+      reset();
+    }
+  }, [open, work, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
