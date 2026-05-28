@@ -36,7 +36,7 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
 
   const { data: exhibition, error: exhibtionError } = await supabase
     .from('exhibitions')
-    .select('*')
+    .select('*, profile:profiles!teacher_id ( institution )')
     .eq('id', exhibitionId)
     .single();
 
@@ -74,7 +74,10 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                 {exhibition?.title}
               </h1>
               <p className="text-secondary/60 mt-0.5 text-sm">
-                tt · 작품 {artworks?.length}점
+                {Array.isArray(exhibition.profile)
+                  ? exhibition.profile[0]?.institution
+                  : exhibition.profile?.institution}{' '}
+                · 작품 {artworks?.length}점
               </p>
             </div>
           </div>
