@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import ImageUploadBox from './ImageUploadBox';
+import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';

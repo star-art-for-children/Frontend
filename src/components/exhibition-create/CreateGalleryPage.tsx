@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
-import ImageUploadBox from '@/components/exhibition/manage/ImageUploadBox';
+import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { useEffect } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
 import { postNewExhibition } from '@/lib/exhibition/service';
