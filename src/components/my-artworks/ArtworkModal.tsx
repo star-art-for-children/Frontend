@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 import { likesToggle } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useImageDownload } from '@/hooks/useImageDownload';
 import { Artwork } from '@/types/artwork';
 
 interface ArtworkModalProps {
@@ -29,6 +30,8 @@ export default function ArtworkModal({
     onSuccess: (nextLiked, nextLikes) => onLikeChange?.(nextLiked, nextLikes),
   });
 
+  const { download } = useImageDownload();
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -43,15 +46,7 @@ export default function ArtworkModal({
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(artwork.imageUrl);
-      if (!response.ok) throw new Error('download failed');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${artwork.title}.jpg`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await download(artwork.imageUrl, `${artwork.title}.jpg`);
     } catch (e) {
       console.error('이미지 다운로드 실패:', e);
     }

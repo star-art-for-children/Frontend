@@ -13,6 +13,7 @@ import {
 import { toggleArtworkLike } from '@/lib/artwork/service';
 import { cn } from '@/lib/utils';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useImageDownload } from '@/hooks/useImageDownload';
 
 export interface Work {
   id: string;
@@ -39,20 +40,11 @@ export default function WorkDialog({
   exhibitionHost,
   isLoggedIn = false,
 }: WorkDialogProps) {
+  const { download } = useImageDownload();
+
   const handleImageDownload = async (imageUrl: string, title: string) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = title;
-
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await download(imageUrl, title);
     } catch (err) {
       console.error('Image Download Error', err);
       alert('이미지 다운로드에 실패했습니다. 다시 시도해주세요.');
