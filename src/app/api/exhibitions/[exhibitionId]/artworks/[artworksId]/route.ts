@@ -39,7 +39,7 @@ export async function PUT(
     const body = await req.formData();
     const title = body.get('title');
     const artist_name = body.get('artist_name');
-    const description = body.get('description');
+    const description = body.get('description') || null;
     const imageUrlRaw = body.get('image_url');
 
     let imageUrl = imageUrlRaw;

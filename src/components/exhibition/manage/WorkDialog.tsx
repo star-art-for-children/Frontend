@@ -73,7 +73,9 @@ export default function WorkDialog(props: WorkDialogProps) {
     } else if (e.artist_email) {
       formData.append('artist_email', e.artist_email);
     }
-    if (e.description) {
+    if (props.mode === 'edit') {
+      formData.append('description', e.description ?? '');
+    } else if (e.description) {
       formData.append('description', e.description);
     }
     formData.append('artist_name', e.artist_name);
