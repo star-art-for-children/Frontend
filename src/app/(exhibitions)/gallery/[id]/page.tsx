@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
-import { useGalleryData } from '@/components/exhibition-gallery/hooks';
+import { useGalleryData } from '@/lib/gallery/hooks';
 import GalleryEntryModal from '@/components/exhibition-gallery/GalleryEntryModal';
 import GalleryHUD from '@/components/exhibition-gallery/GalleryHUD';
 
