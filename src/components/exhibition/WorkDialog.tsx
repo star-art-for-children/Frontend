@@ -30,7 +30,7 @@ export default function WorkDialog({
   exhibitionId,
   exhibitionTitle,
   exhibitionHost,
-  isLoggedIn = false,
+  isLoggedIn,
 }: WorkDialogProps) {
   const [open, setOpen] = useState(false);
 
