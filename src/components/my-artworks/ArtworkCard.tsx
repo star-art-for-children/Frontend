@@ -9,7 +9,11 @@ interface ArtworkCardProps {
   onClick: () => void;
 }
 
-export default function ArtworkCard({ artwork, subtitle, onClick }: ArtworkCardProps) {
+export default function ArtworkCard({
+  artwork,
+  subtitle,
+  onClick,
+}: ArtworkCardProps) {
   return (
     <div
       onClick={onClick}
@@ -33,9 +37,7 @@ export default function ArtworkCard({ artwork, subtitle, onClick }: ArtworkCardP
           {artwork.title}
         </p>
 
-        <p className="mb-2 truncate text-[12px] text-[#BCBAB2]">
-          {subtitle}
-        </p>
+        <p className="mb-2 truncate text-[12px] text-[#BCBAB2]">{subtitle}</p>
 
         {/* 좋아요 수 */}
         <div className="flex items-center gap-1 text-[#BCBAB2]">
