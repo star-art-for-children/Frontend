@@ -5,10 +5,11 @@ import Image from 'next/image';
 
 interface ArtworkCardProps {
   artwork: Artwork;
+  subtitle: string;
   onClick: () => void;
 }
 
-export default function ArtworkCard({ artwork, onClick }: ArtworkCardProps) {
+export default function ArtworkCard({ artwork, subtitle, onClick }: ArtworkCardProps) {
   return (
     <div
       onClick={onClick}
@@ -32,9 +33,8 @@ export default function ArtworkCard({ artwork, onClick }: ArtworkCardProps) {
           {artwork.title}
         </p>
 
-        {/* 전시회명 */}
         <p className="mb-2 truncate text-[12px] text-[#BCBAB2]">
-          {artwork.exhibitionTitle}
+          {subtitle}
         </p>
 
         {/* 좋아요 수 */}

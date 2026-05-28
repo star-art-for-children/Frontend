@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import ArtworkCard from '@/components/my-artworks/ArtworkCard';
 import ArtworkModal from '@/components/my-artworks/ArtworkModal';
 import FilterTab from '@/components/my-artworks/FilterTab';
+import { sortArtworks } from '@/lib/artwork/sort';
 import type { Artwork, FilterType } from '@/types/artwork';
-import WishlistCard from './WishlistCard';
 
 interface WishlistScreenProps {
   artworks: Artwork[];
@@ -17,13 +18,7 @@ export default function WishlistScreen({
   const [filter, setFilter] = useState<FilterType>('latest');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
-  const sorted = [...artworks].sort((a, b) => {
-    if (filter === 'latest')
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    if (filter === 'oldest')
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    return b.likesCount - a.likesCount;
-  });
+  const sorted = sortArtworks(artworks, filter);
 
   return (
     <>
@@ -43,9 +38,10 @@ export default function WishlistScreen({
           {sorted.length > 0 ? (
             <div className="grid grid-cols-4 gap-5">
               {sorted.map((artwork) => (
-                <WishlistCard
+                <ArtworkCard
                   key={artwork.id}
                   artwork={artwork}
+                  subtitle={artwork.artist}
                   onClick={() => setSelectedArtwork(artwork)}
                 />
               ))}
