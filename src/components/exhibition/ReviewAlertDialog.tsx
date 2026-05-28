@@ -8,7 +8,10 @@ interface ReviewAlertDialogProps {
   onAction: () => void | Promise<void>;
 }
 
-const ReviewAlertDialog = ({ isDeleting, onAction }: ReviewAlertDialogProps) => {
+const ReviewAlertDialog = ({
+  isDeleting,
+  onAction,
+}: ReviewAlertDialogProps) => {
   return (
     <ConfirmDialog
       trigger={
