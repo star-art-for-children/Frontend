@@ -13,3 +13,20 @@ export type Artwork = {
   isLiked: boolean;
   createdAt: string; // ISO string
 };
+
+export type ArtworkWithEmail = {
+  id: string;
+  title: string;
+  artist_name: string;
+  description: string | null;
+  image_url: string;
+  artist_email: string;
+};
+
+export type ArtworkFormUi = {
+  artist_email: string | null;
+  title: string;
+  artist_name: string;
+  description: string | null;
+  image_url: string | File;
+};

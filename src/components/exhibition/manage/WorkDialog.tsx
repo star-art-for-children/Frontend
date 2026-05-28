@@ -20,15 +20,7 @@ import {
   putArtWorkByArtWorkId,
 } from '@/lib/artwork/service';
 import { useEffect, useState } from 'react';
-import { ArtworkWithEmail } from '@/app/(exhibitions)/exhibitions/[id]/manage/page';
-
-export type ArtworkFormUi = {
-  artist_email: string | null;
-  title: string;
-  artist_name: string;
-  description: string | null;
-  image_url: string | File;
-};
+import { ArtworkFormUi, ArtworkWithEmail } from '@/types/artwork';
 
 type WorkDialogProps =
   | { mode: 'add'; triggerLabel?: string; triggerClassName?: string }

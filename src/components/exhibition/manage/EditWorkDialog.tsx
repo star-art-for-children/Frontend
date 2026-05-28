@@ -1,7 +1,7 @@
 'use client';
 
 import WorkDialog from './WorkDialog';
-import { ArtworkWithEmail } from '@/app/(exhibitions)/exhibitions/[id]/manage/page';
+import { ArtworkWithEmail } from '@/types/artwork';
 
 interface EditWorkDialogProps {
   work: ArtworkWithEmail;

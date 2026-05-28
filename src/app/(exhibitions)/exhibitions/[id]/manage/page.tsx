@@ -10,18 +10,11 @@ import {
 } from '@/components/exhibition/manage';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { ArtworkWithEmail } from '@/types/artwork';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-export type ArtworkWithEmail = {
-  id: string;
-  title: string;
-  artist_name: string;
-  description: string | null;
-  image_url: string;
-  artist_email: string;
-};
 
 export default async function ExhibitionManagePage({ params }: PageProps) {
   const { id: exhibitionId } = await params;
