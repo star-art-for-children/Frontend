@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import ImageUploadBox from './ImageUploadBox';
+import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { Controller, useForm } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import { postArtWorksByExhibitionId } from '@/lib/artwork/service';
