@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ArtworkCard from '@/components/my-artworks/ArtworkCard';
 import ArtworkModal from '@/components/my-artworks/ArtworkModal';
 import FilterTab from '@/components/my-artworks/FilterTab';
+import { sortArtworks } from '@/lib/artwork/sort';
 import type { Artwork, FilterType } from '@/types/artwork';
 
 interface ArtworksScreenProps {
@@ -15,69 +16,21 @@ export default function ArtworksScreen({
 }: ArtworksScreenProps) {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const [filter, setFilter] = useState<FilterType>('latest');
-  // const [search, setSearch] = useState<string>('');
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
-  const sorted = [...artworks]
-    // .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => {
-      if (filter === 'latest')
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      if (filter === 'oldest')
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      return b.likesCount - a.likesCount;
-    });
+  const sorted = sortArtworks(artworks, filter);
 
   return (
     <>
       <main className="min-h-screen bg-[#F5F0E8]">
         <div className="mx-auto max-w-[1080px] px-6 py-10">
-          <div className="mb-6 flex items-start justify-between">
-            <div>
-              <h1 className="mb-1 text-[28px] font-bold tracking-tight text-[#1A1A1A]">
-                내 작품 모아보기
-              </h1>
-              <p className="text-[14px] text-[#888780]">
-                나의 작품 {artworks.length}점
-              </p>
-            </div>
-
-            {/* 검색 기능 - 다음 심화 프로젝트 단계에서 구현 예정
-            <div className="relative">
-              <svg
-                className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[#BCBAB2]"
-                width="15"
-                height="15"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <circle
-                  cx="7"
-                  cy="7"
-                  r="5.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M11 11l2.5 2.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="작품 검색..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-[220px] rounded-full border border-[#EDEBE4] bg-white py-2.5 pr-4 pl-9 text-[14px] text-[#1A1A1A] transition-colors outline-none placeholder:text-[#BCBAB2] focus:border-[#f4b942]"
-              />
-            </div>
-            */}
+          <div className="mb-6">
+            <h1 className="mb-1 text-[28px] font-bold tracking-tight text-[#1A1A1A]">
+              내 작품 모아보기
+            </h1>
+            <p className="text-[14px] text-[#888780]">
+              나의 작품 {artworks.length}점
+            </p>
           </div>
 
           <FilterTab value={filter} onChange={setFilter} />
@@ -88,6 +41,7 @@ export default function ArtworksScreen({
                 <ArtworkCard
                   key={artwork.id}
                   artwork={artwork}
+                  subtitle={artwork.exhibitionTitle}
                   onClick={() => setSelectedArtwork(artwork)}
                 />
               ))}
