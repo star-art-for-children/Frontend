@@ -1,15 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Trash2, TriangleAlert, Upload, X } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { ArrowLeft, Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   AddWorkDialog,
+  DeleteArtworkDialog,
   EditWorkDialog,
-  ManageAlertDialog,
+  EndExhibitionDialog,
 } from '@/components/exhibition/manage';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { cn } from '@/lib/utils';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -82,36 +82,8 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             </div>
           </div>
 
-          <ManageAlertDialog
-            trigger={
-              <button
-                className={cn(
-                  buttonVariants({ variant: 'destructive', size: 'lg' }),
-                  'shrink-0 rounded-xl'
-                )}
-              >
-                <X className="h-4 w-4" />
-                전시회 종료
-              </button>
-            }
-            icon={<TriangleAlert stroke="#FF6900" />}
-            iconContainerClassName="bg-primary/10 text-primary"
-            title="전시회 종료"
-            description={
-              <>
-                전시를 종료하면 관람객이 더 이상 입장할 수 없습니다.
-                <br />
-                오늘까지는 정상 운영되며,
-                <br />
-                <strong>내일 0시부터 ‘종료된 전시’</strong>로 표시됩니다.
-                <br />
-                정말 종료하시겠습니까?
-              </>
-            }
+          <EndExhibitionDialog
             exhibitionId={exhibitionId}
-            onAction={'exhibitionEnd'}
-            actionLabel="종료하기"
-            actionClassName="bg-[#FF6900] hover:bg-[#F64900] text-white"
             startDate={exhibition.start_date}
           />
         </div>
@@ -174,33 +146,10 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
                   </p>
                   <div className="mt-3 flex gap-2">
                     <EditWorkDialog work={work} />
-                    <ManageAlertDialog
-                      trigger={
-                        <button
-                          className={cn(
-                            buttonVariants({ variant: 'surface', size: 'sm' }),
-                            'flex-1 rounded-lg hover:text-red-500'
-                          )}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          삭제
-                        </button>
-                      }
-                      icon={<Trash2 />}
-                      iconContainerClassName="bg-red-100 text-red-500"
-                      title="작품 삭제"
-                      description={
-                        <>
-                          &quot;{work.title}&quot; 작품을 삭제하시겠습니까?
-                          <br />
-                          삭제 후 복원할 수 없습니다.
-                        </>
-                      }
-                      actionLabel="삭제하기"
-                      actionClassName="bg-red-500 hover:bg-red-600 text-white"
-                      onAction={'deleteArtwork'}
-                      artworkId={work.id}
+                    <DeleteArtworkDialog
                       exhibitionId={exhibitionId}
+                      artworkId={work.id}
+                      artworkTitle={work.title}
                     />
                   </div>
                 </div>
