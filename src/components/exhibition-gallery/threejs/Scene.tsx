@@ -98,7 +98,6 @@ export default function Scene2({
         bounds={[8, 3, 4]}
       />
 
-
       <hemisphereLight args={['#FFD0A0', '#C8A080', 0.5]} />
       <ambientLight intensity={0.9} color="#FFF5EE" />
       <directionalLight
