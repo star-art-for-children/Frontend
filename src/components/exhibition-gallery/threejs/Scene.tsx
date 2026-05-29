@@ -97,48 +97,7 @@ export default function Scene2({
         segments={20}
         bounds={[8, 3, 4]}
       />
-      <Cloud
-        position={[10, 30, -60]}
-        speed={0.06}
-        opacity={0.55}
-        segments={30}
-        bounds={[14, 4, 6]}
-      />
-      <Cloud
-        position={[-20, 28, 55]}
-        speed={0.05}
-        opacity={0.5}
-        segments={28}
-        bounds={[12, 3, 6]}
-      />
-      <Cloud
-        position={[60, 26, -15]}
-        speed={0.04}
-        opacity={0.45}
-        segments={22}
-        bounds={[10, 3, 5]}
-      />
-      <Cloud
-        position={[-60, 32, 10]}
-        speed={0.07}
-        opacity={0.35}
-        segments={14}
-        bounds={[7, 2, 3]}
-      />
-      <Cloud
-        position={[30, 35, -40]}
-        speed={0.06}
-        opacity={0.3}
-        segments={12}
-        bounds={[6, 2, 3]}
-      />
-      <Cloud
-        position={[-15, 38, 40]}
-        speed={0.03}
-        opacity={0.25}
-        segments={10}
-        bounds={[5, 2, 2]}
-      />
+
 
       <hemisphereLight args={['#FFD0A0', '#C8A080', 0.5]} />
       <ambientLight intensity={0.9} color="#FFF5EE" />
@@ -147,7 +106,7 @@ export default function Scene2({
         intensity={1.6}
         color="#FFB060"
         castShadow
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[2048, 2048]}
         shadow-radius={20}
         shadow-bias={-0.001}
         shadow-normalBias={0.04}

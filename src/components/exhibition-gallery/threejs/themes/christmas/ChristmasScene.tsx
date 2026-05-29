@@ -75,38 +75,6 @@ export default function ChristmasScene({
       />
 
       {/* 밤 구름 */}
-      <Cloud
-        position={[-40, 24, -50]}
-        speed={0.01}
-        opacity={0.18}
-        color="#1a1f3a"
-        segments={20}
-        bounds={[18, 4, 8]}
-      />
-      <Cloud
-        position={[45, 22, 30]}
-        speed={0.012}
-        opacity={0.15}
-        color="#151a30"
-        segments={20}
-        bounds={[20, 5, 9]}
-      />
-      <Cloud
-        position={[10, 30, -60]}
-        speed={0.01}
-        opacity={0.12}
-        color="#1a1f3a"
-        segments={15}
-        bounds={[14, 4, 6]}
-      />
-      <Cloud
-        position={[-20, 28, 55]}
-        speed={0.01}
-        opacity={0.14}
-        color="#151a30"
-        segments={15}
-        bounds={[12, 3, 6]}
-      />
 
       {/* 달빛 조명 */}
       <hemisphereLight args={['#1a2a50', '#0d1530', 0.8]} />
@@ -116,7 +84,7 @@ export default function ChristmasScene({
         intensity={0.7}
         color="#8aaae0"
         castShadow
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[2048, 2048]}
         shadow-radius={20}
         shadow-bias={-0.001}
         shadow-normalBias={0.04}
