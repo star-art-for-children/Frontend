@@ -2,10 +2,10 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
 import { useGalleryData } from '@/lib/gallery/hooks';
 import GalleryEntryModal from '@/components/exhibition-gallery/GalleryEntryModal';
 import GalleryHUD from '@/components/exhibition-gallery/GalleryHUD';
+import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
 
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();

@@ -13,9 +13,9 @@ export function generateGalleryWalls(
     y: 1.6,
     z: -half + cellSize / 2,
   };
+
   // 1. grid 생성
   const grid: Cell[][] = [];
-
   for (let x = 0; x < size; x++) {
     const row: Cell[] = [];
     for (let z = 0; z < size; z++) {
@@ -23,19 +23,13 @@ export function generateGalleryWalls(
         x,
         z,
         visited: false,
-        walls: {
-          top: true,
-          right: true,
-          bottom: true,
-          left: true,
-        },
+        walls: { top: true, right: true, bottom: true, left: true },
       });
     }
     grid.push(row);
   }
 
   const stack: Cell[] = [];
-
   const start = grid[0][0];
   start.visited = true;
   stack.push(start);
@@ -44,20 +38,16 @@ export function generateGalleryWalls(
   while (stack.length) {
     const current = stack.pop()!;
     const { x, z } = current;
-
     const neighbors: Cell[] = [];
-
     const directions = [
       { dx: 0, dz: -1, dir: 'top' },
       { dx: 1, dz: 0, dir: 'right' },
       { dx: 0, dz: 1, dir: 'bottom' },
       { dx: -1, dz: 0, dir: 'left' },
     ];
-
     for (const d of directions) {
       const nx = x + d.dx;
       const nz = z + d.dz;
-
       if (
         nx >= 0 &&
         nz >= 0 &&
@@ -68,13 +58,9 @@ export function generateGalleryWalls(
         neighbors.push(grid[nx][nz]);
       }
     }
-
     if (neighbors.length) {
       stack.push(current);
-
       const next = neighbors[Math.floor(Math.random() * neighbors.length)];
-
-      // 벽 제거
       if (next.x > x) {
         current.walls.right = false;
         next.walls.left = false;
@@ -91,7 +77,6 @@ export function generateGalleryWalls(
         current.walls.top = false;
         next.walls.bottom = false;
       }
-
       next.visited = true;
       stack.push(next);
     }
@@ -102,91 +87,83 @@ export function generateGalleryWalls(
   for (let x = 0; x < size; x++) {
     for (let z = 0; z < size; z++) {
       const cell = grid[x][z];
-
       const cx = -half + x * cellSize + cellSize / 2;
       const cz = -half + z * cellSize + cellSize / 2;
-
       const h = 5;
       const t = 0.3;
 
-      //똑같은 두께의 벽이 동일좌표에 생성되니까 텍스쳐가 깨질 가능성? -> 벽을 z축으로 조금 더 미는거?
-      // top
-      if (cell.walls.top) {
+      if (cell.walls.top && z === 0) {
         walls.push({
           pos: [cx, h / 2, cz - cellSize / 2],
-          boxSize: [cellSize, h, t],
-          color: '#ffffff',
+          boxSize: [cellSize + t, h, t],
+          color: '#FFFFFF',
           direction: 'top',
           rot: [0, 0, 0],
+          isInterior: false,
         });
       }
-
-      // right
       if (cell.walls.right) {
         walls.push({
           pos: [cx + cellSize / 2, h / 2, cz],
-          boxSize: [cellSize, h, t],
-          color: '#ffffff',
+          boxSize: [cellSize + t, h, t],
+          color: '#FFFFFF',
           direction: 'right',
           rot: [0, -Math.PI / 2, 0],
+          isInterior: x < size - 1,
         });
       }
-
-      // bottom
       if (cell.walls.bottom) {
         walls.push({
           pos: [cx, h / 2, cz + cellSize / 2],
-          boxSize: [cellSize, h, t],
-          color: '#ffffff',
+          boxSize: [cellSize + t, h, t],
+          color: '#FFFFFF',
           direction: 'bottom',
           rot: [0, Math.PI, 0],
+          isInterior: z < size - 1,
         });
       }
-
-      // left
-      if (cell.walls.left) {
+      if (cell.walls.left && x === 0) {
         walls.push({
           pos: [cx - cellSize / 2, h / 2, cz],
-          boxSize: [cellSize, h, t],
-          color: '#ffffff',
+          boxSize: [cellSize + t, h, t],
+          color: '#FFFFFF',
           direction: 'left',
           rot: [0, Math.PI / 2, 0],
+          isInterior: false,
         });
       }
     }
   }
 
-  return {
-    innerWalls: walls,
-    startPosition,
-  };
+  return { innerWalls: walls, startPosition };
 }
 
 export const createWalls = (
   roomSize: number,
   wallHeight: number
 ): WAllType[] => {
+  const color = '#FFFFFF';
   return [
     {
-      color: '#E6E0D6',
+      color,
       pos: [0, wallHeight / 2, -roomSize / 2],
       boxSize: [roomSize, wallHeight, 0.5],
       rot: [0, 0, 0],
     },
     {
-      color: '#ECE6DC',
+      color,
       pos: [0, wallHeight / 2, roomSize / 2],
       boxSize: [roomSize, wallHeight, 0.5],
       rot: [0, Math.PI, 0],
     },
     {
-      color: '#E6E0D6',
+      color,
       pos: [-roomSize / 2, wallHeight / 2, 0],
       boxSize: [roomSize, wallHeight, 0.5],
       rot: [0, Math.PI / 2, 0],
     },
     {
-      color: '#F2ECE2',
+      color,
       pos: [roomSize / 2, wallHeight / 2, 0],
       boxSize: [roomSize, wallHeight, 0.5],
       rot: [0, -Math.PI / 2, 0],

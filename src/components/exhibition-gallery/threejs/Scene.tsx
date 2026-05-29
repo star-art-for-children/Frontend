@@ -1,17 +1,24 @@
 import { Canvas } from '@react-three/fiber';
-import { PointerLockControls, useProgress } from '@react-three/drei';
+import * as THREE from 'three';
+import {
+  Cloud,
+  PointerLockControls,
+  Sky,
+  useProgress,
+} from '@react-three/drei';
 import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { GalleryUIArtworkProps } from '@/types/gallery';
-import { createWalls, generateGalleryWalls } from '@/lib/gallery/createWalls';
+import { generateGalleryWalls, createWalls } from '@/lib/gallery/createWalls';
 import Room from './Room';
 import Player from './Player';
 import { User } from '@supabase/supabase-js';
 
-function getGridSize(artworkCount: number) {
+function getGridSize(artworkCount: number): number {
   if (artworkCount <= 4) return 1;
   if (artworkCount <= 10) return 2;
   return 3;
 }
+
 export default function Scene2({
   exhibitionId,
   ready,
@@ -23,43 +30,146 @@ export default function Scene2({
   init: GalleryUIArtworkProps[];
   user: User | null;
 }) {
-  const artworkCount = init.length;
+  const height = 9;
   const cellSize = 7;
-  const gridSize = getGridSize(artworkCount);
+  const gridSize = getGridSize(init.length);
   const roomSize = gridSize * cellSize;
 
-  const height = 6;
   const { innerWalls, startPosition } = useMemo(
     () => generateGalleryWalls(roomSize, gridSize, cellSize),
-    [roomSize, gridSize, cellSize]
+    [roomSize, gridSize]
   );
+
   const walls = useMemo(
     () => createWalls(roomSize, height),
     [roomSize, height]
   );
 
   const { active, loaded, total } = useProgress();
-
   useEffect(() => {
     ready(active === false && loaded === total && total > 0);
   }, [active, loaded, total, ready]);
-  return (
-    <>
-      <Canvas shadows camera={{ fov: 50 }}>
-        <Room
-          user={user}
-          exhibitionId={exhibitionId}
-          walls={walls}
-          innerWalls={innerWalls}
-          init={init}
-          size={roomSize}
-          height={height}
-        />
-        <ambientLight intensity={1} />
 
-        <Player startPos={startPosition} innerWalls={innerWalls} speed={3} />
-        <PointerLockControls />
-      </Canvas>
-    </>
+  return (
+    <Canvas
+      shadows="soft"
+      camera={{ fov: 65 }}
+      gl={{
+        antialias: true,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.5,
+      }}
+    >
+      <Sky
+        distance={450000}
+        sunPosition={[20, 15, 25]}
+        turbidity={8}
+        rayleigh={1.8}
+        mieCoefficient={0.004}
+        mieDirectionalG={0.88}
+      />
+
+      <Cloud
+        position={[-40, 24, -50]}
+        speed={0.04}
+        opacity={0.7}
+        segments={40}
+        bounds={[18, 4, 8]}
+      />
+      <Cloud
+        position={[-46, 26, -48]}
+        speed={0.03}
+        opacity={0.45}
+        segments={25}
+        bounds={[10, 3, 5]}
+      />
+      <Cloud
+        position={[45, 22, 30]}
+        speed={0.05}
+        opacity={0.65}
+        segments={45}
+        bounds={[20, 5, 9]}
+      />
+      <Cloud
+        position={[50, 25, 28]}
+        speed={0.04}
+        opacity={0.4}
+        segments={20}
+        bounds={[8, 3, 4]}
+      />
+      <Cloud
+        position={[10, 30, -60]}
+        speed={0.06}
+        opacity={0.55}
+        segments={30}
+        bounds={[14, 4, 6]}
+      />
+      <Cloud
+        position={[-20, 28, 55]}
+        speed={0.05}
+        opacity={0.5}
+        segments={28}
+        bounds={[12, 3, 6]}
+      />
+      <Cloud
+        position={[60, 26, -15]}
+        speed={0.04}
+        opacity={0.45}
+        segments={22}
+        bounds={[10, 3, 5]}
+      />
+      <Cloud
+        position={[-60, 32, 10]}
+        speed={0.07}
+        opacity={0.35}
+        segments={14}
+        bounds={[7, 2, 3]}
+      />
+      <Cloud
+        position={[30, 35, -40]}
+        speed={0.06}
+        opacity={0.3}
+        segments={12}
+        bounds={[6, 2, 3]}
+      />
+      <Cloud
+        position={[-15, 38, 40]}
+        speed={0.03}
+        opacity={0.25}
+        segments={10}
+        bounds={[5, 2, 2]}
+      />
+
+      <hemisphereLight args={['#FFD0A0', '#C8A080', 0.5]} />
+      <ambientLight intensity={0.9} color="#FFF5EE" />
+      <directionalLight
+        position={[20, 20, 25]}
+        intensity={1.6}
+        color="#FFB060"
+        castShadow
+        shadow-mapSize={[4096, 4096]}
+        shadow-radius={20}
+        shadow-bias={-0.001}
+        shadow-normalBias={0.04}
+        shadow-camera-near={1}
+        shadow-camera-far={120}
+        shadow-camera-left={-roomSize}
+        shadow-camera-right={roomSize}
+        shadow-camera-top={roomSize}
+        shadow-camera-bottom={-roomSize}
+      />
+
+      <Room
+        user={user}
+        exhibitionId={exhibitionId}
+        size={roomSize}
+        height={height}
+        walls={walls}
+        innerWalls={innerWalls}
+        init={init}
+      />
+      <Player startPos={startPosition} innerWalls={innerWalls} speed={3} />
+      <PointerLockControls />
+    </Canvas>
   );
 }
