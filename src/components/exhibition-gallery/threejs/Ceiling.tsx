@@ -1,4 +1,7 @@
 import React from 'react';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
+
+RectAreaLightUniformsLib.init();
 
 export default function Ceiling({
   size,
