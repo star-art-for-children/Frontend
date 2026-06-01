@@ -3,7 +3,13 @@ import { useTexture } from '@react-three/drei';
 import { MeshReflectorMaterial } from '@react-three/drei';
 import { RepeatWrapping } from 'three';
 
-export default function Floor({ size }: { size: number }) {
+export default function Floor({
+  size,
+  color,
+}: {
+  size: number;
+  color: string;
+}) {
   const texture = useTexture('/gallery/floor.jpg');
 
   const cloned = useMemo(() => {
@@ -30,6 +36,7 @@ export default function Floor({ size }: { size: number }) {
         maxDepthThreshold={1.0}
         metalness={0.05}
         mirror={0}
+        color={color}
       />
     </mesh>
   );

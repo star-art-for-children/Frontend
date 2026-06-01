@@ -15,6 +15,44 @@ import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { useEffect } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
 import { postNewExhibition } from '@/lib/exhibition/service';
+import { GalleryTheme } from '@/lib/gallery/themes.config';
+
+const THEME_OPTIONS: {
+  value: GalleryTheme;
+  label: string;
+  emoji: string;
+  bg: string;
+  border: string;
+}[] = [
+  {
+    value: 'default',
+    label: '기본',
+    emoji: '🏛️',
+    bg: '#f5f5f5',
+    border: '#d0ccc6',
+  },
+  {
+    value: 'cherry',
+    label: '벚꽃',
+    emoji: '🌸',
+    bg: '#ffecf0',
+    border: '#ffb7c5',
+  },
+  {
+    value: 'ocean',
+    label: '바다',
+    emoji: '🌊',
+    bg: '#061a3a',
+    border: '#00b4d8',
+  },
+  {
+    value: 'forest',
+    label: '숲',
+    emoji: '🌿',
+    bg: '#1a3a1a',
+    border: '#90c040',
+  },
+];
 export default function CreateGalleryPage({
   institution,
 }: {
@@ -36,6 +74,7 @@ export default function CreateGalleryPage({
       guideLines: null,
       startDate: '',
       endDate: null,
+      theme: 'default',
     },
   });
   const today = new Date().toISOString().split('T')[0];
@@ -57,6 +96,7 @@ export default function CreateGalleryPage({
     }
 
     formData.append('startDate', e.startDate);
+    formData.append('theme', e.theme);
 
     if (e.endDate) {
       formData.append('endDate', e.endDate);
@@ -145,6 +185,49 @@ export default function CreateGalleryPage({
                   }
                 />
               </CreateGalleryFormWrapper>
+              <Controller
+                name="theme"
+                control={control}
+                render={({ field }) => (
+                  <CreateGalleryFormWrapper
+                    title={'전시관 테마'}
+                    icon={<Palette className={'text-primary w-[17px]'} />}
+                  >
+                    <div className="grid grid-cols-4 gap-2 pt-1">
+                      {THEME_OPTIONS.map((opt) => {
+                        const selected = field.value === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => field.onChange(opt.value)}
+                            className="flex flex-col items-center gap-1"
+                          >
+                            <div
+                              className="flex h-12 w-full items-center justify-center rounded-xl text-xl transition-all"
+                              style={{
+                                background: opt.bg,
+                                border: `2px solid ${selected ? opt.border : 'transparent'}`,
+                                boxShadow: selected
+                                  ? `0 0 0 2px ${opt.border}40`
+                                  : undefined,
+                              }}
+                            >
+                              {opt.emoji}
+                            </div>
+                            <span
+                              className="text-xs font-medium"
+                              style={{ color: selected ? opt.border : '#999' }}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </CreateGalleryFormWrapper>
+                )}
+              />
               <Controller
                 name="galleryImg"
                 control={control}

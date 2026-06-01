@@ -1,4 +1,7 @@
 import { FormValidation } from '@/types/gallery';
+import { GalleryTheme } from '@/lib/gallery/themes.config';
+
+const VALID_THEMES: GalleryTheme[] = ['default', 'cherry', 'ocean', 'forest'];
 
 export function validateExhibition(init: FormValidation) {
   const {
@@ -8,6 +11,7 @@ export function validateExhibition(init: FormValidation) {
     startDateRaw,
     endDateRaw,
     guidelines,
+    theme: themeRaw,
   } = init;
 
   if (typeof title !== 'string' || !title.trim()) {
@@ -47,6 +51,12 @@ export function validateExhibition(init: FormValidation) {
     return { error: 'endDate must be after startDate' };
   }
 
+  const theme: GalleryTheme =
+    typeof themeRaw === 'string' &&
+    VALID_THEMES.includes(themeRaw as GalleryTheme)
+      ? (themeRaw as GalleryTheme)
+      : 'default';
+
   return {
     data: {
       title,
@@ -55,6 +65,7 @@ export function validateExhibition(init: FormValidation) {
       start_date,
       end_date,
       guidelines,
+      theme,
     },
   };
 }

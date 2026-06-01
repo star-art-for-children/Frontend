@@ -5,6 +5,7 @@ export type UIFormProps = {
   guideLines: string | null;
   startDate: string;
   endDate: string | null;
+  theme: 'default' | 'cherry' | 'ocean' | 'forest';
 };
 
 export type FormValidation = {
@@ -14,6 +15,7 @@ export type FormValidation = {
   startDateRaw: FormDataEntryValue | null;
   endDateRaw: FormDataEntryValue | null;
   guidelines: FormDataEntryValue | null;
+  theme: FormDataEntryValue | null;
 };
 
 export type WAllType = {

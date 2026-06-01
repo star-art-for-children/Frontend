@@ -8,6 +8,7 @@ type ExhibitionDetailRow = {
   thumbnail_url: string | null;
   start_date: string;
   end_date: string | null;
+  theme: string;
   profile: { institution: string } | { institution: string }[] | null;
   likes: { count: number }[] | null;
 };
@@ -29,6 +30,7 @@ export async function GET(
         thumbnail_url,
         start_date,
         end_date,
+        theme,
         profile:profiles!teacher_id ( institution ),
         likes:exhibition_likes ( count )
       `
@@ -54,6 +56,7 @@ export async function GET(
       thumbnailUrl: data.thumbnail_url,
       startDate: data.start_date,
       endDate: data.end_date,
+      theme: data.theme ?? 'default',
       host: profile?.institution ?? null,
       likes: data.likes?.[0]?.count ?? 0,
     };

@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
       start_date,
       end_date,
       guidelines,
+      theme,
     } = result.data;
 
     if (thumbnailImg instanceof File) {
@@ -111,6 +112,7 @@ export async function POST(req: NextRequest) {
         thumbnail_url: thumbnailUrl,
         start_date,
         end_date,
+        theme,
       })
       .select('id');
 

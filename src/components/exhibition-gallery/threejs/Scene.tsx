@@ -1,17 +1,13 @@
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
-import {
-  Cloud,
-  PointerLockControls,
-  Sky,
-  useProgress,
-} from '@react-three/drei';
+import { PointerLockControls, useProgress } from '@react-three/drei';
 import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { GalleryUIArtworkProps } from '@/types/gallery';
 import { generateGalleryWalls, createWalls } from '@/lib/gallery/createWalls';
 import Room from './Room';
 import Player from './Player';
 import { User } from '@supabase/supabase-js';
+import { GalleryTheme, getThemeConfig } from '@/lib/gallery/themes.config';
 
 function getGridSize(artworkCount: number): number {
   if (artworkCount <= 4) return 1;
@@ -24,11 +20,13 @@ export default function Scene2({
   ready,
   init,
   user,
+  theme,
 }: {
   exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
   init: GalleryUIArtworkProps[];
   user: User | null;
+  theme: GalleryTheme;
 }) {
   const height = 9;
   const cellSize = 7;
@@ -46,6 +44,8 @@ export default function Scene2({
   );
 
   const { active, loaded, total } = useProgress();
+  const themeConfig = getThemeConfig(theme);
+
   useEffect(() => {
     ready(active === false && loaded === total && total > 0);
   }, [active, loaded, total, ready]);
@@ -57,74 +57,33 @@ export default function Scene2({
       gl={{
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.5,
+        toneMappingExposure: 1.2,
       }}
     >
-      <Sky
-        distance={450000}
-        sunPosition={[20, 15, 25]}
-        turbidity={8}
-        rayleigh={1.8}
-        mieCoefficient={0.004}
-        mieDirectionalG={0.88}
+      <color attach="background" args={[themeConfig.background]} />
+      {themeConfig.fog && (
+        <fog
+          attach="fog"
+          args={[
+            themeConfig.fog.color,
+            themeConfig.fog.near,
+            themeConfig.fog.far,
+          ]}
+        />
+      )}
+      <ambientLight
+        color={themeConfig.ambientLight.color}
+        intensity={themeConfig.ambientLight.intensity}
       />
-
-      <Cloud
-        position={[-40, 24, -50]}
-        speed={0.04}
-        opacity={0.7}
-        segments={40}
-        bounds={[18, 4, 8]}
-      />
-      <Cloud
-        position={[-46, 26, -48]}
-        speed={0.03}
-        opacity={0.45}
-        segments={25}
-        bounds={[10, 3, 5]}
-      />
-      <Cloud
-        position={[45, 22, 30]}
-        speed={0.05}
-        opacity={0.65}
-        segments={45}
-        bounds={[20, 5, 9]}
-      />
-      <Cloud
-        position={[50, 25, 28]}
-        speed={0.04}
-        opacity={0.4}
-        segments={20}
-        bounds={[8, 3, 4]}
-      />
-
-      <hemisphereLight args={['#FFD0A0', '#C8A080', 0.5]} />
-      <ambientLight intensity={0.9} color="#FFF5EE" />
-      <directionalLight
-        position={[20, 20, 25]}
-        intensity={1.6}
-        color="#FFB060"
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-radius={20}
-        shadow-bias={-0.001}
-        shadow-normalBias={0.04}
-        shadow-camera-near={1}
-        shadow-camera-far={120}
-        shadow-camera-left={-roomSize}
-        shadow-camera-right={roomSize}
-        shadow-camera-top={roomSize}
-        shadow-camera-bottom={-roomSize}
-      />
-
       <Room
         user={user}
         exhibitionId={exhibitionId}
-        size={roomSize}
-        height={height}
         walls={walls}
         innerWalls={innerWalls}
         init={init}
+        size={roomSize}
+        height={height}
+        theme={theme}
       />
       <Player startPos={startPosition} innerWalls={innerWalls} speed={3} />
       <PointerLockControls />
