@@ -78,14 +78,16 @@ function SeaweedCluster({
   z,
   height,
   color,
+  offsetSeed = 0,
 }: {
   x: number;
   z: number;
   height: number;
   color: string;
+  offsetSeed?: number;
 }) {
   const ref = useRef<Group>(null);
-  const offset = useRef(Math.random() * Math.PI * 2);
+  const offset = useRef(offsetSeed);
   const segments = Math.ceil(height / 0.42);
 
   useFrame(({ clock }) => {
@@ -146,16 +148,18 @@ function Bubble({
   speed,
   startY,
   radius,
+  driftSeed = 0,
 }: {
   x: number;
   z: number;
   speed: number;
   startY: number;
   radius: number;
+  driftSeed?: number;
 }) {
   const ref = useRef<Mesh>(null);
   const y = useRef(startY);
-  const drift = useRef(Math.random() * Math.PI * 2);
+  const drift = useRef(driftSeed);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
@@ -206,14 +210,17 @@ export default function OceanDecor({ size }: { size: number }) {
     const greens = ['#2ecc71', '#27ae60', '#1abc9c', '#16a085', '#22c55e'];
     const wall = size / 2 - 0.3;
     const count = Math.max(3, Math.floor(size / 3.5));
-    const result: { x: number; z: number; height: number; color: string }[] = [];
+    const result: { x: number; z: number; height: number; color: string; offsetSeed: number }[] = [];
     for (let i = 0; i < count; i++) {
       const t = -size / 2 + 1 + (i / Math.max(count - 1, 1)) * (size - 2);
+      const h = (j: number) => 0.8 + Math.abs(Math.sin(i * 3.7 + j)) * 1.2;
+      const c = (j: number) => greens[Math.floor(Math.abs(Math.sin(i * 5.1 + j)) * 5)];
+      const s = (j: number) => (i * 2.39 + j * 1.61) % (Math.PI * 2);
       result.push(
-        { x: -wall, z: t, height: 0.8 + Math.random() * 1.2, color: greens[Math.floor(Math.random() * 5)] },
-        { x: wall,  z: t, height: 0.8 + Math.random() * 1.2, color: greens[Math.floor(Math.random() * 5)] },
-        { x: t, z: -wall, height: 0.8 + Math.random() * 1.2, color: greens[Math.floor(Math.random() * 5)] },
-        { x: t, z:  wall, height: 0.8 + Math.random() * 1.2, color: greens[Math.floor(Math.random() * 5)] }
+        { x: -wall, z: t, height: h(0), color: c(0), offsetSeed: s(0) },
+        { x: wall,  z: t, height: h(1), color: c(1), offsetSeed: s(1) },
+        { x: t, z: -wall, height: h(2), color: c(2), offsetSeed: s(2) },
+        { x: t, z:  wall, height: h(3), color: c(3), offsetSeed: s(3) }
       );
     }
     return result;
@@ -241,6 +248,7 @@ export default function OceanDecor({ size }: { size: number }) {
         speed: 0.25 + (i % 5) * 0.12,
         startY: (i / 20) * 5,
         radius: 0.04 + (i % 4) * 0.015,
+        driftSeed: (i * 2.39) % (Math.PI * 2),
       })),
     [size]
   );
@@ -260,13 +268,13 @@ export default function OceanDecor({ size }: { size: number }) {
         />
       ))}
       {seaweedData.map((sw, i) => (
-        <SeaweedCluster key={`sw-${i}`} x={sw.x} z={sw.z} height={sw.height} color={sw.color} />
+        <SeaweedCluster key={`sw-${i}`} x={sw.x} z={sw.z} height={sw.height} color={sw.color} offsetSeed={sw.offsetSeed} />
       ))}
       {coralData.map((c, i) => (
         <Coral key={`cr-${i}`} x={c.x} z={c.z} color={c.color} />
       ))}
       {bubbleData.map((b, i) => (
-        <Bubble key={`bub-${i}`} x={b.x} z={b.z} speed={b.speed} startY={b.startY} radius={b.radius} />
+        <Bubble key={`bub-${i}`} x={b.x} z={b.z} speed={b.speed} startY={b.startY} radius={b.radius} driftSeed={b.driftSeed} />
       ))}
     </>
   );

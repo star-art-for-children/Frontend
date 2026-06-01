@@ -17,14 +17,14 @@ const PETAL_SHAPE = (() => {
 
 // ---- Falling Petal ----
 function Petal({
-  x, z, speed, startY, rotSpeedX, rotSpeedZ, color, initRotY,
+  x, z, speed, startY, rotSpeedX, rotSpeedZ, color, initRotY, driftSeed = 0,
 }: {
   x: number; z: number; speed: number; startY: number;
-  rotSpeedX: number; rotSpeedZ: number; color: string; initRotY: number;
+  rotSpeedX: number; rotSpeedZ: number; color: string; initRotY: number; driftSeed?: number;
 }) {
   const ref = useRef<Mesh>(null);
   const y = useRef(startY);
-  const drift = useRef(Math.random() * Math.PI * 2);
+  const drift = useRef(driftSeed);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
@@ -126,16 +126,16 @@ function LampPost({ x, z }: { x: number; z: number }) {
 
 // ---- Butterfly ----
 function Butterfly({
-  orbitRadiusX, orbitRadiusZ, speed, yBase, color, initAngle,
+  orbitRadiusX, orbitRadiusZ, speed, yBase, color, initAngle, flapSeed = 0,
 }: {
   orbitRadiusX: number; orbitRadiusZ: number; speed: number;
-  yBase: number; color: string; initAngle: number;
+  yBase: number; color: string; initAngle: number; flapSeed?: number;
 }) {
   const groupRef = useRef<Group>(null);
   const leftRef = useRef<Mesh>(null);
   const rightRef = useRef<Mesh>(null);
   const angle = useRef(initAngle);
-  const flapT = useRef(Math.random() * Math.PI * 2);
+  const flapT = useRef(flapSeed);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -289,16 +289,17 @@ export default function CherryDecor({ size }: { size: number }) {
       rotSpeedZ: 0.25 + (i % 5) * 0.28,
       color: colors[i % colors.length],
       initRotY: (i * 0.618) % (Math.PI * 2),
+      driftSeed: (i * 2.39) % (Math.PI * 2),
     }));
   }, [size]);
 
   const butterflyData = useMemo(
     () => [
-      { orbitRadiusX: half * 0.28, orbitRadiusZ: half * 0.22, speed: 0.55,  yBase: 2.2, color: '#f9d71c', initAngle: 0 },
-      { orbitRadiusX: half * 0.38, orbitRadiusZ: half * 0.32, speed: -0.42, yBase: 3.0, color: '#ff91a8', initAngle: 2.1 },
-      { orbitRadiusX: half * 0.22, orbitRadiusZ: half * 0.35, speed: 0.48,  yBase: 2.5, color: '#c8f0ff', initAngle: 1.3 },
-      { orbitRadiusX: half * 0.45, orbitRadiusZ: half * 0.2,  speed: -0.35, yBase: 3.4, color: '#ffffff', initAngle: 3.8 },
-      { orbitRadiusX: half * 0.32, orbitRadiusZ: half * 0.42, speed: 0.62,  yBase: 1.9, color: '#ffcc66', initAngle: 5.0 },
+      { orbitRadiusX: half * 0.28, orbitRadiusZ: half * 0.22, speed: 0.55,  yBase: 2.2, color: '#f9d71c', initAngle: 0,   flapSeed: 0 },
+      { orbitRadiusX: half * 0.38, orbitRadiusZ: half * 0.32, speed: -0.42, yBase: 3.0, color: '#ff91a8', initAngle: 2.1, flapSeed: 1.26 },
+      { orbitRadiusX: half * 0.22, orbitRadiusZ: half * 0.35, speed: 0.48,  yBase: 2.5, color: '#c8f0ff', initAngle: 1.3, flapSeed: 2.51 },
+      { orbitRadiusX: half * 0.45, orbitRadiusZ: half * 0.2,  speed: -0.35, yBase: 3.4, color: '#ffffff', initAngle: 3.8, flapSeed: 3.77 },
+      { orbitRadiusX: half * 0.32, orbitRadiusZ: half * 0.42, speed: 0.62,  yBase: 1.9, color: '#ffcc66', initAngle: 5.0, flapSeed: 5.03 },
     ],
     [half]
   );
