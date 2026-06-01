@@ -1,6 +1,12 @@
 import { WAllType } from '@/types/gallery';
 
-export default function Walls({ walls, color }: { walls: WAllType[]; color?: string }) {
+export default function Walls({
+  walls,
+  color,
+}: {
+  walls: WAllType[];
+  color?: string;
+}) {
   return (
     <>
       {walls.map((wall, i) => {

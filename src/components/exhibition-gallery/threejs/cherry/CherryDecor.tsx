@@ -17,10 +17,25 @@ const PETAL_SHAPE = (() => {
 
 // ---- Falling Petal ----
 function Petal({
-  x, z, speed, startY, rotSpeedX, rotSpeedZ, color, initRotY, driftSeed = 0,
+  x,
+  z,
+  speed,
+  startY,
+  rotSpeedX,
+  rotSpeedZ,
+  color,
+  initRotY,
+  driftSeed = 0,
 }: {
-  x: number; z: number; speed: number; startY: number;
-  rotSpeedX: number; rotSpeedZ: number; color: string; initRotY: number; driftSeed?: number;
+  x: number;
+  z: number;
+  speed: number;
+  startY: number;
+  rotSpeedX: number;
+  rotSpeedZ: number;
+  color: string;
+  initRotY: number;
+  driftSeed?: number;
 }) {
   const ref = useRef<Mesh>(null);
   const y = useRef(startY);
@@ -41,9 +56,19 @@ function Petal({
   });
 
   return (
-    <mesh ref={ref} position={[x, startY, z]} rotation={[0.4, initRotY, 0]} scale={1.5}>
+    <mesh
+      ref={ref}
+      position={[x, startY, z]}
+      rotation={[0.4, initRotY, 0]}
+      scale={1.5}
+    >
       <shapeGeometry args={[PETAL_SHAPE, 8]} />
-      <meshStandardMaterial color={color} side={DoubleSide} transparent opacity={0.92} />
+      <meshStandardMaterial
+        color={color}
+        side={DoubleSide}
+        transparent
+        opacity={0.92}
+      />
     </mesh>
   );
 }
@@ -119,17 +144,33 @@ function LampPost({ x, z }: { x: number; z: number }) {
           opacity={0.88}
         />
       </mesh>
-      <pointLight position={[0.4, 3.32, 0]} color="#ffe8a0" intensity={2} distance={7} />
+      <pointLight
+        position={[0.4, 3.32, 0]}
+        color="#ffe8a0"
+        intensity={2}
+        distance={7}
+      />
     </group>
   );
 }
 
 // ---- Butterfly ----
 function Butterfly({
-  orbitRadiusX, orbitRadiusZ, speed, yBase, color, initAngle, flapSeed = 0,
+  orbitRadiusX,
+  orbitRadiusZ,
+  speed,
+  yBase,
+  color,
+  initAngle,
+  flapSeed = 0,
 }: {
-  orbitRadiusX: number; orbitRadiusZ: number; speed: number;
-  yBase: number; color: string; initAngle: number; flapSeed?: number;
+  orbitRadiusX: number;
+  orbitRadiusZ: number;
+  speed: number;
+  yBase: number;
+  color: string;
+  initAngle: number;
+  flapSeed?: number;
 }) {
   const groupRef = useRef<Group>(null);
   const leftRef = useRef<Mesh>(null);
@@ -158,11 +199,21 @@ function Butterfly({
     <group ref={groupRef}>
       <mesh ref={leftRef} position={[-0.1, 0, 0]}>
         <planeGeometry args={[0.26, 0.2]} />
-        <meshStandardMaterial color={color} side={DoubleSide} transparent opacity={0.85} />
+        <meshStandardMaterial
+          color={color}
+          side={DoubleSide}
+          transparent
+          opacity={0.85}
+        />
       </mesh>
       <mesh ref={rightRef} position={[0.1, 0, 0]}>
         <planeGeometry args={[0.26, 0.2]} />
-        <meshStandardMaterial color={color} side={DoubleSide} transparent opacity={0.85} />
+        <meshStandardMaterial
+          color={color}
+          side={DoubleSide}
+          transparent
+          opacity={0.85}
+        />
       </mesh>
       {/* Body */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
@@ -176,7 +227,15 @@ function Butterfly({
 // ---- Flower Bed ----
 function FlowerBed({ x, z }: { x: number; z: number }) {
   const flowers = useMemo(() => {
-    const colors = ['#ff91a8', '#ffe066', '#ffffff', '#ffb7c5', '#ffcc00', '#ff7eb3', '#fff0a0'];
+    const colors = [
+      '#ff91a8',
+      '#ffe066',
+      '#ffffff',
+      '#ffb7c5',
+      '#ffcc00',
+      '#ff7eb3',
+      '#fff0a0',
+    ];
     return Array.from({ length: 9 }, (_, i) => ({
       ox: Math.sin(i * 0.698) * 0.38,
       oz: Math.cos(i * 0.698) * 0.38,
@@ -204,7 +263,17 @@ function FlowerBed({ x, z }: { x: number; z: number }) {
 }
 
 // ---- Blossom cluster for tree tips ----
-function BlossomCluster({ x, y, z, scale = 1 }: { x: number; y: number; z: number; scale?: number }) {
+function BlossomCluster({
+  x,
+  y,
+  z,
+  scale = 1,
+}: {
+  x: number;
+  y: number;
+  z: number;
+  scale?: number;
+}) {
   const colors = ['#ff91a8', '#ffb7c5', '#ffc8d4', '#ff7895', '#ffd5e0'];
   return (
     <group position={[x, y, z]}>
@@ -218,7 +287,11 @@ function BlossomCluster({ x, y, z, scale = 1 }: { x: number; y: number; z: numbe
           ]}
         >
           <sphereGeometry args={[(0.18 + (i % 3) * 0.06) * scale, 7, 7]} />
-          <meshStandardMaterial color={colors[i % colors.length]} transparent opacity={0.9} />
+          <meshStandardMaterial
+            color={colors[i % colors.length]}
+            transparent
+            opacity={0.9}
+          />
         </mesh>
       ))}
     </group>
@@ -226,7 +299,15 @@ function BlossomCluster({ x, y, z, scale = 1 }: { x: number; y: number; z: numbe
 }
 
 // ---- Cherry Tree ----
-function CherryTree({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
+function CherryTree({
+  x,
+  z,
+  scale = 1,
+}: {
+  x: number;
+  z: number;
+  scale?: number;
+}) {
   const blossomClouds = useMemo(
     () =>
       Array.from({ length: 14 }, (_, i) => ({
@@ -246,12 +327,14 @@ function CherryTree({ x, z, scale = 1 }: { x: number; z: number; scale?: number 
         <meshStandardMaterial color="#5c3317" roughness={0.9} />
       </mesh>
       {/* 4 main branches */}
-      {([
-        [0, -0.62, 0.52, 0.75, 0],
-        [0, 0.62, -0.52, 0.75, 0],
-        [0.62, 0, 0, 0.75, 0.52],
-        [-0.62, 0, 0, 0.75, -0.52],
-      ] as [number, number, number, number, number][]).map(([rx, rz, px, py, pz], i) => (
+      {(
+        [
+          [0, -0.62, 0.52, 0.75, 0],
+          [0, 0.62, -0.52, 0.75, 0],
+          [0.62, 0, 0, 0.75, 0.52],
+          [-0.62, 0, 0, 0.75, -0.52],
+        ] as [number, number, number, number, number][]
+      ).map(([rx, rz, px, py, pz], i) => (
         <mesh key={i} rotation={[rx, 0, rz]} position={[px, py + 2, pz]}>
           <cylinderGeometry args={[0.033, 0.068, 1.15, 6]} />
           <meshStandardMaterial color="#5c3317" roughness={0.9} />
@@ -279,7 +362,15 @@ export default function CherryDecor({ size }: { size: number }) {
   const treeOffset = half * 0.62;
 
   const petalData = useMemo(() => {
-    const colors = ['#ff91a8', '#ffb7c5', '#ffc0cb', '#ff7895', '#ffd5de', '#ffadc0', '#ffe4ec'];
+    const colors = [
+      '#ff91a8',
+      '#ffb7c5',
+      '#ffc0cb',
+      '#ff7895',
+      '#ffd5de',
+      '#ffadc0',
+      '#ffe4ec',
+    ];
     return Array.from({ length: 45 }, (_, i) => ({
       x: (((i * 1.618) % 1) - 0.5) * (size - 1.5),
       z: (((i * 2.718) % 1) - 0.5) * (size - 1.5),
@@ -295,30 +386,70 @@ export default function CherryDecor({ size }: { size: number }) {
 
   const butterflyData = useMemo(
     () => [
-      { orbitRadiusX: half * 0.28, orbitRadiusZ: half * 0.22, speed: 0.55,  yBase: 2.2, color: '#f9d71c', initAngle: 0,   flapSeed: 0 },
-      { orbitRadiusX: half * 0.38, orbitRadiusZ: half * 0.32, speed: -0.42, yBase: 3.0, color: '#ff91a8', initAngle: 2.1, flapSeed: 1.26 },
-      { orbitRadiusX: half * 0.22, orbitRadiusZ: half * 0.35, speed: 0.48,  yBase: 2.5, color: '#c8f0ff', initAngle: 1.3, flapSeed: 2.51 },
-      { orbitRadiusX: half * 0.45, orbitRadiusZ: half * 0.2,  speed: -0.35, yBase: 3.4, color: '#ffffff', initAngle: 3.8, flapSeed: 3.77 },
-      { orbitRadiusX: half * 0.32, orbitRadiusZ: half * 0.42, speed: 0.62,  yBase: 1.9, color: '#ffcc66', initAngle: 5.0, flapSeed: 5.03 },
+      {
+        orbitRadiusX: half * 0.28,
+        orbitRadiusZ: half * 0.22,
+        speed: 0.55,
+        yBase: 2.2,
+        color: '#f9d71c',
+        initAngle: 0,
+        flapSeed: 0,
+      },
+      {
+        orbitRadiusX: half * 0.38,
+        orbitRadiusZ: half * 0.32,
+        speed: -0.42,
+        yBase: 3.0,
+        color: '#ff91a8',
+        initAngle: 2.1,
+        flapSeed: 1.26,
+      },
+      {
+        orbitRadiusX: half * 0.22,
+        orbitRadiusZ: half * 0.35,
+        speed: 0.48,
+        yBase: 2.5,
+        color: '#c8f0ff',
+        initAngle: 1.3,
+        flapSeed: 2.51,
+      },
+      {
+        orbitRadiusX: half * 0.45,
+        orbitRadiusZ: half * 0.2,
+        speed: -0.35,
+        yBase: 3.4,
+        color: '#ffffff',
+        initAngle: 3.8,
+        flapSeed: 3.77,
+      },
+      {
+        orbitRadiusX: half * 0.32,
+        orbitRadiusZ: half * 0.42,
+        speed: 0.62,
+        yBase: 1.9,
+        color: '#ffcc66',
+        initAngle: 5.0,
+        flapSeed: 5.03,
+      },
     ],
     [half]
   );
 
   const benchData = useMemo(
     () => [
-      { x: 0,          z: half * 0.45,  rotY: Math.PI },
-      { x: 0,          z: -half * 0.45, rotY: 0 },
-      { x: half * 0.45, z: 0,           rotY: -Math.PI / 2 },
-      { x: -half * 0.45, z: 0,          rotY: Math.PI / 2 },
+      { x: 0, z: half * 0.45, rotY: Math.PI },
+      { x: 0, z: -half * 0.45, rotY: 0 },
+      { x: half * 0.45, z: 0, rotY: -Math.PI / 2 },
+      { x: -half * 0.45, z: 0, rotY: Math.PI / 2 },
     ],
     [half]
   );
 
   const lampData = useMemo(
     () => [
-      { x: treeOffset * 0.55,  z: -treeOffset * 0.55 },
+      { x: treeOffset * 0.55, z: -treeOffset * 0.55 },
       { x: -treeOffset * 0.55, z: treeOffset * 0.55 },
-      { x: treeOffset * 0.55,  z: treeOffset * 0.55 },
+      { x: treeOffset * 0.55, z: treeOffset * 0.55 },
       { x: -treeOffset * 0.55, z: -treeOffset * 0.55 },
     ],
     [treeOffset]
@@ -336,17 +467,27 @@ export default function CherryDecor({ size }: { size: number }) {
 
   return (
     <>
-      {petalData.map((p, i) => <Petal key={i} {...p} />)}
+      {petalData.map((p, i) => (
+        <Petal key={i} {...p} />
+      ))}
 
-      <CherryTree x={treeOffset}   z={treeOffset}   scale={1}    />
-      <CherryTree x={-treeOffset}  z={-treeOffset}  scale={0.9}  />
-      <CherryTree x={treeOffset}   z={-treeOffset}  scale={0.95} />
-      <CherryTree x={-treeOffset}  z={treeOffset}   scale={1.05} />
+      <CherryTree x={treeOffset} z={treeOffset} scale={1} />
+      <CherryTree x={-treeOffset} z={-treeOffset} scale={0.9} />
+      <CherryTree x={treeOffset} z={-treeOffset} scale={0.95} />
+      <CherryTree x={-treeOffset} z={treeOffset} scale={1.05} />
 
-      {benchData.map((b, i) => <Bench key={i} {...b} />)}
-      {lampData.map((l, i) => <LampPost key={i} {...l} />)}
-      {butterflyData.map((b, i) => <Butterfly key={i} {...b} />)}
-      {flowerBedData.map((f, i) => <FlowerBed key={i} {...f} />)}
+      {benchData.map((b, i) => (
+        <Bench key={i} {...b} />
+      ))}
+      {lampData.map((l, i) => (
+        <LampPost key={i} {...l} />
+      ))}
+      {butterflyData.map((b, i) => (
+        <Butterfly key={i} {...b} />
+      ))}
+      {flowerBedData.map((f, i) => (
+        <FlowerBed key={i} {...f} />
+      ))}
     </>
   );
 }

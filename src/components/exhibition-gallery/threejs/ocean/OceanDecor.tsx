@@ -192,16 +192,96 @@ export default function OceanDecor({ size }: { size: number }) {
 
   const fishData = useMemo(
     () => [
-      { color: '#ff6b35', accent: '#ffd700', r: half * 0.35, speed: 0.5,   y: 2.5, sz: 0.8,  a: 0   },
-      { color: '#e91e8c', accent: '#ff69b4', r: half * 0.5,  speed: -0.38, y: 3.5, sz: 0.65, a: 1.0 },
-      { color: '#ffd700', accent: '#ff8c00', r: half * 0.3,  speed: 0.42,  y: 1.8, sz: 0.9,  a: 2.1 },
-      { color: '#00c8ff', accent: '#ffffff', r: half * 0.6,  speed: -0.28, y: 2.8, sz: 1.1,  a: 3.5 },
-      { color: '#ff4466', accent: '#ffaaaa', r: half * 0.45, speed: 0.55,  y: 4.0, sz: 0.7,  a: 0.5 },
-      { color: '#9b59b6', accent: '#cc88ff', r: half * 0.55, speed: -0.45, y: 2.0, sz: 0.8,  a: 2.5 },
-      { color: '#ff8c00', accent: '#ffe066', r: half * 0.4,  speed: 0.3,   y: 3.2, sz: 1.2,  a: 4.0 },
-      { color: '#00e676', accent: '#69ffaa', r: half * 0.65, speed: -0.32, y: 1.5, sz: 0.6,  a: 1.5 },
-      { color: '#ff1493', accent: '#ff69b4', r: half * 0.28, speed: 0.6,   y: 4.2, sz: 0.55, a: 5.0 },
-      { color: '#00bcd4', accent: '#b2ebf2', r: half * 0.72, speed: -0.22, y: 3.0, sz: 1.3,  a: 0.8 },
+      {
+        color: '#ff6b35',
+        accent: '#ffd700',
+        r: half * 0.35,
+        speed: 0.5,
+        y: 2.5,
+        sz: 0.8,
+        a: 0,
+      },
+      {
+        color: '#e91e8c',
+        accent: '#ff69b4',
+        r: half * 0.5,
+        speed: -0.38,
+        y: 3.5,
+        sz: 0.65,
+        a: 1.0,
+      },
+      {
+        color: '#ffd700',
+        accent: '#ff8c00',
+        r: half * 0.3,
+        speed: 0.42,
+        y: 1.8,
+        sz: 0.9,
+        a: 2.1,
+      },
+      {
+        color: '#00c8ff',
+        accent: '#ffffff',
+        r: half * 0.6,
+        speed: -0.28,
+        y: 2.8,
+        sz: 1.1,
+        a: 3.5,
+      },
+      {
+        color: '#ff4466',
+        accent: '#ffaaaa',
+        r: half * 0.45,
+        speed: 0.55,
+        y: 4.0,
+        sz: 0.7,
+        a: 0.5,
+      },
+      {
+        color: '#9b59b6',
+        accent: '#cc88ff',
+        r: half * 0.55,
+        speed: -0.45,
+        y: 2.0,
+        sz: 0.8,
+        a: 2.5,
+      },
+      {
+        color: '#ff8c00',
+        accent: '#ffe066',
+        r: half * 0.4,
+        speed: 0.3,
+        y: 3.2,
+        sz: 1.2,
+        a: 4.0,
+      },
+      {
+        color: '#00e676',
+        accent: '#69ffaa',
+        r: half * 0.65,
+        speed: -0.32,
+        y: 1.5,
+        sz: 0.6,
+        a: 1.5,
+      },
+      {
+        color: '#ff1493',
+        accent: '#ff69b4',
+        r: half * 0.28,
+        speed: 0.6,
+        y: 4.2,
+        sz: 0.55,
+        a: 5.0,
+      },
+      {
+        color: '#00bcd4',
+        accent: '#b2ebf2',
+        r: half * 0.72,
+        speed: -0.22,
+        y: 3.0,
+        sz: 1.3,
+        a: 0.8,
+      },
     ],
     [half]
   );
@@ -210,24 +290,38 @@ export default function OceanDecor({ size }: { size: number }) {
     const greens = ['#2ecc71', '#27ae60', '#1abc9c', '#16a085', '#22c55e'];
     const wall = size / 2 - 0.3;
     const count = Math.max(3, Math.floor(size / 3.5));
-    const result: { x: number; z: number; height: number; color: string; offsetSeed: number }[] = [];
+    const result: {
+      x: number;
+      z: number;
+      height: number;
+      color: string;
+      offsetSeed: number;
+    }[] = [];
     for (let i = 0; i < count; i++) {
       const t = -size / 2 + 1 + (i / Math.max(count - 1, 1)) * (size - 2);
       const h = (j: number) => 0.8 + Math.abs(Math.sin(i * 3.7 + j)) * 1.2;
-      const c = (j: number) => greens[Math.floor(Math.abs(Math.sin(i * 5.1 + j)) * 5)];
+      const c = (j: number) =>
+        greens[Math.floor(Math.abs(Math.sin(i * 5.1 + j)) * 5)];
       const s = (j: number) => (i * 2.39 + j * 1.61) % (Math.PI * 2);
       result.push(
         { x: -wall, z: t, height: h(0), color: c(0), offsetSeed: s(0) },
-        { x: wall,  z: t, height: h(1), color: c(1), offsetSeed: s(1) },
+        { x: wall, z: t, height: h(1), color: c(1), offsetSeed: s(1) },
         { x: t, z: -wall, height: h(2), color: c(2), offsetSeed: s(2) },
-        { x: t, z:  wall, height: h(3), color: c(3), offsetSeed: s(3) }
+        { x: t, z: wall, height: h(3), color: c(3), offsetSeed: s(3) }
       );
     }
     return result;
   }, [size]);
 
   const coralData = useMemo(() => {
-    const colors = ['#ff6b9d', '#ff4466', '#ff8c42', '#e91e63', '#ff5722', '#ff1493'];
+    const colors = [
+      '#ff6b9d',
+      '#ff4466',
+      '#ff8c42',
+      '#e91e63',
+      '#ff5722',
+      '#ff1493',
+    ];
     const edge = size / 2 - 1.2;
     const count = Math.max(5, Math.floor(size / 2.5));
     return Array.from({ length: count }, (_, i) => {
@@ -268,13 +362,28 @@ export default function OceanDecor({ size }: { size: number }) {
         />
       ))}
       {seaweedData.map((sw, i) => (
-        <SeaweedCluster key={`sw-${i}`} x={sw.x} z={sw.z} height={sw.height} color={sw.color} offsetSeed={sw.offsetSeed} />
+        <SeaweedCluster
+          key={`sw-${i}`}
+          x={sw.x}
+          z={sw.z}
+          height={sw.height}
+          color={sw.color}
+          offsetSeed={sw.offsetSeed}
+        />
       ))}
       {coralData.map((c, i) => (
         <Coral key={`cr-${i}`} x={c.x} z={c.z} color={c.color} />
       ))}
       {bubbleData.map((b, i) => (
-        <Bubble key={`bub-${i}`} x={b.x} z={b.z} speed={b.speed} startY={b.startY} radius={b.radius} driftSeed={b.driftSeed} />
+        <Bubble
+          key={`bub-${i}`}
+          x={b.x}
+          z={b.z}
+          speed={b.speed}
+          startY={b.startY}
+          radius={b.radius}
+          driftSeed={b.driftSeed}
+        />
       ))}
     </>
   );

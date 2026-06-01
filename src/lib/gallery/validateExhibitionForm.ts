@@ -52,7 +52,8 @@ export function validateExhibition(init: FormValidation) {
   }
 
   const theme: GalleryTheme =
-    typeof themeRaw === 'string' && VALID_THEMES.includes(themeRaw as GalleryTheme)
+    typeof themeRaw === 'string' &&
+    VALID_THEMES.includes(themeRaw as GalleryTheme)
       ? (themeRaw as GalleryTheme)
       : 'default';
 

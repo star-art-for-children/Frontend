@@ -1,10 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
-import {
-  PointerLockControls,
-  Stars,
-  useProgress,
-} from '@react-three/drei';
+import { PointerLockControls, Stars, useProgress } from '@react-three/drei';
 import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { GalleryUIArtworkProps } from '@/types/gallery';
 import { generateGalleryWalls, createWalls } from '@/lib/gallery/createWalls';

@@ -64,7 +64,11 @@ export default function Scene2({
       {themeConfig.fog && (
         <fog
           attach="fog"
-          args={[themeConfig.fog.color, themeConfig.fog.near, themeConfig.fog.far]}
+          args={[
+            themeConfig.fog.color,
+            themeConfig.fog.near,
+            themeConfig.fog.far,
+          ]}
         />
       )}
       <ambientLight

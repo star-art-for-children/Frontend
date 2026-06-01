@@ -186,7 +186,11 @@ export default function Room({
 
   return (
     <>
-      {FloorComponent ? <FloorComponent size={size} /> : <Floor size={size} color={themeConfig.floorColor} />}
+      {FloorComponent ? (
+        <FloorComponent size={size} />
+      ) : (
+        <Floor size={size} color={themeConfig.floorColor} />
+      )}
 
       <Walls walls={walls} color={themeConfig.wallColor} />
 

@@ -17,11 +17,41 @@ import CreateGalleryFormWrapper from './FormWrapper';
 import { postNewExhibition } from '@/lib/exhibition/service';
 import { GalleryTheme } from '@/lib/gallery/themes.config';
 
-const THEME_OPTIONS: { value: GalleryTheme; label: string; emoji: string; bg: string; border: string }[] = [
-  { value: 'default', label: '기본', emoji: '🏛️', bg: '#f5f5f5', border: '#d0ccc6' },
-  { value: 'cherry', label: '벚꽃', emoji: '🌸', bg: '#ffecf0', border: '#ffb7c5' },
-  { value: 'ocean', label: '바다', emoji: '🌊', bg: '#061a3a', border: '#00b4d8' },
-  { value: 'forest', label: '숲', emoji: '🌿', bg: '#1a3a1a', border: '#90c040' },
+const THEME_OPTIONS: {
+  value: GalleryTheme;
+  label: string;
+  emoji: string;
+  bg: string;
+  border: string;
+}[] = [
+  {
+    value: 'default',
+    label: '기본',
+    emoji: '🏛️',
+    bg: '#f5f5f5',
+    border: '#d0ccc6',
+  },
+  {
+    value: 'cherry',
+    label: '벚꽃',
+    emoji: '🌸',
+    bg: '#ffecf0',
+    border: '#ffb7c5',
+  },
+  {
+    value: 'ocean',
+    label: '바다',
+    emoji: '🌊',
+    bg: '#061a3a',
+    border: '#00b4d8',
+  },
+  {
+    value: 'forest',
+    label: '숲',
+    emoji: '🌿',
+    bg: '#1a3a1a',
+    border: '#90c040',
+  },
 ];
 export default function CreateGalleryPage({
   institution,
@@ -178,7 +208,9 @@ export default function CreateGalleryPage({
                               style={{
                                 background: opt.bg,
                                 border: `2px solid ${selected ? opt.border : 'transparent'}`,
-                                boxShadow: selected ? `0 0 0 2px ${opt.border}40` : undefined,
+                                boxShadow: selected
+                                  ? `0 0 0 2px ${opt.border}40`
+                                  : undefined,
                               }}
                             >
                               {opt.emoji}
