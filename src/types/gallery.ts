@@ -22,6 +22,7 @@ export type WAllType = {
   boxSize: [number, number, number];
   rot?: [number, number, number];
   direction?: string;
+  isInterior?: boolean;
 };
 
 export type Cell = {
