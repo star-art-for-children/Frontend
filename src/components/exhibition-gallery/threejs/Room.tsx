@@ -7,19 +7,25 @@ import { useImageDownload } from '@/hooks/useImageDownload';
 
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import Floor from './Floor';
+import Walls from './Walls';
+import InnerWalls from './InnerWall';
+import Ceiling from './Ceiling';
+import OceanDecor from './ocean/OceanDecor';
+import CherryDecor from './cherry/CherryDecor';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
-import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
-import Walls from '@/components/exhibition-gallery/threejs/Walls';
-import Floor from '@/components/exhibition-gallery/threejs/Floor';
+import { GalleryTheme, getThemeConfig } from '@/lib/gallery/themes.config';
 
 export default function Room({
   init,
   size,
+  height,
   walls,
   innerWalls,
   exhibitionId,
   user,
-  FloorComponent = Floor,
+  theme,
+  FloorComponent,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -28,8 +34,10 @@ export default function Room({
   innerWalls: WAllType[];
   exhibitionId: string;
   user: User | null;
+  theme?: GalleryTheme;
   FloorComponent?: React.ComponentType<{ size: number }>;
 }) {
+  const themeConfig = getThemeConfig(theme ?? 'default');
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
   const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
@@ -82,10 +90,8 @@ export default function Room({
 
       if (fovDot < 0.5 || distanceSq > 25) continue;
 
-      // 그림의 앞면(+Z 월드 노말)과 카메라 방향 비교 — 뒷면이면 스킵
       mesh.getWorldQuaternion(tempQuat.current);
       tempNormal.current.set(0, 0, 1).applyQuaternion(tempQuat.current);
-      // tempDir은 카메라→그림 방향이므로, dot > 0이면 노말과 같은 방향 = 카메라가 뒷면
       if (tempNormal.current.dot(tempDir.current) > 0) continue;
 
       const score = fovDot * 20 - Math.sqrt(distanceSq) * 10;
@@ -180,8 +186,9 @@ export default function Room({
 
   return (
     <>
-      <FloorComponent size={size} />
-      <Walls walls={walls} />
+      {FloorComponent ? <FloorComponent size={size} /> : <Floor size={size} color={themeConfig.floorColor} />}
+
+      <Walls walls={walls} color={themeConfig.wallColor} />
 
       <InnerWalls
         walls={innerWalls}
@@ -189,9 +196,17 @@ export default function Room({
         paintingTextures={paintingTextures}
         paintingRefs={paintingRefs}
         htmlRefs={htmlRefs}
+        wallColor={themeConfig.innerWallColor}
       />
 
-      {/*<ChristmasDecorations size={size} height={height} />*/}
+      <Ceiling
+        size={size}
+        height={height}
+        color={themeConfig.ceilingColor}
+        lightColor={themeConfig.lightColor}
+      />
+      {theme === 'ocean' && <OceanDecor size={size} />}
+      {theme === 'cherry' && <CherryDecor size={size} />}
     </>
   );
 }

@@ -6,6 +6,7 @@ export function parseFormDataToObj(formData: FormData) {
   const guideLines = body.get('guideLines');
   const startDate = body.get('startDate');
   const endDate = body.get('endDate');
+  const theme = body.get('theme');
 
   return {
     title: galleryName,
@@ -14,5 +15,6 @@ export function parseFormDataToObj(formData: FormData) {
     startDateRaw: startDate,
     endDateRaw: endDate,
     guidelines: guideLines,
+    theme,
   };
 }

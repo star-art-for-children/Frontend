@@ -22,7 +22,8 @@ export const getExhibitionDetails = async (id: string) => {
   const { data } = await res.json();
   const title = data?.title || '';
   const host = data?.host || '';
-  return { title, host };
+  const theme = data?.theme || 'default';
+  return { title, host, theme };
 };
 export const toggleExhibitionLike = async (
   exhibitionId: string,

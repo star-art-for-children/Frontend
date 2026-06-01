@@ -4,10 +4,12 @@ import { createClient } from '@/lib/supabase/client';
 import { getArtworksByExhibitionId } from '@/lib/artwork/service';
 import { getExhibitionDetails } from '@/lib/exhibition/service';
 import { GalleryUIArtworkProps } from '@/types/gallery';
+import { GalleryTheme } from '@/lib/gallery/themes.config';
 
 type ExhibitionDetails = {
   title: string;
   host: string;
+  theme: GalleryTheme;
 };
 
 type GalleryDataState = {
@@ -21,7 +23,7 @@ type GalleryDataState = {
 export function useGalleryData(id: string): GalleryDataState {
   const [user, setUser] = useState<User | null>(null);
   const [exhibitionDetails, setExhibitionDetails] = useState<ExhibitionDetails>(
-    { title: '', host: '' }
+    { title: '', host: '', theme: 'default' }
   );
   const [artworks, setArtworks] = useState<GalleryUIArtworkProps[]>([]);
   const [isInitReady, setIsInitReady] = useState(false);

@@ -68,6 +68,7 @@ export default function GalleryExhibitionPage() {
             exhibitionId={id}
             ready={setIsSceneReady}
             init={artworks}
+            theme={exhibitionDetails.theme}
           />
         )}
       </div>
