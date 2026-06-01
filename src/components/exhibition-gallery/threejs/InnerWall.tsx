@@ -16,28 +16,60 @@ export default function InnerWalls({
   paintingRefs: React.RefObject<(Group | null)[]>;
   htmlRefs: React.RefObject<(HTMLDivElement | null)[]>;
 }) {
+  let interiorBackIdx = walls.length;
+  const assignments = walls.map((wall, i) => ({
+    frontIdx: i,
+    backIdx: wall.isInterior ? interiorBackIdx++ : undefined,
+  }));
+
   return (
     <>
       {walls.map((wall, i) => {
-        const [w, h, d] = wall.boxSize;
-        const paintingDetails = init[i];
+        const [w, wallH, d] = wall.boxSize;
+        const front = assignments[i].frontIdx;
+        const back = assignments[i].backIdx;
+
         return (
           <group key={i} position={wall.pos} rotation={wall.rot}>
-            <mesh>
-              <boxGeometry args={[w, h, d]} />
-              <meshStandardMaterial color="#E6E0D6" />
-            </mesh>
-            {paintingDetails && (
-              <Painting
-                img={paintingTextures[i]}
-                paintingRef={(el) => {
-                  paintingRefs.current[i] = el;
-                }}
-                htmlRef={(el) => (htmlRefs.current[i] = el)}
-                details={paintingDetails}
-                weight={w}
-                height={h}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[w, wallH, d]} />
+              <meshStandardMaterial
+                color={wall.color}
+                roughness={0.85}
+                metalness={0.02}
               />
+            </mesh>
+
+            {front < init.length && (
+              <Painting
+                img={paintingTextures[front]}
+                details={init[front]}
+                w={w}
+                h={wallH}
+                paintingRef={(el) => {
+                  paintingRefs.current[front] = el;
+                }}
+                htmlRef={(el) => {
+                  htmlRefs.current[front] = el;
+                }}
+              />
+            )}
+
+            {back !== undefined && back < init.length && (
+              <group rotation={[0, Math.PI, 0]}>
+                <Painting
+                  img={paintingTextures[back]}
+                  details={init[back]}
+                  w={w}
+                  h={wallH}
+                  paintingRef={(el) => {
+                    paintingRefs.current[back] = el;
+                  }}
+                  htmlRef={(el) => {
+                    htmlRefs.current[back] = el;
+                  }}
+                />
+              </group>
             )}
           </group>
         );

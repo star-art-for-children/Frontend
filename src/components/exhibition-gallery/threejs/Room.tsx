@@ -1,26 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { Group, Vector3 } from 'three';
+import { Group, Quaternion, Vector3 } from 'three';
 import { likesToggle } from '@/lib/artwork/service';
 import { useImageDownload } from '@/hooks/useImageDownload';
 
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import Floor from './Floor';
-import Walls from './Walls';
-import InnerWalls from './InnerWall';
-import Ceiling from './Ceiling';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
+import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
+import Walls from '@/components/exhibition-gallery/threejs/Walls';
+import Floor from '@/components/exhibition-gallery/threejs/Floor';
 
 export default function Room({
   init,
   size,
-  height,
   walls,
   innerWalls,
   exhibitionId,
   user,
+  FloorComponent = Floor,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -29,6 +28,7 @@ export default function Room({
   innerWalls: WAllType[];
   exhibitionId: string;
   user: User | null;
+  FloorComponent?: React.ComponentType<{ size: number }>;
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
@@ -41,6 +41,9 @@ export default function Room({
   const tempForward = useRef(new Vector3());
   const tempPos = useRef(new Vector3());
   const tempDir = useRef(new Vector3());
+
+  const tempQuat = useRef(new Quaternion());
+  const tempNormal = useRef(new Vector3());
 
   const prevPos = useRef(new Vector3());
   const prevDir = useRef(new Vector3());
@@ -78,6 +81,12 @@ export default function Room({
       const fovDot = forward.dot(tempDir.current);
 
       if (fovDot < 0.5 || distanceSq > 25) continue;
+
+      // 그림의 앞면(+Z 월드 노말)과 카메라 방향 비교 — 뒷면이면 스킵
+      mesh.getWorldQuaternion(tempQuat.current);
+      tempNormal.current.set(0, 0, 1).applyQuaternion(tempQuat.current);
+      // tempDir은 카메라→그림 방향이므로, dot > 0이면 노말과 같은 방향 = 카메라가 뒷면
+      if (tempNormal.current.dot(tempDir.current) > 0) continue;
 
       const score = fovDot * 20 - Math.sqrt(distanceSq) * 10;
 
@@ -171,8 +180,7 @@ export default function Room({
 
   return (
     <>
-      <Floor size={size} />
-
+      <FloorComponent size={size} />
       <Walls walls={walls} />
 
       <InnerWalls
@@ -183,7 +191,7 @@ export default function Room({
         htmlRefs={htmlRefs}
       />
 
-      <Ceiling size={size} height={height} />
+      {/*<ChristmasDecorations size={size} height={height} />*/}
     </>
   );
 }

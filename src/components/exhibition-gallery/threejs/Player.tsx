@@ -123,16 +123,18 @@ export default function Player({
     let blocked = false;
     const pad = 0.3;
 
-    for (const collider of colliders) {
-      const temp = localPos.current.copy(newPos).applyMatrix4(collider.inv);
+    if (!blocked) {
+      for (const collider of colliders) {
+        const temp = localPos.current.copy(newPos).applyMatrix4(collider.inv);
 
-      const inside =
-        Math.abs(temp.x) < collider.halfX + pad &&
-        Math.abs(temp.z) < collider.halfZ + pad;
+        const inside =
+          Math.abs(temp.x) < collider.halfX + pad &&
+          Math.abs(temp.z) < collider.halfZ + pad;
 
-      if (inside) {
-        blocked = true;
-        break;
+        if (inside) {
+          blocked = true;
+          break;
+        }
       }
     }
 
