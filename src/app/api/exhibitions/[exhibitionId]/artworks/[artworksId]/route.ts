@@ -37,23 +37,9 @@ export async function PUT(
     }
 
     const body = await req.formData();
-    const email = body.get('artist_email');
-    let artist_id;
-    if (email && typeof email === 'string') {
-      const profile = await getUserIdByEmail(supabase, email);
-
-      if (!profile.ok) {
-        return NextResponse.json(
-          { message: profile.message },
-          { status: profile.status }
-        );
-      }
-      artist_id = profile.userId;
-    }
-
     const title = body.get('title');
     const artist_name = body.get('artist_name');
-    const description = body.get('description');
+    const description = body.get('description') || null;
     const imageUrlRaw = body.get('image_url');
 
     let imageUrl = imageUrlRaw;
@@ -61,15 +47,33 @@ export async function PUT(
       imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
     }
 
+    const updates: Record<string, unknown> = {
+      title,
+      artist_name,
+      description,
+      image_url: imageUrl,
+    };
+
+    const email = body.get('artist_email');
+    if (typeof email === 'string') {
+      if (email === '') {
+        updates.artist_id = null;
+      } else {
+        const profile = await getUserIdByEmail(supabase, email);
+
+        if (!profile.ok) {
+          return NextResponse.json(
+            { message: profile.message },
+            { status: profile.status }
+          );
+        }
+        updates.artist_id = profile.userId ?? null;
+      }
+    }
+
     const { data, error } = await supabase
       .from('artworks')
-      .update({
-        artist_id,
-        title,
-        artist_name,
-        description,
-        image_url: imageUrl,
-      })
+      .update(updates)
       .eq('id', artworkId)
       .select('id');
 
