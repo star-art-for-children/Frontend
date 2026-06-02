@@ -3,15 +3,17 @@ import { Cell, WAllType } from '@/types/gallery';
 export function generateGalleryWalls(
   roomSize: number,
   gridSize: number,
-  cellSize: number
+  cellSize: number,
+  wallColor = '#FFFFFF',
+  spawnCornerOffset = 1.5
 ) {
   const size = gridSize;
   const half = roomSize / 2;
 
   const startPosition = {
-    x: -half + cellSize / 2,
+    x: -half + spawnCornerOffset,
     y: 1.6,
-    z: -half + cellSize / 2,
+    z: -half + spawnCornerOffset,
   };
 
   // 1. grid 생성
@@ -96,7 +98,7 @@ export function generateGalleryWalls(
         walls.push({
           pos: [cx, h / 2, cz - cellSize / 2],
           boxSize: [cellSize + t, h, t],
-          color: '#FFFFFF',
+          color: wallColor,
           direction: 'top',
           rot: [0, 0, 0],
           isInterior: false,
@@ -106,7 +108,7 @@ export function generateGalleryWalls(
         walls.push({
           pos: [cx + cellSize / 2, h / 2, cz],
           boxSize: [cellSize + t, h, t],
-          color: '#FFFFFF',
+          color: wallColor,
           direction: 'right',
           rot: [0, -Math.PI / 2, 0],
           isInterior: x < size - 1,
@@ -116,7 +118,7 @@ export function generateGalleryWalls(
         walls.push({
           pos: [cx, h / 2, cz + cellSize / 2],
           boxSize: [cellSize + t, h, t],
-          color: '#FFFFFF',
+          color: wallColor,
           direction: 'bottom',
           rot: [0, Math.PI, 0],
           isInterior: z < size - 1,
@@ -126,7 +128,7 @@ export function generateGalleryWalls(
         walls.push({
           pos: [cx - cellSize / 2, h / 2, cz],
           boxSize: [cellSize + t, h, t],
-          color: '#FFFFFF',
+          color: wallColor,
           direction: 'left',
           rot: [0, Math.PI / 2, 0],
           isInterior: false,
@@ -140,9 +142,10 @@ export function generateGalleryWalls(
 
 export const createWalls = (
   roomSize: number,
-  wallHeight: number
+  wallHeight: number,
+  wallColor = '#FFFFFF'
 ): WAllType[] => {
-  const color = '#FFFFFF';
+  const color = wallColor;
   return [
     {
       color,

@@ -2,12 +2,15 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 
+import { GalleryPreset } from '@/types/gallery-theme';
+
 type ExhibitionDetailRow = {
   id: string;
   title: string;
   thumbnail_url: string | null;
   start_date: string;
   end_date: string | null;
+  gallery_preset: GalleryPreset | null;
   profile: { institution: string } | { institution: string }[] | null;
   likes: { count: number }[] | null;
 };
@@ -29,6 +32,7 @@ export async function GET(
         thumbnail_url,
         start_date,
         end_date,
+        gallery_preset,
         profile:profiles!teacher_id ( institution ),
         likes:exhibition_likes ( count )
       `
@@ -56,6 +60,7 @@ export async function GET(
       endDate: data.end_date,
       host: profile?.institution ?? null,
       likes: data.likes?.[0]?.count ?? 0,
+      galleryPreset: data.gallery_preset ?? null,
     };
 
     return NextResponse.json({ data: result }, { status: 200 });

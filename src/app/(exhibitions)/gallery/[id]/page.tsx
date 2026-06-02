@@ -11,8 +11,14 @@ export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const { user, exhibitionDetails, artworks, isInitReady, initError } =
-    useGalleryData(id);
+  const {
+    user,
+    exhibitionDetails,
+    galleryPreset,
+    artworks,
+    isInitReady,
+    initError,
+  } = useGalleryData(id);
 
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -64,6 +70,7 @@ export default function GalleryExhibitionPage() {
       >
         {isInitReady && (
           <Scene2
+            preset={galleryPreset ?? undefined}
             user={user}
             exhibitionId={id}
             ready={setIsSceneReady}

@@ -62,7 +62,6 @@ export default function Painting({
         position={[0, -h / 2 + 0.8, 0.13]}
         distanceFactor={2}
         center
-        occlude
         style={{
           opacity: 0,
           pointerEvents: 'none',

@@ -14,6 +14,7 @@ export type FormValidation = {
   startDateRaw: FormDataEntryValue | null;
   endDateRaw: FormDataEntryValue | null;
   guidelines: FormDataEntryValue | null;
+  galleryPreset: FormDataEntryValue | null;
 };
 
 export type WAllType = {

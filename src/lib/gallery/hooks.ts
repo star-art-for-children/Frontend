@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getArtworksByExhibitionId } from '@/lib/artwork/service';
 import { getExhibitionDetails } from '@/lib/exhibition/service';
 import { GalleryUIArtworkProps } from '@/types/gallery';
+import { GalleryPreset } from '@/types/gallery-theme';
 
 type ExhibitionDetails = {
   title: string;
@@ -13,6 +14,7 @@ type ExhibitionDetails = {
 type GalleryDataState = {
   user: User | null;
   exhibitionDetails: ExhibitionDetails;
+  galleryPreset: GalleryPreset | null;
   artworks: GalleryUIArtworkProps[];
   isInitReady: boolean;
   initError: string | null;
@@ -22,6 +24,9 @@ export function useGalleryData(id: string): GalleryDataState {
   const [user, setUser] = useState<User | null>(null);
   const [exhibitionDetails, setExhibitionDetails] = useState<ExhibitionDetails>(
     { title: '', host: '' }
+  );
+  const [galleryPreset, setGalleryPreset] = useState<GalleryPreset | null>(
+    null
   );
   const [artworks, setArtworks] = useState<GalleryUIArtworkProps[]>([]);
   const [isInitReady, setIsInitReady] = useState(false);
@@ -39,7 +44,8 @@ export function useGalleryData(id: string): GalleryDataState {
 
         if (artworksRes.length === 0) throw new Error('전시 작품이 없습니다.');
 
-        setExhibitionDetails(details);
+        setExhibitionDetails({ title: details.title, host: details.host });
+        setGalleryPreset(details.galleryPreset);
         setArtworks(artworksRes);
         setUser(userRes.data.user ?? null);
         setIsInitReady(true);
@@ -56,5 +62,12 @@ export function useGalleryData(id: string): GalleryDataState {
     run();
   }, [id]);
 
-  return { user, exhibitionDetails, artworks, isInitReady, initError };
+  return {
+    user,
+    exhibitionDetails,
+    galleryPreset,
+    artworks,
+    isInitReady,
+    initError,
+  };
 }

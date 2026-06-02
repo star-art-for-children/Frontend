@@ -8,9 +8,11 @@ import { downloadImgHandler } from '@/lib/gallery/image';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
+import { FloorConfig } from '@/types/gallery-theme';
+import { defaultPreset } from '@/lib/gallery/presets';
 import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
 import Walls from '@/components/exhibition-gallery/threejs/Walls';
-import Floor from '@/components/exhibition-gallery/threejs/Floor';
+import DynamicFloor from '@/components/exhibition-gallery/threejs/DynamicFloor';
 
 export default function Room({
   init,
@@ -19,7 +21,7 @@ export default function Room({
   innerWalls,
   exhibitionId,
   user,
-  FloorComponent = Floor,
+  floorConfig = defaultPreset.floor,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -28,7 +30,7 @@ export default function Room({
   innerWalls: WAllType[];
   exhibitionId: string;
   user: User | null;
-  FloorComponent?: React.ComponentType<{ size: number }>;
+  floorConfig?: FloorConfig;
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
@@ -79,7 +81,7 @@ export default function Room({
 
       const fovDot = forward.dot(tempDir.current);
 
-      if (fovDot < 0.5 || distanceSq > 25) continue;
+      if (fovDot < 0.5 || distanceSq > 35) continue;
 
       // 그림의 앞면(+Z 월드 노말)과 카메라 방향 비교 — 뒷면이면 스킵
       mesh.getWorldQuaternion(tempQuat.current);
@@ -177,7 +179,7 @@ export default function Room({
 
   return (
     <>
-      <FloorComponent size={size} />
+      <DynamicFloor size={size} config={floorConfig} />
       <Walls walls={walls} />
 
       <InnerWalls
@@ -187,8 +189,6 @@ export default function Room({
         paintingRefs={paintingRefs}
         htmlRefs={htmlRefs}
       />
-
-      {/*<ChristmasDecorations size={size} height={height} />*/}
     </>
   );
 }
