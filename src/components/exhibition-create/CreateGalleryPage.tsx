@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/shared/ImageUploadBox';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
 import { postNewExhibition } from '@/lib/exhibition/service';
 export default function CreateGalleryPage({
@@ -42,34 +42,51 @@ export default function CreateGalleryPage({
   const startDate = useWatch({ control, name: 'startDate' });
   const endDate = useWatch({ control, name: 'endDate' });
 
-  const submitHandler = async (e: UIFormProps) => {
-    const formData = new FormData();
+  const [progress, setProgress] = useState(0);
 
-    formData.append('galleryName', e.galleryName);
-    formData.append('galleryDesc', e.galleryDesc);
+  const submitHandler = useCallback(
+    async (e: UIFormProps) => {
+      const formData = new FormData();
 
-    if (e.galleryImg) {
-      formData.append('galleryImg', e.galleryImg);
-    }
+      formData.append('galleryName', e.galleryName);
+      formData.append('galleryDesc', e.galleryDesc);
 
-    if (e.guideLines) {
-      formData.append('guideLines', e.guideLines);
-    }
+      if (e.galleryImg) formData.append('galleryImg', e.galleryImg);
+      if (e.guideLines) formData.append('guideLines', e.guideLines);
 
-    formData.append('startDate', e.startDate);
+      formData.append('startDate', e.startDate);
+      if (e.endDate) formData.append('endDate', e.endDate);
 
-    if (e.endDate) {
-      formData.append('endDate', e.endDate);
-    }
+      setProgress(0);
+      let intervalId: ReturnType<typeof setInterval> | null = setInterval(
+        () => {
+          setProgress((prev) => {
+            if (prev >= 88) {
+              clearInterval(intervalId!);
+              return 88;
+            }
+            return prev + 1;
+          });
+        },
+        200
+      );
 
-    try {
-      const exhibitionId = await postNewExhibition(formData); // 전시관 생성 후 id 리턴 -> id 로 전시관 상세(전시 작품) 넣으면 될 듯
-      router.push(`/exhibitions/${exhibitionId}/manage`);
-      console.log(exhibitionId);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+      try {
+        const exhibitionId = await postNewExhibition(formData);
+        clearInterval(intervalId);
+        intervalId = null;
+        setProgress(100);
+        setTimeout(() => setProgress(0), 600);
+        router.push(`/exhibitions/${exhibitionId}/manage`);
+      } catch (err) {
+        clearInterval(intervalId!);
+        intervalId = null;
+        setProgress(0);
+        console.log(err);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     if (!startDate || !endDate) return;
@@ -216,12 +233,18 @@ export default function CreateGalleryPage({
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
+                  style={{
+                    background: isSubmitting
+                      ? `linear-gradient(to right, #f59e0b ${progress}%, #fde68a ${progress}%)`
+                      : undefined,
+                    transition: 'background 0.2s ease',
+                  }}
                   className={`bg-primary flex-1 cursor-pointer rounded-[16px] text-[16px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40`}
                 >
                   {isSubmitting ? (
-                    <p>전시관 생성중</p>
+                    <p>{progress < 100 ? `생성중 ${progress}%` : '완료!'}</p>
                   ) : (
-                    <p className={''}>
+                    <p>
                       다음 : 작품 등록하기
                       <FaArrowRight className={'m-auto inline text-sm'} />
                     </p>

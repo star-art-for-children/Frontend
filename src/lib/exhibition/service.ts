@@ -20,9 +20,11 @@ export const getExhibitionDetails = async (id: string) => {
     throw new Error(error.message);
   }
   const { data } = await res.json();
-  const title = data?.title || '';
-  const host = data?.host || '';
-  return { title, host };
+  return {
+    title: data?.title || '',
+    host: data?.host || '',
+    galleryPreset: data?.galleryPreset ?? null,
+  };
 };
 export const toggleExhibitionLike = async (
   exhibitionId: string,

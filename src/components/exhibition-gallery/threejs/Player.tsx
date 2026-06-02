@@ -3,15 +3,21 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
+type CircleCollider = { x: number; z: number; radius: number };
+
 export default function Player({
   speed = 5,
   innerWalls,
   startPos,
+  startLookAt,
+  circleCollidersRef,
 }: {
   size?: number;
   speed: number;
   innerWalls: WAllType[];
   startPos: { x: number; y: number; z: number };
+  startLookAt?: { x: number; y: number; z: number };
+  circleCollidersRef?: React.RefObject<CircleCollider[]>;
 }) {
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());
@@ -84,6 +90,9 @@ export default function Player({
 
     if (!initialized.current && startPos) {
       camera.position.set(startPos.x, startPos.y, startPos.z);
+      if (startLookAt) {
+        camera.lookAt(startLookAt.x, startLookAt.y, startLookAt.z);
+      }
       initialized.current = true;
     }
 
@@ -123,15 +132,22 @@ export default function Player({
     let blocked = false;
     const pad = 0.3;
 
-    if (!blocked) {
-      for (const collider of colliders) {
-        const temp = localPos.current.copy(newPos).applyMatrix4(collider.inv);
+    for (const collider of colliders) {
+      const temp = localPos.current.copy(newPos).applyMatrix4(collider.inv);
+      if (
+        Math.abs(temp.x) < collider.halfX + pad &&
+        Math.abs(temp.z) < collider.halfZ + pad
+      ) {
+        blocked = true;
+        break;
+      }
+    }
 
-        const inside =
-          Math.abs(temp.x) < collider.halfX + pad &&
-          Math.abs(temp.z) < collider.halfZ + pad;
-
-        if (inside) {
+    if (!blocked && circleCollidersRef?.current) {
+      for (const cc of circleCollidersRef.current) {
+        const dx = newPos.x - cc.x;
+        const dz = newPos.z - cc.z;
+        if (dx * dx + dz * dz < cc.radius * cc.radius) {
           blocked = true;
           break;
         }

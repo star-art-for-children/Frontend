@@ -2,15 +2,27 @@ import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import {
   Cloud,
+  GradientTexture,
   PointerLockControls,
   Sky,
+  Stars,
   useProgress,
 } from '@react-three/drei';
-import React, { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { GalleryUIArtworkProps } from '@/types/gallery';
+import { GalleryPreset } from '@/types/gallery-theme';
 import { generateGalleryWalls, createWalls } from '@/lib/gallery/createWalls';
+import { defaultPreset } from '@/lib/gallery/presets';
 import Room from './Room';
 import Player from './Player';
+import DynamicDecorations, { CircleCollider } from './DynamicDecorations';
 import { User } from '@supabase/supabase-js';
 
 function getGridSize(artworkCount: number): number {
@@ -24,31 +36,48 @@ export default function Scene2({
   ready,
   init,
   user,
+  preset = defaultPreset,
 }: {
   exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
   init: GalleryUIArtworkProps[];
   user: User | null;
+  preset?: GalleryPreset;
 }) {
   const height = 9;
-  const cellSize = 7;
+  const cellSize = 12;
+  const spawnCornerOffset = 2;
   const gridSize = getGridSize(init.length);
   const roomSize = gridSize * cellSize;
 
   const { innerWalls, startPosition } = useMemo(
-    () => generateGalleryWalls(roomSize, gridSize, cellSize),
-    [roomSize, gridSize]
+    () =>
+      generateGalleryWalls(
+        roomSize,
+        gridSize,
+        cellSize,
+        preset.wallColor,
+        spawnCornerOffset
+      ),
+    [roomSize, gridSize, preset.wallColor]
   );
 
   const walls = useMemo(
-    () => createWalls(roomSize, height),
-    [roomSize, height]
+    () => createWalls(roomSize, height, preset.wallColor),
+    [roomSize, height, preset.wallColor]
   );
 
   const { active, loaded, total } = useProgress();
   useEffect(() => {
-    ready(active === false && loaded === total && total > 0);
+    ready(!active && loaded === total && total > 0);
   }, [active, loaded, total, ready]);
+
+  const circleCollidersRef = useRef<CircleCollider[]>([]);
+  const handleColliders = useCallback((c: CircleCollider[]) => {
+    circleCollidersRef.current = c;
+  }, []);
+
+  const { atmosphere, lighting } = preset;
 
   return (
     <Canvas
@@ -57,53 +86,90 @@ export default function Scene2({
       gl={{
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.5,
+        toneMappingExposure: lighting.toneMappingExposure,
       }}
     >
-      <Sky
-        distance={450000}
-        sunPosition={[20, 15, 25]}
-        turbidity={8}
-        rayleigh={1.8}
-        mieCoefficient={0.004}
-        mieDirectionalG={0.88}
-      />
+      {atmosphere.type === 'sky' && (
+        <>
+          <Sky
+            distance={450000}
+            sunPosition={atmosphere.sunPosition}
+            turbidity={atmosphere.turbidity}
+            rayleigh={atmosphere.rayleigh}
+            mieCoefficient={atmosphere.mieCoefficient}
+            mieDirectionalG={atmosphere.mieDirectionalG}
+          />
+          {atmosphere.clouds && (
+            <>
+              <Cloud
+                position={[-40, 24, -50]}
+                speed={0.04}
+                opacity={0.7}
+                segments={40}
+                bounds={[18, 4, 8]}
+              />
+              <Cloud
+                position={[-46, 26, -48]}
+                speed={0.03}
+                opacity={0.45}
+                segments={25}
+                bounds={[10, 3, 5]}
+              />
+              <Cloud
+                position={[45, 22, 30]}
+                speed={0.05}
+                opacity={0.65}
+                segments={45}
+                bounds={[20, 5, 9]}
+              />
+              <Cloud
+                position={[50, 25, 28]}
+                speed={0.04}
+                opacity={0.4}
+                segments={20}
+                bounds={[8, 3, 4]}
+              />
+            </>
+          )}
+        </>
+      )}
 
-      <Cloud
-        position={[-40, 24, -50]}
-        speed={0.04}
-        opacity={0.7}
-        segments={40}
-        bounds={[18, 4, 8]}
-      />
-      <Cloud
-        position={[-46, 26, -48]}
-        speed={0.03}
-        opacity={0.45}
-        segments={25}
-        bounds={[10, 3, 5]}
-      />
-      <Cloud
-        position={[45, 22, 30]}
-        speed={0.05}
-        opacity={0.65}
-        segments={45}
-        bounds={[20, 5, 9]}
-      />
-      <Cloud
-        position={[50, 25, 28]}
-        speed={0.04}
-        opacity={0.4}
-        segments={20}
-        bounds={[8, 3, 4]}
-      />
+      {atmosphere.type === 'night' && (
+        <>
+          <color attach="background" args={[atmosphere.bgColor]} />
+          <Stars
+            radius={atmosphere.stars.radius}
+            depth={atmosphere.stars.depth}
+            count={atmosphere.stars.count}
+            factor={atmosphere.stars.factor}
+            saturation={atmosphere.stars.saturation}
+            fade
+            speed={atmosphere.stars.speed}
+          />
+        </>
+      )}
 
-      <hemisphereLight args={['#FFD0A0', '#C8A080', 0.5]} />
-      <ambientLight intensity={0.9} color="#FFF5EE" />
+      {atmosphere.type === 'gradient' && (
+        <mesh>
+          <sphereGeometry args={[500, 32, 32]} />
+          <meshBasicMaterial side={THREE.BackSide} depthWrite={false}>
+            <GradientTexture
+              stops={[0, 1]}
+              colors={[atmosphere.bottomColor, atmosphere.topColor]}
+            />
+          </meshBasicMaterial>
+        </mesh>
+      )}
+
+      <hemisphereLight args={lighting.hemisphere} />
+      <ambientLight
+        intensity={lighting.ambient.intensity}
+        color={lighting.ambient.color}
+      />
       <directionalLight
-        position={[20, 20, 25]}
-        intensity={1.6}
-        color="#FFB060"
+        position={lighting.directional.position}
+        intensity={lighting.directional.intensity}
+        color={lighting.directional.color}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-radius={20}
@@ -125,8 +191,27 @@ export default function Scene2({
         walls={walls}
         innerWalls={innerWalls}
         init={init}
+        floorConfig={preset.floor}
       />
-      <Player startPos={startPosition} innerWalls={innerWalls} speed={3} />
+      <DynamicDecorations
+        preset={preset}
+        size={roomSize}
+        height={height}
+        cellSize={cellSize}
+        gridSize={gridSize}
+        onColliders={handleColliders}
+      />
+      <Player
+        startPos={startPosition}
+        startLookAt={{
+          x: -roomSize / 2 + cellSize / 2,
+          y: startPosition.y,
+          z: -roomSize / 2 + cellSize / 2,
+        }}
+        innerWalls={innerWalls}
+        circleCollidersRef={circleCollidersRef}
+        speed={3}
+      />
       <PointerLockControls />
     </Canvas>
   );
