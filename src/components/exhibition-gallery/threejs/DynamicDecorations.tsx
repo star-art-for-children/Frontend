@@ -4,6 +4,7 @@ import { GalleryPreset } from '@/types/gallery-theme';
 import { MODEL_REGISTRY } from '@/lib/gallery/modelRegistry';
 import FallingPetals from './particles/FallingPetals';
 import FallingSnow from './particles/FallingSnow';
+import FallingLeaves from './particles/FallingLeaves';
 import RainDrops from './particles/RainDrops';
 
 function sr(seed: number): number {
@@ -256,6 +257,17 @@ export default function DynamicDecorations({
 
       {preset.particles?.type === 'snow' && (
         <FallingSnow
+          count={preset.particles.count}
+          size={size}
+          height={height}
+          speed={preset.particles.speed}
+          color={preset.particles.color}
+          opacity={preset.particles.opacity}
+        />
+      )}
+
+      {preset.particles?.type === 'leaves' && (
+        <FallingLeaves
           count={preset.particles.count}
           size={size}
           height={height}

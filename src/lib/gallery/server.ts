@@ -14,14 +14,14 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   BenchA, CoralA, CoralB, CoralC, CrystalA,
   FishA, FishB, FlowerA, FlowerB, FlowerC,
   RockA, RockB, RocketA, RocketB, StarA,
-  TreeA, TreeB, TreeC,
+  TreeA, TreeB, TreeC, TreeD, TreeE,
   PresentACube, PresentARound, PresentBCube, PresentBRound,
   SnowPile, TreeDecoratedSnow, WreathDecorated,
   FlowerTreeA, FlowerTreeB
 - atmosphere.type: "sky" | "night" | "gradient" only
 - All colors: valid CSS hex string (#rrggbb)
 - At most ONE entry in decorations may use "corner". All others must use "scattered", "cell-center", or "near-cell-center".
-- Tree and rocket models (TreeA, TreeB, TreeC, FlowerTreeA, FlowerTreeB, TreeDecoratedSnow, RocketA, RocketB) must ALWAYS use "cell-center" placement.
+- Tree and rocket models (TreeA, TreeB, TreeC, TreeD, TreeE, FlowerTreeA, FlowerTreeB, TreeDecoratedSnow, RocketA, RocketB) must ALWAYS use "cell-center" placement.
 - The total count across ALL tree model entries combined must not exceed 4.
 
 ## ATMOSPHERE TYPES
@@ -43,7 +43,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
 ## WALL COLOR
 - Ocean/underwater → #c8e8f5 | Forest/nature → #f0f5ee | Space/dark → #1a1a2e
 - Winter/snow → #d4eeff | Spring/flower → #fff0f5 | Warm/cozy → #fff8f0
-- Rain/overcast → #c8d0d8 | Minimal/modern → #ffffff
+- Rain/overcast → #c8d0d8 | Autumn/fall → #d4a96a | Minimal/modern → #ffffff
 
 ## FLOOR
 - floor.color, floor.roughness(0.2~0.9), floor.metalness(0~0.2), floor.mirror(0~0.5)
@@ -57,6 +57,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   - Spring/flower: { color:"#fff5f8", roughness:0.65, metalness:0.03, mirror:0.08, blur:[300,100],  useTexture:true  }
   - Warm/cozy:     { color:"#fdf0e0", roughness:0.75, metalness:0.02, mirror:0.05, blur:[300,100],  useTexture:true  }
   - Rain/overcast: { color:"#b0bec5", roughness:0.3,  metalness:0.05, mirror:0.4,  blur:[600,300],  useTexture:false }
+  - Autumn/fall:  { color:"#8b5e3c", roughness:0.85, metalness:0.0,  mirror:0.0,  blur:[200,80],   useTexture:true  }
 
 ## DECORATION PLACEMENT & SCALE
 - placement:
@@ -93,7 +94,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   -> night atmosphere, hemisphere [#6060cc,#303060,1.0], ambient {color:#c0c0ff, intensity:2.0}
   -> directional intensity 2.0+, toneMappingExposure 1.6+, wallColor dark, floor space preset, particles: sparkles
 - Warm / cozy / earthy
-  -> FlowerB/C (countPerCell:3, scattered), BenchA (countPerCell:1, scattered), RockA (countPerCell:1, scattered)
+  -> TreeA/B/C (count:2~4, cell-center), FlowerB/C (countPerCell:3, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3), RockA (countPerCell:1, scattered)
   -> sky atmosphere, wallColor cream, floor warm preset
 - Spring / flower / pastel
   -> FlowerTreeA/B (count:2~4, cell-center), FlowerA/B/C (countPerCell:3, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3)
@@ -102,17 +103,24 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   -> TreeDecoratedSnow (count:1~4, cell-center, scale 0.8), SnowPile (countPerCell:2, scattered), PresentACube (countPerCell:2, scattered, scale 0.22~0.45)
   -> night atmosphere, wallColor icy blue-white, floor winter preset, particles: snow
 - Rain / storm / melancholic
-  -> RockA/B (countPerCell:1, scattered), BenchA (countPerCell:1, scattered)
+  -> TreeA/B/C (count:2~4, cell-center), RockA/B (countPerCell:1, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3)
   -> gradient atmosphere (topColor #4a5568, bottomColor #2d3748), wallColor #c8d0d8, floor rain preset, particles: rain
+- Autumn / fall / orange-red / leaf / harvest / maple
+  -> TreeD/E (count:2~4, cell-center, scale 0.8~1.2) — TreeD is a twisted bare tree, TreeE is a full autumn tree
+  -> RockA (countPerCell:1, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3, color #7a4e28)
+  -> sky atmosphere (sunPosition low [4,3,8], turbidity 10~14, rayleigh 2.0~2.5), hemisphere [#e8a050, #6b4226, 0.8]
+  -> ambient {color:#f0c070, intensity:1.0~1.2}, directional {color:#ffaa44, intensity:1.4~1.8}
+  -> toneMappingExposure 1.3~1.5, wallColor #d4a96a, floor autumn preset, particles: leaves (color #c0392b~#d35400)
 - Minimal / white / modern
   -> decorations: [], sky atmosphere, wallColor #ffffff, floor natural preset
 
 ## PARTICLES (optional)
-- type: "sparkles" | "snow" | "petals" | "rain"
+- type: "sparkles" | "snow" | "petals" | "rain" | "leaves"
 - sparkles: count 40~100, speed 0.1~0.3, opacity 0.3~0.6
 - snow: count 50~80, speed 1.0~2.0, opacity 0.4~0.8
 - petals: count 20~40, speed 0.8~1.5 (color & opacity ignored)
 - rain: count 150~300, speed 7~12, color #a8cfe0~#8ab4c8, opacity 0.4~0.6
+- leaves: count 40~70, speed 0.8~1.4, color #c0392b~#d35400 (autumn reds/oranges), opacity 0.8~0.95
 
 ## OUTPUT SCHEMA
 {"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"useTexture":true},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}

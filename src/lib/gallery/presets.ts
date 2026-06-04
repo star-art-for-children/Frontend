@@ -28,6 +28,8 @@ export const MODEL_REGISTRY_KEYS = [
   'WreathDecorated',
   'FlowerTreeA',
   'FlowerTreeB',
+  'TreeD',
+  'TreeE',
 ] as const;
 
 export const defaultPreset: GalleryPreset = {
@@ -475,5 +477,76 @@ export const aiPresetRainy: GalleryPreset = {
     count: 220,
     speed: 9.0,
     opacity: 0.5,
+  },
+};
+
+export const aiPresetAutumn: GalleryPreset = {
+  id: 'autumn-forest',
+  atmosphere: {
+    type: 'sky',
+    sunPosition: [4, 3, 8],
+    turbidity: 12,
+    rayleigh: 2.2,
+    mieCoefficient: 0.006,
+    mieDirectionalG: 0.82,
+    clouds: true,
+  },
+  lighting: {
+    hemisphere: ['#e8a050', '#6b4226', 0.8],
+    ambient: { color: '#f0c070', intensity: 1.1 },
+    directional: {
+      position: [8, 6, 10],
+      color: '#ffaa44',
+      intensity: 1.6,
+    },
+    toneMappingExposure: 1.35,
+  },
+  floor: {
+    color: '#8b5e3c',
+    roughness: 0.85,
+    metalness: 0.0,
+    mirror: 0.0,
+    blur: [200, 80],
+    useTexture: true,
+  },
+  wallColor: '#d4a96a',
+  decorations: [
+    {
+      model: 'TreeD',
+      count: 2,
+      placement: 'cell-center',
+      scaleMin: 0.8,
+      scaleMax: 1.2,
+    },
+    {
+      model: 'TreeE',
+      count: 2,
+      placement: 'cell-center',
+      scaleMin: 0.8,
+      scaleMax: 1.1,
+    },
+    {
+      model: 'RockA',
+      count: 5,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 1.0,
+      color: '#7a6050',
+    },
+    {
+      model: 'BenchA',
+      count: 2,
+      placement: 'scattered',
+      scaleMin: 0.7,
+      scaleMax: 0.9,
+      color: '#7a4e28',
+    },
+  ],
+  particles: {
+    type: 'leaves',
+    color: '#c0392b',
+    count: 55,
+    speed: 1.0,
+    opacity: 0.88,
   },
 };

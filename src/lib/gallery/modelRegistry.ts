@@ -26,6 +26,8 @@ import { TreeDecoratedSnow } from '@/components/exhibition-gallery/models/basic/
 import { WreathDecorated } from '@/components/exhibition-gallery/models/basic/WreathDecorated';
 import { FlowerTreeA } from '@/components/exhibition-gallery/models/basic/FlowerTreeA';
 import { FlowerTreeB } from '@/components/exhibition-gallery/models/basic/FlowerTreeB';
+import { TreeD } from '@/components/exhibition-gallery/models/basic/TreeD';
+import { TreeE } from '@/components/exhibition-gallery/models/basic/TreeE';
 
 export type ModelEntry = {
   component: React.ComponentType<JSX.IntrinsicElements['group']>;
@@ -89,5 +91,17 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
     baseScale: 0.1,
     yOffset: 0,
     colliderRadius: 0.9,
+  },
+  TreeD: {
+    component: TreeD,
+    baseScale: 1.0,
+    yOffset: 0,
+    colliderRadius: 1,
+  },
+  TreeE: {
+    component: TreeE,
+    baseScale: 5.0,
+    yOffset: 2,
+    colliderRadius: 1,
   },
 };
