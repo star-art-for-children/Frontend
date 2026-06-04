@@ -7,54 +7,68 @@ Source: https://sketchfab.com/3d-models/turtle-0a1be4094d844d72b225de98da809b02
 Title: Turtle
 */
 
-import * as THREE from 'three'
-import React, { useEffect } from 'react'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { GLTF, SkeletonUtils } from 'three-stdlib'
+import * as THREE from 'three';
+import React, { useEffect } from 'react';
+import { useGraph } from '@react-three/fiber';
+import { useGLTF, useAnimations } from '@react-three/drei';
+import { GLTF, SkeletonUtils } from 'three-stdlib';
 
-type ActionName = 'Idle' | 'Swim'
+type ActionName = 'Idle' | 'Swim';
 
 interface GLTFAction extends THREE.AnimationClip {
-  name: ActionName
+  name: ActionName;
 }
 
 type GLTFResult = GLTF & {
   nodes: {
-    Object_7: THREE.SkinnedMesh
-    Object_8: THREE.SkinnedMesh
-    GLTF_created_0_rootJoint: THREE.Bone
-  }
+    Object_7: THREE.SkinnedMesh;
+    Object_8: THREE.SkinnedMesh;
+    GLTF_created_0_rootJoint: THREE.Bone;
+  };
   materials: {
-    Turtle: THREE.MeshStandardMaterial
-    TurtleShell: THREE.MeshStandardMaterial
-  }
-  animations: GLTFAction[]
-}
+    Turtle: THREE.MeshStandardMaterial;
+    TurtleShell: THREE.MeshStandardMaterial;
+  };
+  animations: GLTFAction[];
+};
 
 export function Turtle(props: JSX.IntrinsicElements['group']) {
-  const group = React.useRef<THREE.Group>(null)
-  const { scene, animations } = useGLTF('/GLBformat/basic/turtle.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
-  const { actions } = useAnimations(animations, group)
+  const group = React.useRef<THREE.Group>(null);
+  const { scene, animations } = useGLTF('/GLBformat/basic/turtle.glb');
+  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  const { nodes, materials } = useGraph(clone) as unknown as GLTFResult;
+  const { actions } = useAnimations(animations, group);
 
   useEffect(() => {
-    actions['Swim']?.play()
-  }, [actions])
+    actions['Swim']?.play();
+  }, [actions]);
 
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
-        <group name="Sketchfab_model" position={[-0.026, 0.512, -0.17]} rotation={[-Math.PI / 2, 0, -Math.PI]}>
+        <group
+          name="Sketchfab_model"
+          position={[-0.026, 0.512, -0.17]}
+          rotation={[-Math.PI / 2, 0, -Math.PI]}
+        >
           <group name="root">
             <group name="GLTF_SceneRootNode" rotation={[Math.PI / 2, 0, 0]}>
               <group name="TurtleArmature_17" position={[0, -0.04, -1.15]}>
                 <group name="GLTF_created_0">
                   <primitive object={nodes.GLTF_created_0_rootJoint} />
                   <group name="Turtle_16" />
-                  <skinnedMesh name="Object_7" geometry={nodes.Object_7.geometry} material={materials.Turtle} skeleton={nodes.Object_7.skeleton} />
-                  <skinnedMesh name="Object_8" geometry={nodes.Object_8.geometry} material={materials.TurtleShell} skeleton={nodes.Object_8.skeleton} />
+                  <skinnedMesh
+                    name="Object_7"
+                    geometry={nodes.Object_7.geometry}
+                    material={materials.Turtle}
+                    skeleton={nodes.Object_7.skeleton}
+                  />
+                  <skinnedMesh
+                    name="Object_8"
+                    geometry={nodes.Object_8.geometry}
+                    material={materials.TurtleShell}
+                    skeleton={nodes.Object_8.skeleton}
+                  />
                 </group>
               </group>
             </group>
@@ -62,7 +76,7 @@ export function Turtle(props: JSX.IntrinsicElements['group']) {
         </group>
       </group>
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/GLBformat/basic/turtle.glb')
+useGLTF.preload('/GLBformat/basic/turtle.glb');

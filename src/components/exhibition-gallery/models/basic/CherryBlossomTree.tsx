@@ -7,35 +7,47 @@ Source: https://sketchfab.com/3d-models/sakura-tree-01-low-poly-model-147ae7d0d3
 Title: Sakura Tree 01 - Low Poly Model
 */
 
-import * as THREE from 'three'
-import React from 'react'
-import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
+import * as THREE from 'three';
+import React from 'react';
+import { useGLTF } from '@react-three/drei';
+import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
   nodes: {
-    Sakura_Bark001_2K_JPG_Mat_0: THREE.Mesh
-    Sakura_Sakura_Mat_0: THREE.Mesh
-  }
+    Sakura_Bark001_2K_JPG_Mat_0: THREE.Mesh;
+    Sakura_Sakura_Mat_0: THREE.Mesh;
+  };
   materials: {
-    Bark001_2K_JPG_Mat: THREE.MeshStandardMaterial
-    Sakura_Mat: THREE.MeshStandardMaterial
-  }
-  animations: GLTFAction[]
-}
+    Bark001_2K_JPG_Mat: THREE.MeshStandardMaterial;
+    Sakura_Mat: THREE.MeshStandardMaterial;
+  };
+  animations: GLTFAction[];
+};
 
 export function CherryBlossomTree(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/GLBformat/basic/cherryBlossomTree.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(
+    '/GLBformat/basic/cherryBlossomTree.glb'
+  ) as unknown as GLTFResult;
   return (
     <group {...props} dispose={null}>
       <group scale={0.01}>
         <group rotation={[-Math.PI / 2, 0, 0]}>
-          <mesh castShadow receiveShadow geometry={nodes.Sakura_Bark001_2K_JPG_Mat_0.geometry} material={materials.Bark001_2K_JPG_Mat} />
-          <mesh castShadow receiveShadow geometry={nodes.Sakura_Sakura_Mat_0.geometry} material={materials.Sakura_Mat} />
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.Sakura_Bark001_2K_JPG_Mat_0.geometry}
+            material={materials.Bark001_2K_JPG_Mat}
+          />
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.Sakura_Sakura_Mat_0.geometry}
+            material={materials.Sakura_Mat}
+          />
         </group>
       </group>
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/GLBformat/basic/cherryBlossomTree.glb')
+useGLTF.preload('/GLBformat/basic/cherryBlossomTree.glb');

@@ -7,30 +7,39 @@ Source: https://sketchfab.com/3d-models/starfish-3e4ffd35592645919311bfdd18b84b5
 Title: StarFish
 */
 
-import * as THREE from 'three'
-import React from 'react'
-import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
+import * as THREE from 'three';
+import React from 'react';
+import { useGLTF } from '@react-three/drei';
+import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
   nodes: {
-    ['StarFish_01_-_Default_0']: THREE.Mesh
-  }
+    ['StarFish_01_-_Default_0']: THREE.Mesh;
+  };
   materials: {
-    ['01_-_Default']: THREE.MeshStandardMaterial
-  }
-  animations: GLTFAction[]
-}
+    ['01_-_Default']: THREE.MeshStandardMaterial;
+  };
+  animations: GLTFAction[];
+};
 
 export function Starfish(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/GLBformat/basic/starfish.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(
+    '/GLBformat/basic/starfish.glb'
+  ) as unknown as GLTFResult;
   return (
     <group {...props} dispose={null}>
       <group scale={0.025}>
-        <mesh castShadow receiveShadow geometry={nodes['StarFish_01_-_Default_0'].geometry} material={materials['01_-_Default']} rotation={[-Math.PI / 2, 0, Math.PI / 2]} scale={[1.801, 1.801, 1]} />
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes['StarFish_01_-_Default_0'].geometry}
+          material={materials['01_-_Default']}
+          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+          scale={[1.801, 1.801, 1]}
+        />
       </group>
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/GLBformat/basic/starfish.glb')
+useGLTF.preload('/GLBformat/basic/starfish.glb');

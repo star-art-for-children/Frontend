@@ -7,41 +7,41 @@ Source: https://sketchfab.com/3d-models/dolphin-06db7f1bfe9c46feb17b2df67f8e028d
 Title: Dolphin
 */
 
-import * as THREE from 'three'
-import React, { useEffect } from 'react'
-import { useGraph } from '@react-three/fiber'
-import { useGLTF, useAnimations } from '@react-three/drei'
-import { GLTF, SkeletonUtils } from 'three-stdlib'
+import * as THREE from 'three';
+import React, { useEffect } from 'react';
+import { useGraph } from '@react-three/fiber';
+import { useGLTF, useAnimations } from '@react-three/drei';
+import { GLTF, SkeletonUtils } from 'three-stdlib';
 
-type ActionName = 'Swim'
+type ActionName = 'Swim';
 
 interface GLTFAction extends THREE.AnimationClip {
-  name: ActionName
+  name: ActionName;
 }
 
 type GLTFResult = GLTF & {
   nodes: {
-    Object_7: THREE.SkinnedMesh
-    Object_8: THREE.SkinnedMesh
-    GLTF_created_0_rootJoint: THREE.Bone
-  }
+    Object_7: THREE.SkinnedMesh;
+    Object_8: THREE.SkinnedMesh;
+    GLTF_created_0_rootJoint: THREE.Bone;
+  };
   materials: {
-    Dolphin: THREE.MeshStandardMaterial
-    DolphinBelly: THREE.MeshStandardMaterial
-  }
-  animations: GLTFAction[]
-}
+    Dolphin: THREE.MeshStandardMaterial;
+    DolphinBelly: THREE.MeshStandardMaterial;
+  };
+  animations: GLTFAction[];
+};
 
 export function Dolphin(props: JSX.IntrinsicElements['group']) {
-  const group = React.useRef<THREE.Group>(null)
-  const { scene, animations } = useGLTF('/GLBformat/basic/dolphin.glb')
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
-  const { actions } = useAnimations(animations, group)
+  const group = React.useRef<THREE.Group>(null);
+  const { scene, animations } = useGLTF('/GLBformat/basic/dolphin.glb');
+  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  const { nodes, materials } = useGraph(clone) as unknown as GLTFResult;
+  const { actions } = useAnimations(animations, group);
 
   useEffect(() => {
-    actions['Swim']?.play()
-  }, [actions])
+    actions['Swim']?.play();
+  }, [actions]);
 
   return (
     <group ref={group} {...props} dispose={null}>
@@ -49,12 +49,26 @@ export function Dolphin(props: JSX.IntrinsicElements['group']) {
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="root">
             <group name="GLTF_SceneRootNode" rotation={[Math.PI / 2, 0, 0]}>
-              <group name="Armature_18" position={[0, 1.052, 0]} rotation={[0, 0, -1.692]}>
+              <group
+                name="Armature_18"
+                position={[0, 1.052, 0]}
+                rotation={[0, 0, -1.692]}
+              >
                 <group name="GLTF_created_0">
                   <primitive object={nodes.GLTF_created_0_rootJoint} />
                   <group name="Dolphin_17" />
-                  <skinnedMesh name="Object_7" geometry={nodes.Object_7.geometry} material={materials.Dolphin} skeleton={nodes.Object_7.skeleton} />
-                  <skinnedMesh name="Object_8" geometry={nodes.Object_8.geometry} material={materials.DolphinBelly} skeleton={nodes.Object_8.skeleton} />
+                  <skinnedMesh
+                    name="Object_7"
+                    geometry={nodes.Object_7.geometry}
+                    material={materials.Dolphin}
+                    skeleton={nodes.Object_7.skeleton}
+                  />
+                  <skinnedMesh
+                    name="Object_8"
+                    geometry={nodes.Object_8.geometry}
+                    material={materials.DolphinBelly}
+                    skeleton={nodes.Object_8.skeleton}
+                  />
                 </group>
               </group>
             </group>
@@ -62,7 +76,7 @@ export function Dolphin(props: JSX.IntrinsicElements['group']) {
         </group>
       </group>
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/GLBformat/basic/dolphin.glb')
+useGLTF.preload('/GLBformat/basic/dolphin.glb');

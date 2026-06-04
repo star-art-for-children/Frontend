@@ -7,28 +7,36 @@ Source: https://sketchfab.com/3d-models/cherry-blossom-petal-a1e45d9f9796403ca85
 Title: Cherry blossom petal
 */
 
-import * as THREE from 'three'
-import React from 'react'
-import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
+import * as THREE from 'three';
+import React from 'react';
+import { useGLTF } from '@react-three/drei';
+import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
   nodes: {
-    Object_4: THREE.Mesh
-  }
+    Object_4: THREE.Mesh;
+  };
   materials: {
-    SakuraHanaBira: THREE.MeshStandardMaterial
-  }
-  animations: GLTFAction[]
-}
+    SakuraHanaBira: THREE.MeshStandardMaterial;
+  };
+  animations: GLTFAction[];
+};
 
 export function FlowerPetal(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/GLBformat/basic/flowerPetal.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(
+    '/GLBformat/basic/flowerPetal.glb'
+  ) as unknown as GLTFResult;
   return (
     <group {...props} dispose={null}>
-      <mesh castShadow receiveShadow geometry={nodes.Object_4.geometry} material={materials.SakuraHanaBira} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.Object_4.geometry}
+        material={materials.SakuraHanaBira}
+        rotation={[Math.PI / 2, 0, 0]}
+      />
     </group>
-  )
+  );
 }
 
-useGLTF.preload('/GLBformat/basic/flowerPetal.glb')
+useGLTF.preload('/GLBformat/basic/flowerPetal.glb');

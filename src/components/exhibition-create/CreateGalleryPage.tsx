@@ -65,7 +65,10 @@ export default function CreateGalleryPage({
       if (e.selectedPresetId && e.selectedPresetId !== 'ai') {
         const preset = ALL_PRESETS.find((p) => p.id === e.selectedPresetId);
         if (preset) formData.append('galleryPreset', JSON.stringify(preset));
-      } else if (!e.selectedPresetId || (e.selectedPresetId === 'ai' && !e.galleryImg)) {
+      } else if (
+        !e.selectedPresetId ||
+        (e.selectedPresetId === 'ai' && !e.galleryImg)
+      ) {
         formData.append('galleryPreset', JSON.stringify(defaultPreset));
       }
 

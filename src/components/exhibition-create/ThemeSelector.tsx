@@ -39,7 +39,7 @@ export default function ThemeSelector({
           <div className="flex h-11 w-full items-center justify-center bg-gradient-to-br from-violet-400 to-indigo-500">
             <Wand2 className="h-5 w-5 text-white" />
           </div>
-          <div className="w-full bg-indigo-50 px-1 py-[5px] text-center text-[10px] font-semibold leading-tight text-indigo-600">
+          <div className="w-full bg-indigo-50 px-1 py-[5px] text-center text-[10px] leading-tight font-semibold text-indigo-600">
             AI 자동
           </div>
         </button>
@@ -62,7 +62,7 @@ export default function ThemeSelector({
                 style={{ background: getCardBg(preset) }}
               />
               <div
-                className="w-full px-1 py-[5px] text-center text-[10px] font-semibold leading-tight text-gray-700"
+                className="w-full px-1 py-[5px] text-center text-[10px] leading-tight font-semibold text-gray-700"
                 style={{ backgroundColor: preset.floor.color || '#fff' }}
               >
                 {PRESET_LABELS[preset.id] ?? preset.id}

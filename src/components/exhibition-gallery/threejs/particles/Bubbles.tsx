@@ -44,8 +44,7 @@ function SingleBubble({
 
     if (y.current > height) y.current = 0;
 
-    ref.current.position.x =
-      state.x + Math.sin(t.current + state.driftX) * 0.4;
+    ref.current.position.x = state.x + Math.sin(t.current + state.driftX) * 0.4;
     ref.current.position.y = y.current;
     ref.current.position.z =
       state.z + Math.cos(t.current * 0.7 + state.driftZ) * 0.4;
