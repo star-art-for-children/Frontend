@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { Sparkles } from '@react-three/drei';
-import { GalleryPreset } from '@/types/gallery-theme';
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
+import { GalleryPreset, ParticleConfig } from '@/types/gallery-theme';
+import { WAllType } from '@/types/gallery';
 import { MODEL_REGISTRY } from '@/lib/gallery/modelRegistry';
 import FallingPetals from './particles/FallingPetals';
 import FallingSnow from './particles/FallingSnow';
+import FallingLeaves from './particles/FallingLeaves';
 import RainDrops from './particles/RainDrops';
 
 function sr(seed: number): number {
@@ -13,6 +16,29 @@ function sr(seed: number): number {
 
 function rr(seed: number, min: number, max: number): number {
   return min + sr(seed) * (max - min);
+}
+
+type WallBox = { inv: Matrix4; halfX: number; halfZ: number };
+
+const _localPoint = new Vector3();
+
+/** (x,z) 점이 margin만큼 부풀린 벽 박스 중 하나라도 안에 들어가면 true */
+function overlapsAnyWall(
+  x: number,
+  z: number,
+  margin: number,
+  wallBoxes: WallBox[]
+): boolean {
+  for (const box of wallBoxes) {
+    _localPoint.set(x, 0, z).applyMatrix4(box.inv);
+    if (
+      Math.abs(_localPoint.x) < box.halfX + margin &&
+      Math.abs(_localPoint.z) < box.halfZ + margin
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function getCellCenters(size: number, cellSize: number): [number, number][] {
@@ -46,7 +72,8 @@ function getPositions(
   zRange?: [number, number],
   cellCenters?: [number, number][],
   cellCenterOffset = 0,
-  nearCellRadius = 2
+  nearCellRadius = 2,
+  isBlocked?: (x: number, z: number) => boolean
 ): [number, number, number][] {
   if (
     placement === 'near-cell-center' &&
@@ -103,15 +130,34 @@ function getPositions(
   const zMin = zRange ? zRange[0] : -inner;
   const zMax = zRange ? zRange[1] : inner;
 
-  return Array.from(
-    { length: count },
-    (_, i) =>
-      [
-        rr(seedOffset + i * 3, xMin, xMax),
-        rr(seedOffset + i * 3 + 10, elevationMin, elevationMax),
-        rr(seedOffset + i * 3 + 1, zMin, zMax),
-      ] as [number, number, number]
-  );
+  const spanX = xMax - xMin;
+  const spanZ = zMax - zMin;
+  const isFixedPoint = spanX < 0.01 && spanZ < 0.01;
+
+  return Array.from({ length: count }, (_, i) => {
+    let x = rr(seedOffset + i * 3, xMin, xMax);
+    let z = rr(seedOffset + i * 3 + 1, zMin, zMax);
+    // 벽과 겹치면 다시 위치를 찾는다 (벽이 없으면 첫 시도 그대로 유지)
+    if (isBlocked) {
+      for (let a = 1; a <= 12 && isBlocked(x, z); a++) {
+        if (isFixedPoint) {
+          // 고정 점(예: 가운데 나무)이 막힘 → 황금각 나선으로 주변 빈 곳 탐색
+          const r = a * 0.6;
+          const ang = a * 2.399963;
+          x = xMin + Math.cos(ang) * r;
+          z = zMin + Math.sin(ang) * r;
+        } else {
+          x = rr(seedOffset + i * 3 + a * 97, xMin, xMax);
+          z = rr(seedOffset + i * 3 + 1 + a * 97, zMin, zMax);
+        }
+      }
+    }
+    return [
+      x,
+      rr(seedOffset + i * 3 + 10, elevationMin, elevationMax),
+      z,
+    ] as [number, number, number];
+  });
 }
 
 export type CircleCollider = { x: number; z: number; radius: number };
@@ -122,6 +168,7 @@ export default function DynamicDecorations({
   height,
   cellSize = 12,
   gridSize = 1,
+  innerWalls = [],
   onColliders,
 }: {
   preset: GalleryPreset;
@@ -129,9 +176,32 @@ export default function DynamicDecorations({
   height: number;
   cellSize?: number;
   gridSize?: number;
+  innerWalls?: WAllType[];
   onColliders?: (colliders: CircleCollider[]) => void;
 }) {
   const half = size / 2;
+  // 내벽 박스를 로컬 좌표 변환용 역행렬로 미리 만들어 장식 배치 시 회피에 사용
+  const wallBoxes = useMemo<WallBox[]>(
+    () =>
+      innerWalls.map((wall) => {
+        const mat = new Matrix4().compose(
+          new Vector3(...wall.pos),
+          new Quaternion().setFromEuler(new Euler(...(wall.rot ?? [0, 0, 0]))),
+          new Vector3(1, 1, 1)
+        );
+        return {
+          inv: mat.invert(),
+          halfX: wall.boxSize[0] / 2,
+          halfZ: wall.boxSize[2] / 2,
+        };
+      }),
+    [innerWalls]
+  );
+  const particleList = preset.particles
+    ? Array.isArray(preset.particles)
+      ? preset.particles
+      : [preset.particles]
+    : [];
   const cellCenters = useMemo(
     () => getCellCenters(size, cellSize),
     [size, cellSize]
@@ -167,6 +237,14 @@ export default function DynamicDecorations({
         const offset =
           cfg.placement === 'cell-center' ? cellCenterOffsets[groupIdx] : 0;
 
+        // 모델 발자국(반경) 기준으로 벽을 피한다. 콜라이더 없는 작은 모델은 기본값 사용.
+        const footprint = (entry.colliderRadius ?? 0.4) * cfg.scaleMax;
+        const isBlocked =
+          wallBoxes.length > 0
+            ? (x: number, z: number) =>
+                overlapsAnyWall(x, z, footprint, wallBoxes)
+            : undefined;
+
         const positions = getPositions(
           cfg.placement,
           effectiveCount,
@@ -178,7 +256,8 @@ export default function DynamicDecorations({
           cfg.zRange,
           cellCenters,
           offset,
-          cfg.nearCellRadius ?? 2
+          cfg.nearCellRadius ?? 2,
+          isBlocked
         );
 
         return positions.map((pos, i) => {
@@ -210,7 +289,14 @@ export default function DynamicDecorations({
           };
         });
       }),
-    [preset.decorations, half, cellCenters, cellCenterOffsets, cellCount]
+    [
+      preset.decorations,
+      half,
+      cellCenters,
+      cellCenterOffsets,
+      cellCount,
+      wallBoxes,
+    ]
   );
 
   useEffect(() => {
@@ -234,49 +320,72 @@ export default function DynamicDecorations({
         ))
       )}
 
-      {preset.particles?.type === 'petals' && (
-        <FallingPetals
-          count={preset.particles.count}
-          size={size}
-          height={height}
-          speed={preset.particles.speed}
-        />
-      )}
-
-      {preset.particles?.type === 'rain' && (
-        <RainDrops
-          count={preset.particles.count}
-          size={size}
-          height={height}
-          speed={preset.particles.speed}
-          color={preset.particles.color}
-          opacity={preset.particles.opacity}
-        />
-      )}
-
-      {preset.particles?.type === 'snow' && (
-        <FallingSnow
-          count={preset.particles.count}
-          size={size}
-          height={height}
-          speed={preset.particles.speed}
-          color={preset.particles.color}
-          opacity={preset.particles.opacity}
-        />
-      )}
-
-      {preset.particles?.type === 'sparkles' && (
-        <Sparkles
-          count={preset.particles.count}
-          scale={[size - 1, height * 0.8, size - 1]}
-          position={[0, height * 0.4, 0]}
-          size={5}
-          speed={preset.particles.speed}
-          opacity={preset.particles.opacity}
-          color={preset.particles.color}
-          noise={0.3}
-        />
-      )}
+      {particleList.map((particle, i) => renderParticle(particle, i))}
     </>
   );
+
+  function renderParticle(particle: ParticleConfig, key: number) {
+    switch (particle.type) {
+      case 'petals':
+        return (
+          <FallingPetals
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+          />
+        );
+      case 'leaves':
+        return (
+          <FallingLeaves
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+          />
+        );
+      case 'rain':
+        return (
+          <RainDrops
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+            color={particle.color}
+            opacity={particle.opacity}
+          />
+        );
+      case 'snow':
+        return (
+          <FallingSnow
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+            color={particle.color}
+            opacity={particle.opacity}
+          />
+        );
+      case 'sparkles':
+        return (
+          <Sparkles
+            key={key}
+            count={particle.count}
+            scale={[size - 1, height * 0.8, size - 1]}
+            position={[0, height * 0.4, 0]}
+            size={5}
+            speed={particle.speed}
+            opacity={particle.opacity}
+            color={particle.color}
+            noise={0.3}
+          />
+        );
+      default:
+        return null;
+    }
+  }
 }
