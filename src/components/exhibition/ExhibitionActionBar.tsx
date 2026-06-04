@@ -3,12 +3,11 @@
 import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { ExhibitionDetailItem } from '@/lib/exhibition/server';
-import { MouseEvent, useState } from 'react';
 import { formatDate } from '@/lib/exhibition/dateStatus';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
 import { toggleExhibitionLike } from '@/lib/exhibition/service';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 
 interface ActionProps {
   exhibition: ExhibitionDetailItem;
@@ -23,42 +22,22 @@ export default function ExhibitionActionBar({
   isLiked,
   isLoggedIn,
 }: ActionProps) {
-  const [liked, setLiked] = useState(isLiked);
-  const [likes, setLikes] = useState(exhibition.totalLikes); // 총 좋아요 수
-  const router = useRouter();
+  const {
+    liked,
+    likes,
+    toggle: handleToggleLike,
+  } = useOptimisticLike({
+    initialLiked: isLiked,
+    initialLikes: exhibition.totalLikes,
+    onToggle: (nextLiked) => toggleExhibitionLike(exhibition.id, nextLiked),
+    isLoggedIn,
+    refreshOnSuccess: true,
+  });
 
   const dateText = formatDate(
     exhibition.startDate,
     exhibition.endDate ?? undefined
   );
-
-  const handleToggleLike = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    if (!isLoggedIn) {
-      alert('로그인이 필요한 기능입니다.');
-      router.push('/login');
-      return;
-    }
-
-    // 백업용
-    const previousLiked = liked;
-    const previousLikes = likes;
-    const nextLiked = !previousLiked;
-
-    // 낙관적
-    setLiked(nextLiked);
-    setLikes(previousLikes + (nextLiked ? 1 : -1));
-
-    try {
-      await toggleExhibitionLike(exhibition.id, nextLiked);
-      router.refresh();
-    } catch (err) {
-      console.error('Detail Like Error', err);
-      setLikes(previousLikes);
-      setLiked(previousLiked);
-    }
-  };
   return (
     <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_8px_rgba(44,40,38,0.06)]">
       <div className="text-secondary/70 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">

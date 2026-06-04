@@ -3,7 +3,7 @@ import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Group, Quaternion, RepeatWrapping, Vector3 } from 'three';
 import { likesToggle } from '@/lib/artwork/service';
-import { downloadImgHandler } from '@/lib/gallery/image';
+import { useImageDownload } from '@/hooks/useImageDownload';
 
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
@@ -80,6 +80,7 @@ export default function Room({
 
   const closestPaintingRef = useRef<GalleryUIArtworkProps | null>(null);
   const router = useRouter();
+  const { download } = useImageDownload();
 
   useFrame(({ camera }) => {
     camera.getWorldDirection(tempForward.current);
@@ -192,7 +193,9 @@ export default function Room({
       }
 
       if (e.key === '2') {
-        downloadImgHandler(painting.image_url, painting.title);
+        download(painting.image_url, painting.title || 'image').catch((err) =>
+          console.error('download fail', err)
+        );
       }
     };
 
@@ -201,7 +204,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [exhibitionId, user, router]);
+  }, [exhibitionId, user, router, download]);
 
   return (
     <>

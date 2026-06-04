@@ -8,6 +8,7 @@ import FallingPetals from './particles/FallingPetals';
 import FallingSnow from './particles/FallingSnow';
 import FallingLeaves from './particles/FallingLeaves';
 import RainDrops from './particles/RainDrops';
+import Bubbles from './particles/Bubbles';
 
 function sr(seed: number): number {
   const x = Math.sin(seed + 1) * 10000;
@@ -152,11 +153,11 @@ function getPositions(
         }
       }
     }
-    return [
-      x,
-      rr(seedOffset + i * 3 + 10, elevationMin, elevationMax),
-      z,
-    ] as [number, number, number];
+    return [x, rr(seedOffset + i * 3 + 10, elevationMin, elevationMax), z] as [
+      number,
+      number,
+      number,
+    ];
   });
 }
 
@@ -382,6 +383,18 @@ export default function DynamicDecorations({
             opacity={particle.opacity}
             color={particle.color}
             noise={0.3}
+          />
+        );
+      case 'bubbles':
+        return (
+          <Bubbles
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+            color={particle.color}
+            opacity={particle.opacity}
           />
         );
       default:

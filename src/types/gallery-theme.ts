@@ -58,7 +58,7 @@ export type DecorationConfig = {
 };
 
 export type ParticleConfig = {
-  type: 'sparkles' | 'snow' | 'petals' | 'rain' | 'leaves';
+  type: 'sparkles' | 'snow' | 'petals' | 'rain' | 'leaves' | 'bubbles';
   color: string;
   count: number;
   speed: number;

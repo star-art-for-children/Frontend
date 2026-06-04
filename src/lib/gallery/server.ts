@@ -18,7 +18,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   PresentACube, PresentARound, PresentBCube, PresentBRound,
   SnowPile, TreeDecoratedSnow, WreathDecorated,
   FlowerTreeA, FlowerTreeB, Mushroom, Rabbit, Squirrel, TreeStump
-- atmosphere.type: "sky" | "night" | "gradient" only
+- atmosphere.type: "sky" | |  "night" | "gradient" only
 - All colors: valid CSS hex string (#rrggbb)
 - At most ONE entry in decorations may use "corner". All others must use "scattered", "cell-center", or "near-cell-center".
 - Tree and rocket models (TreeA, TreeB, TreeC, TreeD, TreeE, FlowerTreeA, FlowerTreeB, TreeDecoratedSnow, RocketA, RocketB) must ALWAYS use "cell-center" placement.
@@ -86,7 +86,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
 ## THEME HINTS
 - Ocean / water / blue tones
   -> CoralA/B/C (countPerCell:3, scattered), FishA/B (countPerCell:4, scattered, elevation 1.5~4.5), RockA/B (countPerCell:1, scattered)
-  -> gradient atmosphere, wallColor blue, floor ocean preset, particles: sparkles
+  -> gradient atmosphere, wallColor blue, floor ocean preset, particles: bubbles
 - Nature / green / forest
   -> TreeA/B/C (count:2~4, cell-center), FlowerA/B/C (countPerCell:2, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3), RockA (countPerCell:1, scattered)
   -> sky atmosphere, wallColor soft green-white, floor natural preset
@@ -116,7 +116,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   -> decorations: [], sky atmosphere, wallColor #ffffff, floor natural preset
 
 ## PARTICLES (optional)
-- type: "sparkles" | "snow" | "petals" | "rain" | "leaves"
+- type: "sparkles" | "snow" | "petals" | "rain" | "leaves" | "bubbles"
 - sparkles: count 40~100, speed 0.1~0.3, opacity 0.3~0.6
 - snow: count 50~80, speed 1.0~2.0, opacity 0.4~0.8
 - petals: count 20~40, speed 0.8~1.5 (color & opacity ignored) — cherry blossoms, soft floral
@@ -126,6 +126,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
     spring/fresh → color #7ab648~#5a9e2f (green)
     warm/earthy  → color #c8a040~#b07820 (golden/brown)
 - Choose petals for floral/delicate mood, leaves for natural/earthy/seasonal mood.
+- bubbles: ocean/underwater. count 20~40, speed 0.2~0.5, color #c8f0ff, opacity 0.3~0.5. Rising translucent spheres. Use for ocean themes.
 
 ## OUTPUT SCHEMA
 {"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"pattern":"wood"},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}

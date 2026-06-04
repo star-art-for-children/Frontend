@@ -1,5 +1,15 @@
 import { GalleryPreset } from '@/types/gallery-theme';
 
+export const PRESET_LABELS: Record<string, string> = {
+  default: '기본',
+  christmas: '크리스마스',
+  'space-adventure': '우주 탐험',
+  'underwater-adventure': '바닷속',
+  'spring-blossom': '봄 벚꽃',
+  'winter-snowday': '겨울 눈날',
+  'rainy-day-puddles': '비 오는 날',
+};
+
 export const MODEL_REGISTRY_KEYS = [
   'BenchA',
   'CoralA',
@@ -34,6 +44,7 @@ export const MODEL_REGISTRY_KEYS = [
   'Mushroom',
   'Rabbit',
   'Squirrel',
+  'CherryBlossomTree',
 ] as const;
 
 export const defaultPreset: GalleryPreset = {
@@ -213,23 +224,23 @@ export const aiPresetVoyage: GalleryPreset = {
   id: 'underwater-adventure',
   atmosphere: {
     type: 'gradient',
-    topColor: '#1a6fa8',
-    bottomColor: '#0a3d62',
+    topColor: '#74c8f0',
+    bottomColor: '#1a8fc4',
   },
   lighting: {
-    hemisphere: ['#40a8d8', '#1a5a8a', 1.0],
-    ambient: { color: '#80c8f0', intensity: 1.3 },
-    directional: { position: [2, 6, 2], color: '#a0d8f8', intensity: 1.6 },
-    toneMappingExposure: 1.4,
+    hemisphere: ['#74c8f0', '#1a8fc4', 1.2],
+    ambient: { color: '#b0e4ff', intensity: 1.8 },
+    directional: { position: [2, 6, 2], color: '#e0f4ff', intensity: 2.0 },
+    toneMappingExposure: 1.7,
   },
   floor: {
-    color: '#0a3d62',
+    color: '#1976d2',
     roughness: 0.3,
     metalness: 0.1,
     mirror: 0.4,
     blur: [600, 200],
   },
-  wallColor: '#a0d4f0',
+  wallColor: '#c8e8f5',
   decorations: [
     {
       model: 'CoralA',
@@ -237,23 +248,31 @@ export const aiPresetVoyage: GalleryPreset = {
       placement: 'scattered',
       scaleMin: 0.6,
       scaleMax: 1.4,
-      color: '#ff6b6b',
+      color: '#ff3333',
     },
     {
       model: 'CoralB',
-      count: 7,
+      count: 6,
       placement: 'scattered',
       scaleMin: 0.5,
       scaleMax: 1.2,
-      color: '#cc44aa',
+      color: '#ff44ee',
+    },
+    {
+      model: 'CoralC',
+      count: 6,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 1.1,
+      color: '#ffcc00',
     },
     {
       model: 'FishA',
       count: 8,
       placement: 'scattered',
-      scaleMin: 0.5,
-      scaleMax: 1.0,
-      color: '#ffaa22',
+      scaleMin: 0.3,
+      scaleMax: 0.4,
+      color: '#ff8800',
       elevationMin: 1.5,
       elevationMax: 4.5,
     },
@@ -261,18 +280,53 @@ export const aiPresetVoyage: GalleryPreset = {
       model: 'FishB',
       count: 7,
       placement: 'scattered',
-      scaleMin: 0.4,
-      scaleMax: 1.2,
-      color: '#44ddaa',
+      scaleMin: 0.3,
+      scaleMax: 0.5,
+      color: '#00ddff',
       elevationMin: 2.0,
       elevationMax: 5.0,
     },
+    {
+      model: 'RockA',
+      countPerCell: 2,
+      count: 0,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 1.2,
+      color: '#8899aa',
+    },
+    {
+      model: 'Turtle',
+      count: 3,
+      placement: 'scattered',
+      scaleMin: 0.8,
+      scaleMax: 1.2,
+      elevationMin: 5.5,
+      elevationMax: 7.5,
+    },
+    {
+      model: 'Dolphin',
+      count: 2,
+      placement: 'scattered',
+      scaleMin: 0.8,
+      scaleMax: 1.2,
+      elevationMin: 6.0,
+      elevationMax: 8.0,
+    },
+    {
+      model: 'Starfish',
+      countPerCell: 2,
+      count: 0,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 0.9,
+    },
   ],
   particles: {
-    type: 'sparkles',
-    color: '#a0e8ff',
-    count: 70,
-    speed: 0.15,
+    type: 'bubbles',
+    color: '#c8f0ff',
+    count: 30,
+    speed: 0.3,
     opacity: 0.4,
   },
 };
@@ -281,7 +335,7 @@ export const aiPresetBlossom: GalleryPreset = {
   id: 'spring-blossom',
   atmosphere: {
     type: 'sky',
-    sunPosition: [1, 1.2, 0.5],
+    sunPosition: [8, 10, 10],
     turbidity: 3,
     rayleigh: 0.7,
     mieCoefficient: 0.003,
@@ -291,7 +345,7 @@ export const aiPresetBlossom: GalleryPreset = {
   lighting: {
     hemisphere: ['#ffccdd', '#c8f0c0', 0.9],
     ambient: { color: '#ffd6e8', intensity: 1.4 },
-    directional: { position: [3, 5, 2], color: '#fff8f0', intensity: 1.8 },
+    directional: { position: [8, 10, 10], color: '#fff8f0', intensity: 1.8 },
     toneMappingExposure: 1.3,
   },
   floor: {
@@ -305,24 +359,25 @@ export const aiPresetBlossom: GalleryPreset = {
   wallColor: '#fff0f5',
   decorations: [
     {
-      model: 'FlowerTreeA',
-      count: 2,
-      placement: 'cell-center',
-      scaleMin: 0.9,
-      scaleMax: 1.6,
-      color: '#ff85b3',
-    },
-    {
-      model: 'FlowerTreeB',
-      count: 2,
+      model: 'CherryBlossomTree',
+      count: 4,
       placement: 'cell-center',
       scaleMin: 0.8,
-      scaleMax: 1.4,
-      color: '#ff9ec7',
+      scaleMax: 1.2,
+    },
+    {
+      model: 'FlowerA',
+      countPerCell: 2,
+      count: 0,
+      placement: 'scattered',
+      scaleMin: 0.6,
+      scaleMax: 1.2,
+      color: '#ffffff',
     },
     {
       model: 'FlowerB',
-      count: 8,
+      countPerCell: 3,
+      count: 0,
       placement: 'scattered',
       scaleMin: 0.5,
       scaleMax: 1.0,
@@ -330,8 +385,10 @@ export const aiPresetBlossom: GalleryPreset = {
     },
     {
       model: 'BenchA',
-      count: 3,
-      placement: 'scattered',
+      countPerCell: 1,
+      count: 0,
+      placement: 'near-cell-center',
+      nearCellRadius: 3,
       scaleMin: 0.7,
       scaleMax: 1.0,
       color: '#c8a97e',
@@ -479,6 +536,15 @@ export const aiPresetRainy: GalleryPreset = {
   },
 };
 
+export const ALL_PRESETS: GalleryPreset[] = [
+  defaultPreset,
+  christmasPreset,
+  aiPresetSpace,
+  aiPresetVoyage,
+  aiPresetBlossom,
+  aiPresetWinter,
+  aiPresetRainy,
+];
 /** 숲속(forest) 테마 프리셋. */
 export const forestPreset: GalleryPreset = {
   id: 'forest',

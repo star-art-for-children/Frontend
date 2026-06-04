@@ -5,6 +5,7 @@ export type UIFormProps = {
   guideLines: string | null;
   startDate: string;
   endDate: string | null;
+  selectedPresetId: string | null;
 };
 
 export type FormValidation = {

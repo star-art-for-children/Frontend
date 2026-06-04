@@ -2,5 +2,6 @@
 export { default as EditWorkDialog } from './EditWorkDialog';
 export { default as AddWorkDialog } from './AddWorkDialog';
 
-// 전시회 종료버튼, 삭제버튼 alert dialog
-export { default as ManageAlertDialog } from './ManageAlertDialog';
+// 작품 삭제, 전시회 종료 alert dialog
+export { default as DeleteArtworkDialog } from './DeleteArtworkDialog';
+export { default as EndExhibitionDialog } from './EndExhibitionDialog';

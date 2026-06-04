@@ -29,13 +29,7 @@ export function createFlowerPatternTexture(
     for (let p = 0; p < 5; p++) {
       const a = (p / 5) * Math.PI * 2;
       ctx.beginPath();
-      ctx.arc(
-        f.x + Math.cos(a) * 8,
-        f.y + Math.sin(a) * 8,
-        6,
-        0,
-        Math.PI * 2
-      );
+      ctx.arc(f.x + Math.cos(a) * 8, f.y + Math.sin(a) * 8, 6, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.fillStyle = '#FFE060';

@@ -11,9 +11,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toggleArtworkLike } from '@/lib/artwork/service';
-import { MouseEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useImageDownload } from '@/hooks/useImageDownload';
 
 export interface Work {
   id: string;
@@ -40,58 +40,28 @@ export default function WorkDialog({
   exhibitionHost,
   isLoggedIn = false,
 }: WorkDialogProps) {
+  const { download } = useImageDownload();
+
   const handleImageDownload = async (imageUrl: string, title: string) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = title;
-
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await download(imageUrl, title);
     } catch (err) {
       console.error('Image Download Error', err);
       alert('이미지 다운로드에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
-  const router = useRouter();
-  const [liked, setLiked] = useState(work.liked);
-  const [likes, setLikes] = useState(work.likes); // 총 좋아요 수
-  const [isPending, setIsPending] = useState(false);
-
-  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isPending) return;
-
-    // 백업용
-    const previousLiked = liked;
-    const previousLikes = likes;
-    const nextLiked = !previousLiked;
-
-    // 낙관적
-    setLiked(nextLiked);
-    setLikes(previousLikes + (nextLiked ? 1 : -1));
-
-    try {
-      setIsPending(true);
-      await toggleArtworkLike(exhibitionId, work.id, nextLiked);
-      router.refresh();
-    } catch (err) {
-      console.error('Like Error:', err);
-      setLiked(previousLiked);
-      setLikes(previousLikes);
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const {
+    liked,
+    likes,
+    toggle: handleClick,
+  } = useOptimisticLike({
+    initialLiked: work.liked,
+    initialLikes: work.likes,
+    onToggle: (nextLiked) =>
+      toggleArtworkLike(exhibitionId, work.id, nextLiked),
+    refreshOnSuccess: true,
+  });
 
   return (
     <Dialog>

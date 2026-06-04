@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { likesToggle } from '@/lib/artwork/service';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useImageDownload } from '@/hooks/useImageDownload';
 import { Artwork } from '@/types/artwork';
 
 interface ArtworkModalProps {
@@ -16,9 +18,19 @@ export default function ArtworkModal({
   onClose,
   onLikeChange,
 }: ArtworkModalProps) {
-  const [liked, setLiked] = useState(artwork.isLiked);
-  const [likesCount, setLikesCount] = useState(artwork.likesCount);
-  const [isPending, setIsPending] = useState(false);
+  const {
+    liked,
+    likes: likesCount,
+    isPending,
+    toggle: handleLike,
+  } = useOptimisticLike({
+    initialLiked: artwork.isLiked,
+    initialLikes: artwork.likesCount,
+    onToggle: () => likesToggle(artwork.exhibitionId, artwork.id),
+    onSuccess: (nextLiked, nextLikes) => onLikeChange?.(nextLiked, nextLikes),
+  });
+
+  const { download } = useImageDownload();
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -32,35 +44,9 @@ export default function ArtworkModal({
     };
   }, [onClose]);
 
-  const handleLike = async () => {
-    if (isPending) return;
-    const prev = liked;
-    const newCount = likesCount + (prev ? -1 : 1);
-    setLiked(!prev);
-    setLikesCount(newCount);
-    setIsPending(true);
-    try {
-      await likesToggle(artwork.exhibitionId, artwork.id);
-      onLikeChange?.(!prev, newCount);
-    } catch {
-      setLiked(prev);
-      setLikesCount(likesCount);
-    } finally {
-      setIsPending(false);
-    }
-  };
-
   const handleDownload = async () => {
     try {
-      const response = await fetch(artwork.imageUrl);
-      if (!response.ok) throw new Error('download failed');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${artwork.title}.jpg`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await download(artwork.imageUrl, `${artwork.title}.jpg`);
     } catch (e) {
       console.error('이미지 다운로드 실패:', e);
     }

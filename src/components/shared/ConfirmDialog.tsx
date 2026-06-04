@@ -13,73 +13,32 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { deleteArtworksByArtworkId } from '@/lib/artwork/service';
-import { useRouter } from 'next/navigation';
-import { todayKST } from '@/lib/exhibition/dateStatus';
-import { endExhibition } from '@/lib/exhibition/service';
 
-interface ManageAlertDialogProps {
+interface ConfirmDialogProps {
   trigger: ReactElement;
   icon: ReactNode;
   iconContainerClassName?: string;
   title: string;
-  startDate?: string;
   description: ReactNode;
   actionLabel: string;
-  artworkId?: string;
-  exhibitionId: string;
+  pendingLabel?: string;
   actionClassName?: string;
-  onAction?: 'deleteArtwork' | 'exhibitionEnd';
+  isPending?: boolean;
+  onAction: () => void | Promise<void>;
 }
 
-export default function ManageAlertDialog({
+const ConfirmDialog = ({
   trigger,
   icon,
   iconContainerClassName,
   title,
   description,
   actionLabel,
+  pendingLabel,
   actionClassName,
+  isPending = false,
   onAction,
-  artworkId,
-  exhibitionId,
-  startDate,
-}: ManageAlertDialogProps) {
-  const router = useRouter();
-  const deleteArtworkHandler = async () => {
-    if (!artworkId) return;
-    try {
-      const deletedId = await deleteArtworksByArtworkId(
-        exhibitionId,
-        artworkId
-      );
-      console.log(deletedId);
-      router.refresh();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const endExhibitionHandler = async () => {
-    const today = todayKST();
-
-    if (today === startDate) {
-      alert('전시 시작 당일에는 종료할 수 없습니다.');
-      return;
-    }
-
-    try {
-      const updatedId = await endExhibition(exhibitionId);
-      console.log(updatedId);
-      router.refresh();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const functionMapper = {
-    deleteArtwork: deleteArtworkHandler,
-    exhibitionEnd: endExhibitionHandler,
-  };
-
+}: ConfirmDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger render={trigger} />
@@ -109,9 +68,10 @@ export default function ManageAlertDialog({
               'rounded-xl py-6 text-base font-semibold',
               actionClassName
             )}
-            onClick={onAction && functionMapper[onAction]}
+            onClick={onAction}
+            disabled={isPending}
           >
-            {actionLabel}
+            {isPending && pendingLabel ? pendingLabel : actionLabel}
           </AlertDialogAction>
           <AlertDialogCancel
             variant="outline"
@@ -123,4 +83,6 @@ export default function ManageAlertDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
-}
+};
+
+export default ConfirmDialog;

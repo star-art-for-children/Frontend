@@ -25,24 +25,3 @@ export function checkImgSize(
   }
   return [imgW, imgH];
 }
-
-export async function downloadImgHandler(url: string, title: string) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-
-    const blobUrl = window.URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = title || 'image';
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    window.URL.revokeObjectURL(blobUrl);
-  } catch (err) {
-    console.error('download fail', err);
-  }
-}

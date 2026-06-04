@@ -32,6 +32,10 @@ import { Rabbit } from '@/components/exhibition-gallery/models/basic/Rabbit';
 import { Squirrel } from '@/components/exhibition-gallery/models/basic/Squirrel';
 import { TreeD } from '@/components/exhibition-gallery/models/basic/TreeD';
 import { TreeE } from '@/components/exhibition-gallery/models/basic/TreeE';
+import { CherryBlossomTree } from '@/components/exhibition-gallery/models/basic/CherryBlossomTree';
+import { Turtle } from '@/components/exhibition-gallery/models/basic/Turtle';
+import { Dolphin } from '@/components/exhibition-gallery/models/basic/Dolphin';
+import { Starfish } from '@/components/exhibition-gallery/models/basic/Starfish';
 
 export type ModelEntry = {
   component: React.ComponentType<JSX.IntrinsicElements['group']>;
@@ -112,9 +116,18 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
     component: TreeStump,
     baseScale: 1.0,
     yOffset: 0,
+    colliderRadius: 1,
+  },
+  CherryBlossomTree: {
+    component: CherryBlossomTree,
+    baseScale: 20.0,
+    yOffset: 0,
     colliderRadius: 0.55,
   },
   Mushroom: { component: Mushroom, baseScale: 1.0, yOffset: 0 },
   Rabbit: { component: Rabbit, baseScale: 1.0, yOffset: 0 },
   Squirrel: { component: Squirrel, baseScale: 1.0, yOffset: 0 },
+  Turtle: { component: Turtle, baseScale: 0.4, yOffset: 20 },
+  Dolphin: { component: Dolphin, baseScale: 0.3, yOffset: 50 },
+  Starfish: { component: Starfish, baseScale: 0.5, yOffset: -0.3 },
 };
