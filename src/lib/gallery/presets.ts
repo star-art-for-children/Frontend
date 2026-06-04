@@ -28,6 +28,10 @@ export const MODEL_REGISTRY_KEYS = [
   'WreathDecorated',
   'FlowerTreeA',
   'FlowerTreeB',
+  'TreeStump',
+  'Mushroom',
+  'Rabbit',
+  'Squirrel',
 ] as const;
 
 export const defaultPreset: GalleryPreset = {
@@ -57,7 +61,7 @@ export const defaultPreset: GalleryPreset = {
     metalness: 0.05,
     mirror: 0,
     blur: [300, 100],
-    useTexture: true,
+    pattern: 'wood',
   },
   wallColor: '#ffffff',
   decorations: [],
@@ -93,7 +97,6 @@ export const christmasPreset: GalleryPreset = {
     metalness: 0.0,
     mirror: 0.15,
     blur: [1000, 500],
-    useTexture: false,
   },
   wallColor: '#d4eeff',
   decorations: [
@@ -154,7 +157,6 @@ export const aiPresetSpace: GalleryPreset = {
     metalness: 0.15,
     mirror: 0.5,
     blur: [800, 400],
-    useTexture: false,
   },
   wallColor: '#0d0d1a',
   decorations: [
@@ -224,7 +226,6 @@ export const aiPresetVoyage: GalleryPreset = {
     metalness: 0.1,
     mirror: 0.4,
     blur: [600, 200],
-    useTexture: false,
   },
   wallColor: '#a0d4f0',
   decorations: [
@@ -297,7 +298,7 @@ export const aiPresetBlossom: GalleryPreset = {
     metalness: 0.03,
     mirror: 0.08,
     blur: [300, 100],
-    useTexture: true,
+    pattern: 'wood',
   },
   wallColor: '#fff0f5',
   decorations: [
@@ -368,7 +369,6 @@ export const aiPresetWinter: GalleryPreset = {
     metalness: 0.0,
     mirror: 0.15,
     blur: [1000, 500],
-    useTexture: false,
   },
   wallColor: '#e8f4ff',
   decorations: [
@@ -432,7 +432,6 @@ export const aiPresetRainy: GalleryPreset = {
     metalness: 0.05,
     mirror: 0.4,
     blur: [600, 300],
-    useTexture: false,
   },
   wallColor: '#c8d0d8',
   decorations: [
@@ -476,4 +475,113 @@ export const aiPresetRainy: GalleryPreset = {
     speed: 9.0,
     opacity: 0.5,
   },
+};
+
+/** 숲속(forest) 테마 프리셋. */
+export const forestPreset: GalleryPreset = {
+  id: 'forest',
+  atmosphere: {
+    type: 'sky',
+    sunPosition: [20, 12, 20],
+    turbidity: 8,
+    rayleigh: 2,
+    mieCoefficient: 0.005,
+    mieDirectionalG: 0.9,
+    clouds: true,
+  },
+  lighting: {
+    hemisphere: ['#FFF0DC', '#A8C870', 1.0],
+    ambient: { color: '#FFE8C8', intensity: 0.7 },
+    directional: { position: [20, 20, 25], color: '#FFD080', intensity: 1.2 },
+    toneMappingExposure: 1.2,
+  },
+  floor: {
+    color: '#9DC872',
+    roughness: 0.95,
+    metalness: 0,
+    mirror: 0,
+    blur: [300, 100],
+    pattern: 'grass',
+  },
+  wallColor: '#D8ECC0',
+  wallPattern: {
+    pattern: 'flower',
+    baseColor: '#D8ECC0',
+    repeat: [3, 1.5],
+  },
+  ceiling: {
+    type: 'fairy-lights',
+    planeColor: '#FFF8E8',
+    bulbColors: ['#FFE070', '#FFD040', '#FFE890', '#FFC050'],
+    strandCount: 2,
+  },
+  decorations: [
+    {
+      model: 'TreeC',
+      count: 1,
+      placement: 'scattered',
+      scaleMin: 1.0,
+      scaleMax: 1.0,
+      xRange: [0, 0],
+      zRange: [0, 0],
+    },
+    {
+      model: 'TreeStump',
+      count: 3,
+      placement: 'scattered',
+      scaleMin: 1.1,
+      scaleMax: 1.5,
+    },
+    {
+      model: 'Mushroom',
+      count: 8,
+      placement: 'scattered',
+      scaleMin: 0.7,
+      scaleMax: 1.3,
+    },
+    {
+      model: 'FlowerB',
+      count: 5,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 0.9,
+    },
+    {
+      model: 'FlowerC',
+      count: 4,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 0.9,
+    },
+    {
+      model: 'RockA',
+      count: 3,
+      placement: 'scattered',
+      scaleMin: 0.5,
+      scaleMax: 0.9,
+    },
+    {
+      model: 'Rabbit',
+      count: 2,
+      placement: 'scattered',
+      scaleMin: 0.9,
+      scaleMax: 1.1,
+    },
+    {
+      model: 'Squirrel',
+      count: 2,
+      placement: 'scattered',
+      scaleMin: 0.9,
+      scaleMax: 1.1,
+    },
+  ],
+  particles: [
+    {
+      type: 'leaves',
+      color: '#6BA34A',
+      count: 35,
+      speed: 0.8,
+      opacity: 1,
+    },
+  ],
 };
