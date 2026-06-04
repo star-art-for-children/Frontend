@@ -26,6 +26,10 @@ import { TreeDecoratedSnow } from '@/components/exhibition-gallery/models/basic/
 import { WreathDecorated } from '@/components/exhibition-gallery/models/basic/WreathDecorated';
 import { FlowerTreeA } from '@/components/exhibition-gallery/models/basic/FlowerTreeA';
 import { FlowerTreeB } from '@/components/exhibition-gallery/models/basic/FlowerTreeB';
+import { TreeStump } from '@/components/exhibition-gallery/models/themes/TreeStump';
+import { Mushroom } from '@/components/exhibition-gallery/models/themes/Mushroom';
+import { Rabbit } from '@/components/exhibition-gallery/models/themes/Rabbit';
+import { Squirrel } from '@/components/exhibition-gallery/models/themes/Squirrel';
 
 export type ModelEntry = {
   component: React.ComponentType<JSX.IntrinsicElements['group']>;
@@ -90,4 +94,13 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
     yOffset: 0,
     colliderRadius: 0.9,
   },
+  TreeStump: {
+    component: TreeStump,
+    baseScale: 1.0,
+    yOffset: 0,
+    colliderRadius: 0.55,
+  },
+  Mushroom: { component: Mushroom, baseScale: 1.0, yOffset: 0 },
+  Rabbit: { component: Rabbit, baseScale: 1.0, yOffset: 0 },
+  Squirrel: { component: Squirrel, baseScale: 1.0, yOffset: 0 },
 };
