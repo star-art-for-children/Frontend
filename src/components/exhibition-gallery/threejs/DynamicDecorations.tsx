@@ -371,6 +371,18 @@ export default function DynamicDecorations({
             opacity={particle.opacity}
           />
         );
+      case 'bubbles':
+        return (
+          <Bubbles
+            key={key}
+            count={particle.count}
+            size={size}
+            height={height}
+            speed={particle.speed}
+            color={particle.color}
+            opacity={particle.opacity}
+          />
+        );
       case 'sparkles':
         return (
           <Sparkles
