@@ -5,6 +5,7 @@ import { MODEL_REGISTRY } from '@/lib/gallery/modelRegistry';
 import FallingPetals from './particles/FallingPetals';
 import FallingSnow from './particles/FallingSnow';
 import RainDrops from './particles/RainDrops';
+import Bubbles from './particles/Bubbles';
 
 function sr(seed: number): number {
   const x = Math.sin(seed + 1) * 10000;
@@ -256,6 +257,17 @@ export default function DynamicDecorations({
 
       {preset.particles?.type === 'snow' && (
         <FallingSnow
+          count={preset.particles.count}
+          size={size}
+          height={height}
+          speed={preset.particles.speed}
+          color={preset.particles.color}
+          opacity={preset.particles.opacity}
+        />
+      )}
+
+      {preset.particles?.type === 'bubbles' && (
+        <Bubbles
           count={preset.particles.count}
           size={size}
           height={height}

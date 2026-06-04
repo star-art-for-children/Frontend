@@ -26,6 +26,10 @@ import { TreeDecoratedSnow } from '@/components/exhibition-gallery/models/basic/
 import { WreathDecorated } from '@/components/exhibition-gallery/models/basic/WreathDecorated';
 import { FlowerTreeA } from '@/components/exhibition-gallery/models/basic/FlowerTreeA';
 import { FlowerTreeB } from '@/components/exhibition-gallery/models/basic/FlowerTreeB';
+import { CherryBlossomTree } from '@/components/exhibition-gallery/models/basic/CherryBlossomTree';
+import { Turtle } from '@/components/exhibition-gallery/models/basic/Turtle';
+import { Dolphin } from '@/components/exhibition-gallery/models/basic/Dolphin';
+import { Starfish } from '@/components/exhibition-gallery/models/basic/Starfish';
 
 export type ModelEntry = {
   component: React.ComponentType<JSX.IntrinsicElements['group']>;
@@ -90,4 +94,13 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
     yOffset: 0,
     colliderRadius: 0.9,
   },
+  CherryBlossomTree: {
+    component: CherryBlossomTree,
+    baseScale: 20.0,
+    yOffset: 0,
+    colliderRadius: 0.8,
+  },
+  Turtle: { component: Turtle, baseScale: 0.4, yOffset: 20 },
+  Dolphin: { component: Dolphin, baseScale: 0.3, yOffset: 50 },
+  Starfish: { component: Starfish, baseScale: 0.5, yOffset: 0 },
 };

@@ -95,16 +95,28 @@ export async function POST(req: NextRequest) {
       start_date,
       end_date,
       guidelines,
+      gallery_preset: userPreset,
     } = result.data;
 
     if (thumbnailImg instanceof File) {
-      [thumbnailUrl, gallery_preset] = await Promise.all([
-        uploadImgToSupabase(supabase, thumbnailImg, 'thumbnails'),
-        generatePresetFromImageFile(thumbnailImg).catch((e) => {
-          console.log(e);
-          return defaultPreset;
-        }),
-      ]);
+      if (userPreset) {
+        thumbnailUrl = await uploadImgToSupabase(
+          supabase,
+          thumbnailImg,
+          'thumbnails'
+        );
+        gallery_preset = userPreset;
+      } else {
+        [thumbnailUrl, gallery_preset] = await Promise.all([
+          uploadImgToSupabase(supabase, thumbnailImg, 'thumbnails'),
+          generatePresetFromImageFile(thumbnailImg).catch((e) => {
+            console.log(e);
+            return defaultPreset;
+          }),
+        ]);
+      }
+    } else if (userPreset) {
+      gallery_preset = userPreset;
     }
 
     console.log(gallery_preset);

@@ -8,6 +8,7 @@ import {
   FileText,
   X,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
@@ -15,6 +16,8 @@ import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { useCallback, useEffect, useState } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
 import { postNewExhibition } from '@/lib/exhibition/service';
+import ThemeSelector from './ThemeSelector';
+import { ALL_PRESETS, defaultPreset } from '@/lib/gallery/presets';
 export default function CreateGalleryPage({
   institution,
 }: {
@@ -36,11 +39,13 @@ export default function CreateGalleryPage({
       guideLines: null,
       startDate: '',
       endDate: null,
+      selectedPresetId: null,
     },
   });
   const today = new Date().toISOString().split('T')[0];
   const startDate = useWatch({ control, name: 'startDate' });
   const endDate = useWatch({ control, name: 'endDate' });
+  const galleryImg = useWatch({ control, name: 'galleryImg' });
 
   const [progress, setProgress] = useState(0);
 
@@ -56,6 +61,13 @@ export default function CreateGalleryPage({
 
       formData.append('startDate', e.startDate);
       if (e.endDate) formData.append('endDate', e.endDate);
+
+      if (e.selectedPresetId && e.selectedPresetId !== 'ai') {
+        const preset = ALL_PRESETS.find((p) => p.id === e.selectedPresetId);
+        if (preset) formData.append('galleryPreset', JSON.stringify(preset));
+      } else if (!e.selectedPresetId || (e.selectedPresetId === 'ai' && !e.galleryImg)) {
+        formData.append('galleryPreset', JSON.stringify(defaultPreset));
+      }
 
       setProgress(0);
       let intervalId: ReturnType<typeof setInterval> | null = setInterval(
@@ -162,6 +174,22 @@ export default function CreateGalleryPage({
                   }
                 />
               </CreateGalleryFormWrapper>
+              <Controller
+                name="selectedPresetId"
+                control={control}
+                render={({ field }) => (
+                  <CreateGalleryFormWrapper
+                    title={'전시관 테마'}
+                    icon={<Sparkles className={'text-primary w-[17px]'} />}
+                  >
+                    <ThemeSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      hasThumb={!!galleryImg}
+                    />
+                  </CreateGalleryFormWrapper>
+                )}
+              />
               <Controller
                 name="galleryImg"
                 control={control}
