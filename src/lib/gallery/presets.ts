@@ -45,6 +45,9 @@ export const MODEL_REGISTRY_KEYS = [
   'Rabbit',
   'Squirrel',
   'CherryBlossomTree',
+  'Turtle',
+  'Dolphin',
+  'Starfish',
 ] as const;
 
 export const defaultPreset: GalleryPreset = {
@@ -536,15 +539,6 @@ export const aiPresetRainy: GalleryPreset = {
   },
 };
 
-export const ALL_PRESETS: GalleryPreset[] = [
-  defaultPreset,
-  christmasPreset,
-  aiPresetSpace,
-  aiPresetVoyage,
-  aiPresetBlossom,
-  aiPresetWinter,
-  aiPresetRainy,
-];
 /** 숲속(forest) 테마 프리셋. */
 export const forestPreset: GalleryPreset = {
   id: 'forest',
@@ -653,3 +647,14 @@ export const forestPreset: GalleryPreset = {
     },
   ],
 };
+
+export const ALL_PRESETS: GalleryPreset[] = [
+  defaultPreset,
+  christmasPreset,
+  aiPresetSpace,
+  aiPresetVoyage,
+  aiPresetBlossom,
+  aiPresetWinter,
+  aiPresetRainy,
+  forestPreset,
+];

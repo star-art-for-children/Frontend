@@ -125,8 +125,8 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
     autumn/fall → color #c0392b~#d35400 (red/orange)
     spring/fresh → color #7ab648~#5a9e2f (green)
     warm/earthy  → color #c8a040~#b07820 (golden/brown)
-- Choose petals for floral/delicate mood, leaves for natural/earthy/seasonal mood.
 - bubbles: ocean/underwater. count 20~40, speed 0.2~0.5, color #c8f0ff, opacity 0.3~0.5. Rising translucent spheres. Use for ocean themes.
+- Choose petals for floral/delicate mood, leaves for natural/earthy/seasonal mood, bubbles for ocean themes.
 
 ## OUTPUT SCHEMA
 {"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"pattern":"wood"},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}
