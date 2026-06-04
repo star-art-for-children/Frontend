@@ -192,6 +192,8 @@ export default function Scene2({
         innerWalls={innerWalls}
         init={init}
         floorConfig={preset.floor}
+        wallColor={preset.wallColor}
+        wallPattern={preset.wallPattern}
       />
       <DynamicDecorations
         preset={preset}
@@ -199,6 +201,7 @@ export default function Scene2({
         height={height}
         cellSize={cellSize}
         gridSize={gridSize}
+        innerWalls={innerWalls}
         onColliders={handleColliders}
       />
       <Player

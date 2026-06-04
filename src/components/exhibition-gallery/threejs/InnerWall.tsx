@@ -9,12 +9,14 @@ export default function InnerWalls({
   walls,
   paintingRefs,
   htmlRefs,
+  wallTexture = null,
 }: {
   paintingTextures: Texture[];
   init: GalleryUIArtworkProps[];
   walls: WAllType[];
   paintingRefs: React.RefObject<(Group | null)[]>;
   htmlRefs: React.RefObject<(HTMLDivElement | null)[]>;
+  wallTexture?: Texture | null;
 }) {
   let interiorBackIdx = walls.length;
   const assignments = walls.map((wall, i) => ({
@@ -34,7 +36,8 @@ export default function InnerWalls({
             <mesh castShadow receiveShadow>
               <boxGeometry args={[w, wallH, d]} />
               <meshStandardMaterial
-                color={wall.color}
+                color={wallTexture ? '#FFFFFF' : wall.color}
+                map={wallTexture ?? undefined}
                 roughness={0.85}
                 metalness={0.02}
               />

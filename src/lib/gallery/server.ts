@@ -47,17 +47,18 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
 
 ## FLOOR
 - floor.color, floor.roughness(0.2~0.9), floor.metalness(0~0.2), floor.mirror(0~0.5)
-- floor.blur([x,y]), floor.useTexture(true=wood texture, false=solid color)
+- floor.blur([x,y]), floor.pattern("wood"=wood texture | "grass"=grass texture | omit=solid color)
 
   Presets by theme:
-  - Natural/wood:  { color:"#ffffff", roughness:0.7,  metalness:0.05, mirror:0,    blur:[300,100],  useTexture:true  }
-  - Ocean:         { color:"#0a3d62", roughness:0.3,  metalness:0.1,  mirror:0.4,  blur:[600,200],  useTexture:false }
-  - Winter:        { color:"#d4eeff", roughness:0.5,  metalness:0.0,  mirror:0.15, blur:[1000,500], useTexture:false }
-  - Space:         { color:"#0d0d1a", roughness:0.2,  metalness:0.15, mirror:0.5,  blur:[800,400],  useTexture:false }
-  - Spring/flower: { color:"#fff5f8", roughness:0.65, metalness:0.03, mirror:0.08, blur:[300,100],  useTexture:true  }
-  - Warm/cozy:     { color:"#fdf0e0", roughness:0.75, metalness:0.02, mirror:0.05, blur:[300,100],  useTexture:true  }
-  - Rain/overcast: { color:"#b0bec5", roughness:0.3,  metalness:0.05, mirror:0.4,  blur:[600,300],  useTexture:false }
-  - Autumn/fall:  { color:"#8b5e3c", roughness:0.85, metalness:0.0,  mirror:0.0,  blur:[200,80],   useTexture:true  }
+  - Autumn/fall:  { color:"#8b5e3c", roughness:0.85, metalness:0.0,  mirror:0.0,  blur:[200,80],    }
+  - Natural/wood:  { color:"#ffffff", roughness:0.7,  metalness:0.05, mirror:0,    blur:[300,100],  pattern:"wood" }
+  - Ocean:         { color:"#0a3d62", roughness:0.3,  metalness:0.1,  mirror:0.4,  blur:[600,200]  }
+  - Winter:        { color:"#d4eeff", roughness:0.5,  metalness:0.0,  mirror:0.15, blur:[1000,500] }
+  - Space:         { color:"#0d0d1a", roughness:0.2,  metalness:0.15, mirror:0.5,  blur:[800,400]  }
+  - Spring/flower: { color:"#fff5f8", roughness:0.65, metalness:0.03, mirror:0.08, blur:[300,100],  pattern:"wood" }
+  - Warm/cozy:     { color:"#fdf0e0", roughness:0.75, metalness:0.02, mirror:0.05, blur:[300,100],  pattern:"wood" }
+  - Rain/overcast: { color:"#b0bec5", roughness:0.3,  metalness:0.05, mirror:0.4,  blur:[600,300]  }
+  - Forest/grass:  { color:"#9DC872", roughness:0.95, metalness:0, mirror:0, blur:[300,100], pattern:"grass" }
 
 ## DECORATION PLACEMENT & SCALE
 - placement:
@@ -123,7 +124,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
 - leaves: count 40~70, speed 0.8~1.4, color #c0392b~#d35400 (autumn reds/oranges), opacity 0.8~0.95
 
 ## OUTPUT SCHEMA
-{"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"useTexture":true},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}
+{"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"pattern":"wood"},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}
 
 ## REFERENCE EXAMPLE
 ${JSON.stringify(defaultPreset)}`;

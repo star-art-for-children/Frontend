@@ -1,6 +1,13 @@
+import { Texture } from 'three';
 import { WAllType } from '@/types/gallery';
 
-export default function Walls({ walls }: { walls: WAllType[] }) {
+export default function Walls({
+  walls,
+  wallTexture = null,
+}: {
+  walls: WAllType[];
+  wallTexture?: Texture | null;
+}) {
   return (
     <>
       {walls.map((wall, i) => {
@@ -10,6 +17,7 @@ export default function Walls({ walls }: { walls: WAllType[] }) {
               <boxGeometry args={wall.boxSize} />
               <meshStandardMaterial
                 color={wall.color}
+                map={wallTexture ?? undefined}
                 roughness={0.85}
                 metalness={0.02}
               />

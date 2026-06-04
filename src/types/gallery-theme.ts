@@ -71,8 +71,33 @@ export type FloorConfig = {
   metalness: number;
   mirror: number;
   blur: number[];
-  useTexture: boolean;
+  /** FLOOR_PATTERNS의 키('wood' | 'grass' 등). 미지정 시 텍스처 없는 단색 바닥 */
+  pattern?: string;
 };
+
+export type WallPatternConfig = {
+  /** WALL_PATTERNS의 키('flower' 등) */
+  pattern: string;
+  /** 미지정 시 GalleryPreset.wallColor 사용 */
+  baseColor?: string;
+  /** 미지정 시 레지스트리의 defaultRepeat */
+  repeat?: [number, number];
+};
+
+export type FlatCeilingConfig = {
+  type: 'flat';
+  color?: string;
+};
+
+export type FairyLightsCeilingConfig = {
+  type: 'fairy-lights';
+  planeColor?: string;
+  bulbColors?: string[];
+  /** 천장에 늘어뜨릴 알전구 줄 개수. 미지정 시 2 */
+  strandCount?: number;
+};
+
+export type CeilingConfig = FlatCeilingConfig | FairyLightsCeilingConfig;
 
 export type GalleryPreset = {
   id: string;
@@ -80,6 +105,9 @@ export type GalleryPreset = {
   lighting: LightingConfig;
   floor: FloorConfig;
   wallColor: string;
+  wallPattern?: WallPatternConfig;
+  ceiling?: CeilingConfig;
   decorations: DecorationConfig[];
-  particles?: ParticleConfig;
+  /** 단일 입자 또는 여러 입자 동시 적용(예: forest = 반짝이 + 나뭇잎) */
+  particles?: ParticleConfig | ParticleConfig[];
 };

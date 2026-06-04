@@ -1,6 +1,12 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import {
+  DoubleSide,
+  Group,
+  MeshStandardMaterial,
+  Shape,
+  ShapeGeometry,
+} from 'three';
 
 function sr(seed: number): number {
   const x = Math.sin(seed + 1) * 10000;
@@ -11,119 +17,116 @@ function rr(seed: number, min: number, max: number): number {
   return min + sr(seed) * (max - min);
 }
 
-const leafShape = new THREE.Shape();
-leafShape.moveTo(0, 0.22);
-leafShape.bezierCurveTo(0.13, 0.16, 0.15, 0.04, 0.08, -0.1);
-leafShape.bezierCurveTo(0.03, -0.2, 0, -0.22, 0, -0.22);
-leafShape.bezierCurveTo(0, -0.22, -0.03, -0.2, -0.08, -0.1);
-leafShape.bezierCurveTo(-0.15, 0.04, -0.13, 0.16, 0, 0.22);
-
-const LEAF_GEOMETRY = new THREE.ShapeGeometry(leafShape);
+/** 초록 → 단풍(갈색/주황) 잎 색 팔레트 */
+const LEAF_COLORS = ['#6BA34A', '#4F8C3A', '#C9882E', '#B5651D', '#D9A441'];
 
 type LeafState = {
   x: number;
   z: number;
   startY: number;
   speed: number;
-  swingAmp: number;
-  swingFreq: number;
-  swingPhase: number;
+  driftX: number;
   driftZ: number;
-  driftZPhase: number;
-  rotSpeedX: number;
-  rotSpeedZ: number;
-  initialRotY: number;
+  rotSpeed: number;
   scale: number;
-  initialT: number;
+  initialRotY: number;
+  colorIndex: number;
 };
 
 function SingleLeaf({
   state,
   height,
-  color,
-  opacity,
+  geometry,
+  material,
 }: {
   state: LeafState;
   height: number;
-  color: string;
-  opacity: number;
+  geometry: ShapeGeometry;
+  material: MeshStandardMaterial;
 }) {
-  const ref = useRef<THREE.Group>(null);
+  const ref = useRef<Group>(null);
   const y = useRef(state.startY);
-  const t = useRef(state.initialT);
-  const rotX = useRef(0);
-  const rotZ = useRef(0);
+  const rotY = useRef(state.initialRotY);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
     y.current -= state.speed * delta;
-    t.current += delta;
-    rotX.current += state.rotSpeedX * delta;
-    rotZ.current += state.rotSpeedZ * delta;
+    rotY.current += state.rotSpeed * delta;
 
-    if (y.current < -0.5)
-      y.current = height + rr(y.current * 997, 0, height * 0.4);
+    if (y.current < -0.5) y.current = height + rr(y.current * 1000, 0, height);
 
-    ref.current.position.x =
-      state.x +
-      Math.sin(t.current * state.swingFreq + state.swingPhase) * state.swingAmp;
+    ref.current.position.x = state.x + Math.sin(y.current * 0.5) * state.driftX;
     ref.current.position.y = y.current;
-    ref.current.position.z =
-      state.z + Math.cos(t.current * 0.7 + state.driftZPhase) * state.driftZ;
-    ref.current.rotation.x = rotX.current;
-    ref.current.rotation.y =
-      state.initialRotY + Math.sin(t.current * 0.4) * 0.5;
-    ref.current.rotation.z = rotZ.current;
+    ref.current.position.z = state.z + Math.cos(y.current * 0.4) * state.driftZ;
+    ref.current.rotation.y = rotY.current;
+    ref.current.rotation.x = Math.sin(y.current * 0.7) * 0.6;
+    ref.current.rotation.z = Math.cos(y.current * 0.5) * 0.4;
   });
 
   return (
     <group ref={ref} scale={state.scale}>
-      <mesh geometry={LEAF_GEOMETRY}>
-        <meshBasicMaterial
-          color={color}
-          side={THREE.DoubleSide}
-          transparent
-          opacity={opacity}
-        />
-      </mesh>
+      <mesh geometry={geometry} material={material} castShadow />
     </group>
   );
 }
 
 export default function FallingLeaves({
-  count = 50,
+  count = 40,
   size,
   height,
-  speed = 1.2,
-  color = '#c0392b',
-  opacity = 0.9,
+  speed = 1.0,
 }: {
   count?: number;
   size: number;
   height: number;
   speed?: number;
-  color?: string;
-  opacity?: number;
 }) {
   const half = size / 2 - 0.5;
+
+  const geometry = useMemo(() => {
+    const shape = new Shape();
+    shape.moveTo(0, -0.5);
+    shape.bezierCurveTo(0.45, -0.2, 0.4, 0.35, 0, 0.6);
+    shape.bezierCurveTo(-0.4, 0.35, -0.45, -0.2, 0, -0.5);
+    const geo = new ShapeGeometry(shape);
+    geo.center();
+    return geo;
+  }, []);
+
+  const materials = useMemo(
+    () =>
+      LEAF_COLORS.map(
+        (color) =>
+          new MeshStandardMaterial({
+            color,
+            side: DoubleSide,
+            roughness: 0.85,
+          })
+      ),
+    []
+  );
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      materials.forEach((m) => m.dispose());
+    },
+    [geometry, materials]
+  );
 
   const leaves = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
-        x: rr(i * 9, -half, half),
-        z: rr(i * 9 + 1, -half, half),
-        startY: rr(i * 9 + 2, 0, height),
-        speed: speed * rr(i * 9 + 3, 0.5, 1.5),
-        swingAmp: rr(i * 9 + 4, 0.4, 1.2),
-        swingFreq: rr(i * 9 + 5, 0.5, 1.5),
-        swingPhase: rr(i * 9 + 6, 0, Math.PI * 2),
-        driftZ: rr(i * 9 + 7, 0.2, 0.8),
-        driftZPhase: rr(i * 9 + 8, 0, Math.PI * 2),
-        rotSpeedX: rr(i * 9 + 9, 0.8, 2.5),
-        rotSpeedZ: rr(i * 9 + 10, -1.5, 1.5),
-        initialRotY: rr(i * 9 + 11, 0, Math.PI * 2),
-        scale: rr(i * 9 + 12, 0.6, 1.4),
-        initialT: rr(i * 9 + 13, 0, Math.PI * 2),
+        x: rr(i * 7, -half, half),
+        z: rr(i * 7 + 1, -half, half),
+        startY: rr(i * 7 + 2, 0, height),
+        speed: speed * rr(i * 7 + 3, 0.5, 1.2),
+        driftX: rr(i * 7 + 4, 0.4, 1.0),
+        driftZ: rr(i * 7 + 5, 0.4, 1.0),
+        rotSpeed: rr(i * 7 + 6, 0.6, 2.2),
+        scale: rr(i * 7 + 7, 0.25, 0.5),
+        initialRotY: rr(i * 7 + 8, 0, Math.PI * 2),
+        colorIndex: Math.floor(sr(i * 7 + 9) * LEAF_COLORS.length),
       })),
     [count, half, height, speed]
   );
@@ -135,8 +138,8 @@ export default function FallingLeaves({
           key={i}
           state={state}
           height={height}
-          color={color}
-          opacity={opacity}
+          geometry={geometry}
+          material={materials[state.colorIndex]}
         />
       ))}
     </>
