@@ -17,7 +17,7 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   TreeA, TreeB, TreeC, TreeD, TreeE,
   PresentACube, PresentARound, PresentBCube, PresentBRound,
   SnowPile, TreeDecoratedSnow, WreathDecorated,
-  FlowerTreeA, FlowerTreeB
+  FlowerTreeA, FlowerTreeB, Mushroom, Rabbit, Squirrel, TreeStump
 - atmosphere.type: "sky" | "night" | "gradient" only
 - All colors: valid CSS hex string (#rrggbb)
 - At most ONE entry in decorations may use "corner". All others must use "scattered", "cell-center", or "near-cell-center".
@@ -95,11 +95,11 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
   -> night atmosphere, hemisphere [#6060cc,#303060,1.0], ambient {color:#c0c0ff, intensity:2.0}
   -> directional intensity 2.0+, toneMappingExposure 1.6+, wallColor dark, floor space preset, particles: sparkles
 - Warm / cozy / earthy
-  -> TreeA/B/C (count:2~4, cell-center), FlowerB/C (countPerCell:3, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3), RockA (countPerCell:1, scattered)
-  -> sky atmosphere, wallColor cream, floor warm preset
+  -> TreeA/B/C (count:2~4, cell-center), FlowerB/C (countPerCell:3, scattered), Mushroom (countPerCell:2, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3), RockA (countPerCell:1, scattered)
+  -> sky atmosphere, wallColor cream, floor warm preset, particles: petals or leaves (choose by mood — petals for floral/soft, leaves for earthy/rustic)
 - Spring / flower / pastel
-  -> FlowerTreeA/B (count:2~4, cell-center), FlowerA/B/C (countPerCell:3, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3)
-  -> sky atmosphere, wallColor pink-white, floor spring preset, particles: petals
+  -> FlowerTreeA/B (count:2~4, cell-center), FlowerA/B/C (countPerCell:3, scattered), Mushroom (countPerCell:2, scattered), BenchA (countPerCell:1, near-cell-center, nearCellRadius:3)
+  -> sky atmosphere, wallColor pink-white, floor spring preset, particles: petals (cherry blossoms) or leaves (fresh green)
 - Winter / snow / Christmas
   -> TreeDecoratedSnow (count:1~4, cell-center, scale 0.8), SnowPile (countPerCell:2, scattered), PresentACube (countPerCell:2, scattered, scale 0.22~0.45)
   -> night atmosphere, wallColor icy blue-white, floor winter preset, particles: snow
@@ -119,9 +119,13 @@ Analyze the provided image and return a GalleryPreset JSON that matches its mood
 - type: "sparkles" | "snow" | "petals" | "rain" | "leaves"
 - sparkles: count 40~100, speed 0.1~0.3, opacity 0.3~0.6
 - snow: count 50~80, speed 1.0~2.0, opacity 0.4~0.8
-- petals: count 20~40, speed 0.8~1.5 (color & opacity ignored)
+- petals: count 20~40, speed 0.8~1.5 (color & opacity ignored) — cherry blossoms, soft floral
 - rain: count 150~300, speed 7~12, color #a8cfe0~#8ab4c8, opacity 0.4~0.6
-- leaves: count 40~70, speed 0.8~1.4, color #c0392b~#d35400 (autumn reds/oranges), opacity 0.8~0.95
+- leaves: count 40~70, speed 0.8~1.4, opacity 0.8~0.95
+    autumn/fall → color #c0392b~#d35400 (red/orange)
+    spring/fresh → color #7ab648~#5a9e2f (green)
+    warm/earthy  → color #c8a040~#b07820 (golden/brown)
+- Choose petals for floral/delicate mood, leaves for natural/earthy/seasonal mood.
 
 ## OUTPUT SCHEMA
 {"id":"<slug>","atmosphere":<atmosphere>,"lighting":{"hemisphere":["#rrggbb","#rrggbb",0.0],"ambient":{"color":"#rrggbb","intensity":0.0},"directional":{"position":[0,0,0],"color":"#rrggbb","intensity":0.0},"toneMappingExposure":0.0},"floor":{"color":"#rrggbb","roughness":0.0,"metalness":0.0,"mirror":0.0,"blur":[0,0],"pattern":"wood"},"wallColor":"#rrggbb","decorations":[{"model":"<ModelName>","count":0,"countPerCell":0,"placement":"scattered","nearCellRadius":0.0,"scaleMin":0.0,"scaleMax":0.0,"color":"#rrggbb","elevationMin":0.0,"elevationMax":0.0}],"particles":{"type":"sparkles","color":"#rrggbb","count":0,"speed":0.0,"opacity":0.0}}

@@ -26,10 +26,10 @@ import { TreeDecoratedSnow } from '@/components/exhibition-gallery/models/basic/
 import { WreathDecorated } from '@/components/exhibition-gallery/models/basic/WreathDecorated';
 import { FlowerTreeA } from '@/components/exhibition-gallery/models/basic/FlowerTreeA';
 import { FlowerTreeB } from '@/components/exhibition-gallery/models/basic/FlowerTreeB';
-import { TreeStump } from '@/components/exhibition-gallery/models/themes/TreeStump';
-import { Mushroom } from '@/components/exhibition-gallery/models/themes/Mushroom';
-import { Rabbit } from '@/components/exhibition-gallery/models/themes/Rabbit';
-import { Squirrel } from '@/components/exhibition-gallery/models/themes/Squirrel';
+import { TreeStump } from '@/components/exhibition-gallery/models/basic/TreeStump';
+import { Mushroom } from '@/components/exhibition-gallery/models/basic/Mushroom';
+import { Rabbit } from '@/components/exhibition-gallery/models/basic/Rabbit';
+import { Squirrel } from '@/components/exhibition-gallery/models/basic/Squirrel';
 import { TreeD } from '@/components/exhibition-gallery/models/basic/TreeD';
 import { TreeE } from '@/components/exhibition-gallery/models/basic/TreeE';
 
@@ -59,7 +59,7 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
   RocketA: { component: RocketA, baseScale: 0.5, yOffset: 30 },
   RocketB: { component: RocketB, baseScale: 6, yOffset: 2 },
   StarA: { component: StarA, baseScale: 0.5, yOffset: 0 },
-  TreeA: { component: TreeA, baseScale: 0.05, yOffset: 0, colliderRadius: 1 },
+  TreeA: { component: TreeA, baseScale: 0.02, yOffset: 0, colliderRadius: 1 },
   TreeB: {
     component: TreeB,
     baseScale: 5.0,
@@ -98,7 +98,7 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
   },
   TreeD: {
     component: TreeD,
-    baseScale: 1.0,
+    baseScale: 0.7,
     yOffset: 0,
     colliderRadius: 1,
   },
