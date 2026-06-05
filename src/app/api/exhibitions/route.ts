@@ -12,6 +12,8 @@ import {
   ImageUploadValidationError,
   uploadImgToSupabase,
 } from '@/lib/supabase/uploadImage';
+import { generatePresetFromImageFile } from '@/lib/gallery/server';
+import { defaultPreset } from '@/lib/gallery/presets';
 
 export async function GET(req: NextRequest) {
   try {
@@ -76,6 +78,7 @@ export async function POST(req: NextRequest) {
     }
 
     let thumbnailUrl: null | string = null;
+    let gallery_preset = null;
 
     const body = await req.formData();
     const parsedFormData = parseFormDataToObj(body);
@@ -92,15 +95,31 @@ export async function POST(req: NextRequest) {
       start_date,
       end_date,
       guidelines,
+      gallery_preset: userPreset,
     } = result.data;
 
     if (thumbnailImg instanceof File) {
-      thumbnailUrl = await uploadImgToSupabase(
-        supabase,
-        thumbnailImg,
-        'thumbnails'
-      );
+      if (userPreset) {
+        thumbnailUrl = await uploadImgToSupabase(
+          supabase,
+          thumbnailImg,
+          'thumbnails'
+        );
+        gallery_preset = userPreset;
+      } else {
+        [thumbnailUrl, gallery_preset] = await Promise.all([
+          uploadImgToSupabase(supabase, thumbnailImg, 'thumbnails'),
+          generatePresetFromImageFile(thumbnailImg).catch((e) => {
+            console.log(e);
+            return defaultPreset;
+          }),
+        ]);
+      }
+    } else if (userPreset) {
+      gallery_preset = userPreset;
     }
+
+    console.log(gallery_preset);
     const { data, error } = await supabase
       .from('exhibitions')
       .insert({
@@ -111,6 +130,7 @@ export async function POST(req: NextRequest) {
         thumbnail_url: thumbnailUrl,
         start_date,
         end_date,
+        gallery_preset,
       })
       .select('id');
 

@@ -1,16 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { Group, Quaternion, Vector3 } from 'three';
+import { Group, Quaternion, RepeatWrapping, Vector3 } from 'three';
 import { likesToggle } from '@/lib/artwork/service';
 import { useImageDownload } from '@/hooks/useImageDownload';
 
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
+import { FloorConfig, WallPatternConfig } from '@/types/gallery-theme';
+import { WALL_PATTERNS } from '@/lib/gallery/wallPatterns';
+import { defaultPreset } from '@/lib/gallery/presets';
 import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
 import Walls from '@/components/exhibition-gallery/threejs/Walls';
-import Floor from '@/components/exhibition-gallery/threejs/Floor';
+import DynamicFloor from '@/components/exhibition-gallery/threejs/DynamicFloor';
 
 export default function Room({
   init,
@@ -19,7 +22,9 @@ export default function Room({
   innerWalls,
   exhibitionId,
   user,
-  FloorComponent = Floor,
+  floorConfig = defaultPreset.floor,
+  wallColor = defaultPreset.wallColor,
+  wallPattern,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -28,12 +33,35 @@ export default function Room({
   innerWalls: WAllType[];
   exhibitionId: string;
   user: User | null;
-  FloorComponent?: React.ComponentType<{ size: number }>;
+  floorConfig?: FloorConfig;
+  wallColor?: string;
+  wallPattern?: WallPatternConfig;
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
   const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
   const paintingTextures = useTexture(urls);
+
+  // 벽 패턴 텍스처는 한 번만 생성해 외벽/내벽이 공유한다.
+  const wallTexture = useMemo(() => {
+    if (!wallPattern) return null;
+    const spec = WALL_PATTERNS[wallPattern.pattern];
+    if (!spec) return null;
+    const t = spec.generator(wallPattern.baseColor ?? wallColor);
+    if (!t) return null;
+    const [rx, ry] = wallPattern.repeat ?? spec.defaultRepeat;
+    t.wrapS = RepeatWrapping;
+    t.wrapT = RepeatWrapping;
+    t.repeat.set(rx, ry);
+    t.needsUpdate = true;
+    return t;
+  }, [wallPattern, wallColor]);
+
+  useEffect(() => {
+    return () => {
+      wallTexture?.dispose();
+    };
+  }, [wallTexture]);
 
   const paintingRefs = useRef<(Group | null)[]>([]);
   const htmlRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -80,7 +108,7 @@ export default function Room({
 
       const fovDot = forward.dot(tempDir.current);
 
-      if (fovDot < 0.5 || distanceSq > 25) continue;
+      if (fovDot < 0.5 || distanceSq > 35) continue;
 
       // 그림의 앞면(+Z 월드 노말)과 카메라 방향 비교 — 뒷면이면 스킵
       mesh.getWorldQuaternion(tempQuat.current);
@@ -180,8 +208,8 @@ export default function Room({
 
   return (
     <>
-      <FloorComponent size={size} />
-      <Walls walls={walls} />
+      <DynamicFloor size={size} config={floorConfig} />
+      <Walls walls={walls} wallTexture={wallTexture} />
 
       <InnerWalls
         walls={innerWalls}
@@ -189,9 +217,8 @@ export default function Room({
         paintingTextures={paintingTextures}
         paintingRefs={paintingRefs}
         htmlRefs={htmlRefs}
+        wallTexture={wallTexture}
       />
-
-      {/*<ChristmasDecorations size={size} height={height} />*/}
     </>
   );
 }
