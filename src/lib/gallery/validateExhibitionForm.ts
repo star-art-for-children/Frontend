@@ -14,9 +14,8 @@ export function validateExhibition(init: Record<string, unknown>) {
     startDateRaw,
     endDateRaw,
     guidelines,
-    galleryPreset:gallery_preset,
+    galleryPreset: gallery_preset,
   } = result.data;
-
 
   return {
     data: {
