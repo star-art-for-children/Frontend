@@ -14,17 +14,9 @@ export function validateExhibition(init: Record<string, unknown>) {
     startDateRaw,
     endDateRaw,
     guidelines,
-    galleryPreset,
+    galleryPreset:gallery_preset,
   } = result.data;
 
-  let gallery_preset = null;
-  if (typeof galleryPreset === 'string') {
-    try {
-      gallery_preset = JSON.parse(galleryPreset);
-    } catch {
-      gallery_preset = null;
-    }
-  }
 
   return {
     data: {
