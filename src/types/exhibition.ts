@@ -51,6 +51,7 @@ export type ArtworkRow = {
   artist_name: string;
   image_url: string;
   description: string | null;
+  video_url: string | null;
 };
 
 export type ReviewRow = {
