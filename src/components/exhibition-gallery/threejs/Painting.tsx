@@ -30,6 +30,7 @@ export default function Painting({
   videoUrl?: string | null;
 }) {
   const localRef = useRef<Group>(null);
+  const worldPosRef = useRef(new Vector3());
   const isNearRef = useRef(false);
   const [isNear, setIsNear] = useState(false);
 
@@ -53,9 +54,8 @@ export default function Painting({
 
   useFrame(({ camera }) => {
     if (!localRef.current || !videoData) return;
-    const worldPos = new Vector3();
-    localRef.current.getWorldPosition(worldPos);
-    const near = camera.position.distanceTo(worldPos) < VIDEO_NEAR_THRESHOLD;
+    localRef.current.getWorldPosition(worldPosRef.current);
+    const near = camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
     if (near !== isNearRef.current) {
       isNearRef.current = near;
       setIsNear(near);
