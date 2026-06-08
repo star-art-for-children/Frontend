@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Group, Texture, Vector3, VideoTexture } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
@@ -30,32 +30,29 @@ export default function Painting({
   videoUrl?: string | null;
 }) {
   const localRef = useRef<Group>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const isNearRef = useRef(false);
   const [isNear, setIsNear] = useState(false);
-  const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 
-  useEffect(() => {
-    if (!videoUrl) return;
+  const videoData = useMemo(() => {
+    if (!videoUrl) return null;
     const video = document.createElement('video');
     video.crossOrigin = 'anonymous';
     video.src = videoUrl;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
-    const texture = new VideoTexture(video);
-    videoRef.current = video;
-    setVideoTexture(texture);
-    return () => {
-      video.pause();
-      texture.dispose();
-      videoRef.current = null;
-      setVideoTexture(null);
-    };
+    return { video, texture: new VideoTexture(video) };
   }, [videoUrl]);
 
+  useEffect(() => {
+    return () => {
+      videoData?.video.pause();
+      videoData?.texture.dispose();
+    };
+  }, [videoData]);
+
   useFrame(({ camera }) => {
-    if (!localRef.current || !videoRef.current) return;
+    if (!localRef.current || !videoData) return;
     const worldPos = new Vector3();
     localRef.current.getWorldPosition(worldPos);
     const near = camera.position.distanceTo(worldPos) < VIDEO_NEAR_THRESHOLD;
@@ -63,14 +60,14 @@ export default function Painting({
       isNearRef.current = near;
       setIsNear(near);
       if (near) {
-        videoRef.current.play().catch(() => {});
+        videoData.video.play().catch(() => {});
       } else {
-        videoRef.current.pause();
+        videoData.video.pause();
       }
     }
   });
 
-  const displayTexture = isNear && videoTexture ? videoTexture : img;
+  const displayTexture = isNear && videoData ? videoData.texture : img;
   const [imgW, imgH] = checkImgSize(displayTexture, w, h, 0.4);
 
   if (!details) return null;
