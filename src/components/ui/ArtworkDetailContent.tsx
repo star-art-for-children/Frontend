@@ -43,6 +43,7 @@ export default function ArtworkDetailContent({
   onAnimate,
 }: ArtworkDetailContentProps) {
   const [showLoginHint, setShowLoginHint] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -90,7 +91,7 @@ export default function ArtworkDetailContent({
 
         {/* 이미지 / 영상 */}
         <div className="relative aspect-4/3 w-full bg-[#E8E5DE]">
-          {videoUrl ? (
+          {showVideo && videoUrl ? (
             <video
               src={videoUrl}
               autoPlay
@@ -107,6 +108,14 @@ export default function ArtworkDetailContent({
               className="object-cover"
               sizes="530px"
             />
+          )}
+          {videoUrl && (
+            <button
+              onClick={() => setShowVideo((v) => !v)}
+              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+            >
+              {showVideo ? '🖼 이미지 보기' : '▶ 영상 보기'}
+            </button>
           )}
         </div>
 
