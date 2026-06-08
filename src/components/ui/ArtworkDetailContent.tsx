@@ -73,7 +73,7 @@ export default function ArtworkDetailContent({
       onClick={onClose}
     >
       <div
-        className={cn(DIALOG_CARD_CLASS, 'max-w-132.5 overflow-hidden')}
+        className={cn(DIALOG_CARD_CLASS, 'relative max-w-132.5 overflow-hidden')}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 닫기 버튼 */}
