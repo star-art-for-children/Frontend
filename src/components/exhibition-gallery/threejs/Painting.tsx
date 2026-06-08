@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Group, Texture, VideoTexture } from 'three';
+import { useEffect, useRef, useState } from 'react';
+import { Group, Texture, Vector3, VideoTexture } from 'three';
+import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Download, Heart } from 'lucide-react';
 import { checkImgSize } from '@/lib/gallery/image';
@@ -9,6 +10,7 @@ const FRAME_M = 0.09;
 const MAT_M = 0.035;
 const FRAME_D = 0.06;
 const MAT_D = 0.035;
+const VIDEO_NEAR_THRESHOLD = 5;
 
 export default function Painting({
   img,
@@ -27,6 +29,10 @@ export default function Painting({
   htmlRef?: (el: HTMLDivElement | null) => void;
   videoUrl?: string | null;
 }) {
+  const localRef = useRef<Group>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const isNearRef = useRef(false);
+  const [isNear, setIsNear] = useState(false);
   const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 
   useEffect(() => {
@@ -34,21 +40,37 @@ export default function Painting({
     const video = document.createElement('video');
     video.crossOrigin = 'anonymous';
     video.src = videoUrl;
-    video.autoplay = true;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
     const texture = new VideoTexture(video);
+    videoRef.current = video;
     setVideoTexture(texture);
-    video.play().catch(() => {});
     return () => {
       video.pause();
       texture.dispose();
+      videoRef.current = null;
       setVideoTexture(null);
     };
   }, [videoUrl]);
 
-  const displayTexture = videoTexture ?? img;
+  useFrame(({ camera }) => {
+    if (!localRef.current || !videoRef.current) return;
+    const worldPos = new Vector3();
+    localRef.current.getWorldPosition(worldPos);
+    const near = camera.position.distanceTo(worldPos) < VIDEO_NEAR_THRESHOLD;
+    if (near !== isNearRef.current) {
+      isNearRef.current = near;
+      setIsNear(near);
+      if (near) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  });
+
+  const displayTexture = isNear && videoTexture ? videoTexture : img;
   const [imgW, imgH] = checkImgSize(displayTexture, w, h, 0.4);
 
   if (!details) return null;
@@ -57,7 +79,13 @@ export default function Painting({
   const imgZ = matZ + MAT_D / 2 + 0.006;
 
   return (
-    <group ref={paintingRef} position={[0, 0, 0.3]}>
+    <group
+      ref={(el) => {
+        localRef.current = el;
+        paintingRef?.(el);
+      }}
+      position={[0, 0, 0.3]}
+    >
       {/* 외부 프레임 */}
       <mesh>
         <boxGeometry args={[imgW + FRAME_M * 2, imgH + FRAME_M * 2, FRAME_D]} />
