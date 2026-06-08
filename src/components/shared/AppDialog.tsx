@@ -1,0 +1,69 @@
+'use client';
+
+import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DIALOG_CARD_CLASS,
+  DIALOG_OVERLAY_CLASS,
+} from '@/lib/styles/dialog';
+
+interface AppDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  trigger: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export default function AppDialog({
+  open,
+  onOpenChange,
+  trigger,
+  title,
+  children,
+  className,
+}: AppDialogProps) {
+  useEffect(() => {
+    if (!open) return;
+    const scrollY = window.scrollY;
+    document.body.style.overflow = 'hidden';
+    // base-ui가 포커스 이동 시 스크롤되는 것 방지
+    const raf = requestAnimationFrame(() => window.scrollTo(0, scrollY));
+    return () => {
+      cancelAnimationFrame(raf);
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger}
+      <DialogContent
+        className={cn(
+          'max-h-[90vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-0!',
+          DIALOG_CARD_CLASS,
+          className
+        )}
+        overlayClassName={DIALOG_OVERLAY_CLASS}
+        showCloseButton={false}
+      >
+        <div className="px-6 pt-6 pb-2">
+          <DialogHeader>
+            <DialogTitle className="text-secondary text-lg font-bold">
+              {title}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+        <div className="px-6 pb-6">{children}</div>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { DIALOG_CARD_CLASS, DIALOG_OVERLAY_CLASS } from '@/lib/styles/dialog';
 
 export interface ArtworkDetailContentProps {
   image: string;
@@ -67,11 +69,11 @@ export default function ArtworkDetailContent({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      className={cn('fixed inset-0 z-50 flex items-center justify-center px-4', DIALOG_OVERLAY_CLASS)}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-132.5 overflow-hidden rounded-3xl shadow-2xl"
+        className={cn(DIALOG_CARD_CLASS, 'max-w-132.5 overflow-hidden')}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 닫기 버튼 */}
