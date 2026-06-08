@@ -43,11 +43,17 @@ export async function POST(
       .single();
 
     if (artworkError || !artwork) {
-      return NextResponse.json({ message: 'artwork not found' }, { status: 404 });
+      return NextResponse.json(
+        { message: 'artwork not found' },
+        { status: 404 }
+      );
     }
 
     if (artwork.video_url) {
-      return NextResponse.json({ videoUrl: artwork.video_url }, { status: 200 });
+      return NextResponse.json(
+        { videoUrl: artwork.video_url },
+        { status: 200 }
+      );
     }
 
     const result = await fal.subscribe('fal-ai/wan-25-preview/image-to-video', {
@@ -56,14 +62,17 @@ export async function POST(
         prompt:
           "A children's hand-drawn illustration comes to life with soft, looping animation. The main subject gently moves: characters walk in place or sway, animals breathe and blink, plants and trees rustle slowly, water ripples calmly. Background elements move subtly at a slower pace than foreground. Strictly preserve the original flat 2D illustration style, crayon and paint textures, and color palette. Characters maintain their original shape and proportions throughout. No photorealism. No camera movement. Smooth, cute, cheerful motion.",
         negative_prompt:
-          "photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change",
+          'photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change',
         resolution: '480p',
       },
     });
 
     const videoUrl = (result.data as { video?: { url?: string } })?.video?.url;
     if (!videoUrl) {
-      return NextResponse.json({ message: 'video generation failed' }, { status: 500 });
+      return NextResponse.json(
+        { message: 'video generation failed' },
+        { status: 500 }
+      );
     }
 
     const { error: updateError } = await supabase
@@ -73,16 +82,22 @@ export async function POST(
 
     if (updateError) {
       console.error('video_url update error:', updateError);
-      return NextResponse.json({ message: 'database update error' }, { status: 500 });
+      return NextResponse.json(
+        { message: 'database update error' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ videoUrl }, { status: 200 });
   } catch (err: unknown) {
     console.error('animate error:', JSON.stringify(err, null, 2));
-    const detail = (err as { body?: { detail?: { type?: string }[] } })?.body?.detail?.[0];
+    const detail = (err as { body?: { detail?: { type?: string }[] } })?.body
+      ?.detail?.[0];
     if (detail?.type === 'image_dimension_error') {
       return NextResponse.json(
-        { message: '이미지 해상도가 너무 낮아 애니메이션을 생성할 수 없습니다.' },
+        {
+          message: '이미지 해상도가 너무 낮아 애니메이션을 생성할 수 없습니다.',
+        },
         { status: 400 }
       );
     }

@@ -55,7 +55,8 @@ export default function Painting({
   useFrame(({ camera }) => {
     if (!localRef.current || !videoData) return;
     localRef.current.getWorldPosition(worldPosRef.current);
-    const near = camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
+    const near =
+      camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
     if (near !== isNearRef.current) {
       isNearRef.current = near;
       setIsNear(near);

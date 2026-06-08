@@ -112,7 +112,7 @@ export default function ArtworkDetailContent({
           {videoUrl && (
             <button
               onClick={() => setShowVideo((v) => !v)}
-              className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+              className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
             >
               {showVideo ? '🖼 이미지 보기' : '▶ 영상 보기'}
             </button>
