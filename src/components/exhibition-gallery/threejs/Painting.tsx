@@ -1,4 +1,6 @@
-import { Group, Texture } from 'three';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Group, Texture, Vector3, VideoTexture } from 'three';
+import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Download, Heart } from 'lucide-react';
 import { checkImgSize } from '@/lib/gallery/image';
@@ -8,6 +10,7 @@ const FRAME_M = 0.09;
 const MAT_M = 0.035;
 const FRAME_D = 0.06;
 const MAT_D = 0.035;
+const VIDEO_NEAR_THRESHOLD = 5;
 
 export default function Painting({
   img,
@@ -16,6 +19,7 @@ export default function Painting({
   h,
   paintingRef,
   htmlRef,
+  videoUrl,
 }: {
   img: Texture;
   details: GalleryUIArtworkProps;
@@ -23,8 +27,49 @@ export default function Painting({
   h: number;
   paintingRef?: (mesh: Group | null) => void;
   htmlRef?: (el: HTMLDivElement | null) => void;
+  videoUrl?: string | null;
 }) {
-  const [imgW, imgH] = checkImgSize(img, w, h, 0.4);
+  const localRef = useRef<Group>(null);
+  const worldPosRef = useRef(new Vector3());
+  const isNearRef = useRef(false);
+  const [isNear, setIsNear] = useState(false);
+
+  const videoData = useMemo(() => {
+    if (!videoUrl) return null;
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.src = videoUrl;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    return { video, texture: new VideoTexture(video) };
+  }, [videoUrl]);
+
+  useEffect(() => {
+    return () => {
+      videoData?.video.pause();
+      videoData?.texture.dispose();
+    };
+  }, [videoData]);
+
+  useFrame(({ camera }) => {
+    if (!localRef.current || !videoData) return;
+    localRef.current.getWorldPosition(worldPosRef.current);
+    const near =
+      camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
+    if (near !== isNearRef.current) {
+      isNearRef.current = near;
+      setIsNear(near);
+      if (near) {
+        videoData.video.play().catch(() => {});
+      } else {
+        videoData.video.pause();
+      }
+    }
+  });
+
+  const displayTexture = isNear && videoData ? videoData.texture : img;
+  const [imgW, imgH] = checkImgSize(displayTexture, w, h, 0.4);
 
   if (!details) return null;
 
@@ -32,7 +77,13 @@ export default function Painting({
   const imgZ = matZ + MAT_D / 2 + 0.006;
 
   return (
-    <group ref={paintingRef} position={[0, 0, 0.3]}>
+    <group
+      ref={(el) => {
+        localRef.current = el;
+        paintingRef?.(el);
+      }}
+      position={[0, 0, 0.3]}
+    >
       {/* 외부 프레임 */}
       <mesh>
         <boxGeometry args={[imgW + FRAME_M * 2, imgH + FRAME_M * 2, FRAME_D]} />
@@ -52,7 +103,7 @@ export default function Painting({
       {/* 작품 이미지 */}
       <mesh position={[0, 0, imgZ]}>
         <planeGeometry args={[imgW, imgH]} />
-        <meshStandardMaterial map={img} />
+        <meshStandardMaterial map={displayTexture} />
       </mesh>
 
       {/* 작품 정보 */}

@@ -45,6 +45,7 @@ export type GalleryUIArtworkProps = {
   artist_name: string;
   description: null | string;
   image_url: string;
+  video_url?: string | null;
   likes: number;
   likesByMe: boolean;
 };

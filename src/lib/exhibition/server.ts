@@ -189,6 +189,7 @@ export type ExhibitionWorkItem = {
   description: string | null;
   likes: number;
   liked: boolean;
+  videoUrl: string | null;
 };
 
 export type ExhibitionDetailItem = {
@@ -230,7 +231,7 @@ export async function fetchExhibitionDetail(
       teacher_id,
       likes_count,
       profile:profiles!teacher_id ( institution ),
-      artworks ( id, title, artist_name, description, image_url )
+      artworks ( id, title, artist_name, description, image_url, video_url )
     `
     )
     .eq('id', exhibitionId)
@@ -302,6 +303,7 @@ export async function fetchExhibitionDetail(
       description: work.description,
       likes: likesCountMap.get(work.id) ?? 0,
       liked: likedArtworkIds.has(work.id),
+      videoUrl: work.video_url ?? null,
     })),
   };
 }

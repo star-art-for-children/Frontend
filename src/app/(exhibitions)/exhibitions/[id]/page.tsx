@@ -123,11 +123,13 @@ export default async function ExhibitionDetail({
                     description: work.description ?? undefined,
                     likes: work.likes,
                     liked: work.liked,
+                    videoUrl: work.videoUrl,
                   }}
                   exhibitionId={exhibition.id}
                   exhibitionTitle={exhibition.title}
                   exhibitionHost={exhibition.host}
                   isLoggedIn={isLoggedIn}
+                  isOwner={isOwner}
                 />
               ))}
             </div>

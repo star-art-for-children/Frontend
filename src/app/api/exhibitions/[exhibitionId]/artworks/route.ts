@@ -117,7 +117,7 @@ export async function GET(
 
     const { data: artworksRaw, error: artworksError } = await supabase
       .from('artworks')
-      .select('id,title,artist_name,description,image_url')
+      .select('id,title,artist_name,description,image_url,video_url')
       .eq('exhibition_id', exhibitionId);
 
     if (artworksError) {

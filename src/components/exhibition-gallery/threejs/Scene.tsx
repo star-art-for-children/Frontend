@@ -88,7 +88,17 @@ export default function Scene2({
     circleCollidersRef.current = c;
   }, []);
 
-  const { atmosphere, lighting } = preset;
+  const atmosphere = preset.atmosphere ?? defaultPreset.atmosphere;
+  const lighting = preset.lighting ?? defaultPreset.lighting;
+  const mergedPreset: typeof preset = {
+    ...defaultPreset,
+    ...preset,
+    atmosphere,
+    lighting,
+    decorations: preset.decorations ?? defaultPreset.decorations,
+    particles: preset.particles ?? defaultPreset.particles,
+    floor: preset.floor ?? defaultPreset.floor,
+  };
 
   return (
     <Canvas
@@ -202,12 +212,12 @@ export default function Scene2({
         walls={walls}
         innerWalls={innerWalls}
         init={init}
-        floorConfig={preset.floor}
-        wallColor={preset.wallColor}
-        wallPattern={preset.wallPattern}
+        floorConfig={mergedPreset.floor}
+        wallColor={mergedPreset.wallColor}
+        wallPattern={mergedPreset.wallPattern}
       />
       <DynamicDecorations
-        preset={preset}
+        preset={mergedPreset}
         size={roomSize}
         height={height}
         cellSize={cellSize}
