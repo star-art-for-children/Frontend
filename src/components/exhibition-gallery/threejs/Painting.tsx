@@ -38,9 +38,9 @@ export default function Painting({
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
-    video.play();
     const texture = new VideoTexture(video);
     setVideoTexture(texture);
+    video.play().catch(() => {});
     return () => {
       video.pause();
       texture.dispose();
