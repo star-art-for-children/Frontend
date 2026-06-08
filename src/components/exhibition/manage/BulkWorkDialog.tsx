@@ -130,39 +130,48 @@ export default function BulkWorkDialog() {
     setResult(null);
   }, [reset]);
 
-  const submitHandler = useCallback(async (data: BulkForm) => {
-    setUploading(true);
-    const results = await Promise.allSettled(
-      data.rows.map((row) => {
-        const formData = new FormData();
-        formData.append('image_url', row.image);
-        formData.append('title', row.title);
-        formData.append('artist_name', row.artist_name);
-        return postArtWorksByExhibitionId(id, formData);
-      })
-    );
-    setUploading(false);
+  const submitHandler = useCallback(
+    async (data: BulkForm) => {
+      setUploading(true);
+      const results = await Promise.allSettled(
+        data.rows.map((row) => {
+          const formData = new FormData();
+          formData.append('image_url', row.image);
+          formData.append('title', row.title);
+          formData.append('artist_name', row.artist_name);
+          return postArtWorksByExhibitionId(id, formData);
+        })
+      );
+      setUploading(false);
 
-    const success = results.filter((r) => r.status === 'fulfilled').length;
-    const fail = results.filter((r) => r.status === 'rejected').length;
+      const success = results.filter((r) => r.status === 'fulfilled').length;
+      const fail = results.filter((r) => r.status === 'rejected').length;
 
-    if (fail === 0) {
-      handleClose();
-      router.refresh();
-    } else {
-      setResult({ success, fail });
-    }
-  }, [id, handleClose, router]);
+      if (fail === 0) {
+        handleClose();
+        router.refresh();
+      } else {
+        setResult({ success, fail });
+      }
+    },
+    [id, handleClose, router]
+  );
 
-  const handleOpenChange = useCallback((v: boolean) => {
-    if (!v) handleClose();
-    setOpen(v);
-  }, [handleClose]);
+  const handleOpenChange = useCallback(
+    (v: boolean) => {
+      if (!v) handleClose();
+      setOpen(v);
+    },
+    [handleClose]
+  );
 
   const trigger = (
     <DialogTrigger
       render={
-        <Button variant="outline" className="rounded-xl px-4 py-5 font-bold" />
+        <Button
+          variant="white"
+          className="rounded-xl px-4 py-5 font-bold"
+        />
       }
     >
       <Layers className="h-4 w-4" />
