@@ -49,7 +49,7 @@ export default function GalleryHUD({
         {isLogged && (
           <div className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg">
             <div className="flex flex-col items-center">
-              {[myName, playerNames].map((playerId, i) => (
+              {[myName, ...playerNames].map((playerId, i) => (
                 <p
                   key={i}
                   className={`font-bold ${playerId === myName ? 'text-yellow-400/80' : 'text-white/80'} `}

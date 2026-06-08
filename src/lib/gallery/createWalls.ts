@@ -16,7 +16,7 @@ function makeRng(seed: string) {
     s ^= s >> 17;
     s ^= s << 5;
     s = s >>> 0;
-    return s / 0xffffffff;
+    return s / 0x100000000;
   };
 }
 

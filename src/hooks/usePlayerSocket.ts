@@ -66,6 +66,12 @@ export function usePlayerSocket(
   useEffect(() => {
     if (!userId) return;
 
+    remotePlayersRef.current.clear();
+    userNamesRef.current.clear();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setChatHistory([]);
+    setPlayerInfo([]);
+
     const url = `${process.env.NEXT_PUBLIC_WS_URL}/gallery/${exhibitionId}`;
     const ws = new WebSocket(url);
     wsRef.current = ws;
@@ -73,7 +79,6 @@ export function usePlayerSocket(
     ws.onopen = () => {
       const myName = userName ?? userId;
       ws.send(JSON.stringify({ type: 'join', userId, userName: myName }));
-      setPlayerInfo([]);
     };
 
     ws.onmessage = (e: MessageEvent) => {
