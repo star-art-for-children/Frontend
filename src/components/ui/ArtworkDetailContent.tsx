@@ -17,6 +17,10 @@ export interface ArtworkDetailContentProps {
   onClose: () => void;
   onLike: () => void;
   onDownload: () => void;
+  videoUrl?: string | null;
+  isOwner?: boolean;
+  isAnimating?: boolean;
+  onAnimate?: () => void;
 }
 
 export default function ArtworkDetailContent({
@@ -33,8 +37,13 @@ export default function ArtworkDetailContent({
   onClose,
   onLike,
   onDownload,
+  videoUrl,
+  isOwner = false,
+  isAnimating = false,
+  onAnimate,
 }: ArtworkDetailContentProps) {
   const [showLoginHint, setShowLoginHint] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -80,15 +89,34 @@ export default function ArtworkDetailContent({
           </svg>
         </button>
 
-        {/* 이미지 */}
+        {/* 이미지 / 영상 */}
         <div className="relative aspect-4/3 w-full bg-[#E8E5DE]">
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className="object-cover"
-            sizes="530px"
-          />
+          {showVideo && videoUrl ? (
+            <video
+              src={videoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Image
+              src={image}
+              alt={title}
+              fill
+              className="object-cover"
+              sizes="530px"
+            />
+          )}
+          {videoUrl && (
+            <button
+              onClick={() => setShowVideo((v) => !v)}
+              className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+            >
+              {showVideo ? '🖼 이미지 보기' : '▶ 영상 보기'}
+            </button>
+          )}
         </div>
 
         {/* 정보 패널 */}
@@ -136,6 +164,20 @@ export default function ArtworkDetailContent({
                   />
                 </svg>
               </button>
+              {/* 움직이게 하기 */}
+              {isOwner && !videoUrl && onAnimate && (
+                <button
+                  onClick={onAnimate}
+                  disabled={isAnimating}
+                  className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                    isAnimating
+                      ? 'cursor-not-allowed border-purple-200 text-purple-300'
+                      : 'border-purple-200 text-purple-600 hover:bg-purple-50'
+                  }`}
+                >
+                  ✨ {isAnimating ? '생성 중...' : '움직이게 하기'}
+                </button>
+              )}
             </div>
           </div>
 

@@ -15,6 +15,7 @@ export interface Work {
   description?: string;
   likes: number;
   liked: boolean;
+  videoUrl?: string | null;
 }
 
 interface WorkDialogProps {
@@ -23,6 +24,7 @@ interface WorkDialogProps {
   exhibitionTitle: string;
   exhibitionHost: string;
   isLoggedIn?: boolean;
+  isOwner?: boolean;
 }
 
 export default function WorkDialog({
@@ -31,6 +33,7 @@ export default function WorkDialog({
   exhibitionTitle,
   exhibitionHost,
   isLoggedIn,
+  isOwner = false,
 }: WorkDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -54,6 +57,37 @@ export default function WorkDialog({
     } catch (err) {
       console.error('Image Download Error', err);
       alert('이미지 다운로드에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const [videoUrl, setVideoUrl] = useState<string | null>(
+    work.videoUrl ?? null
+  );
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleAnimate = async () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    try {
+      const res = await fetch(
+        `/api/exhibitions/${exhibitionId}/artworks/${work.id}/animate`,
+        { method: 'POST' }
+      );
+      if (!res.ok) {
+        const { message } = await res.json().catch(() => ({}));
+        throw new Error(message || 'animate failed');
+      }
+      const { videoUrl: url } = await res.json();
+      setVideoUrl(url);
+    } catch (err) {
+      console.error(err);
+      alert(
+        err instanceof Error
+          ? err.message
+          : '애니메이션 생성에 실패했습니다. 다시 시도해주세요.'
+      );
+    } finally {
+      setIsAnimating(false);
     }
   };
 
@@ -95,6 +129,10 @@ export default function WorkDialog({
           onClose={() => setOpen(false)}
           onLike={handleLike}
           onDownload={handleDownload}
+          videoUrl={videoUrl}
+          isOwner={isOwner}
+          isAnimating={isAnimating}
+          onAnimate={handleAnimate}
         />
       )}
     </>
