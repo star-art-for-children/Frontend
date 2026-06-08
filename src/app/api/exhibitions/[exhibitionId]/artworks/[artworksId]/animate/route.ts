@@ -66,10 +66,15 @@ export async function POST(
       return NextResponse.json({ message: 'video generation failed' }, { status: 500 });
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('artworks')
       .update({ video_url: videoUrl })
       .eq('id', artworkId);
+
+    if (updateError) {
+      console.error('video_url update error:', updateError);
+      return NextResponse.json({ message: 'database update error' }, { status: 500 });
+    }
 
     return NextResponse.json({ videoUrl }, { status: 200 });
   } catch (err: unknown) {
