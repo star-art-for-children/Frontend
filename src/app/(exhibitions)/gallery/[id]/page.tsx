@@ -1,8 +1,9 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import {  useState } from 'react';
 import { useGalleryData } from '@/lib/gallery/hooks';
+import { usePlayerSocket } from '@/hooks/usePlayerSocket';
 import GalleryEntryModal from '@/components/exhibition-gallery/GalleryEntryModal';
 import GalleryHUD from '@/components/exhibition-gallery/GalleryHUD';
 import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
@@ -20,11 +21,18 @@ export default function GalleryExhibitionPage() {
     initError,
   } = useGalleryData(id);
 
+  const { sendMove, sendMessage, remotePlayersRef, playerInfo, chatHistory } = usePlayerSocket(
+    id,
+    user?.id ?? null,
+    user?.user_metadata?.username ?? 'guest'
+  );
+
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [started, setStarted] = useState(false);
-
   const isAllReady = isInitReady && isSceneReady;
+
+
 
   if (initError) {
     return (
@@ -59,6 +67,11 @@ export default function GalleryExhibitionPage() {
         isMuted={isMuted}
         onMute={() => setIsMuted(true)}
         onBack={() => router.back()}
+        isLogged={!!user}
+        myName={user?.user_metadata?.username ?? 'guest'}
+        playerNames={playerInfo.map((p) => p.userName)}
+        sendMessage={sendMessage}
+        chatHistory={chatHistory}
       />
 
       <div
@@ -71,10 +84,13 @@ export default function GalleryExhibitionPage() {
         {isInitReady && (
           <Scene2
             preset={galleryPreset ?? undefined}
-            user={user}
+            canLikes={!!user}
             exhibitionId={id}
             ready={setIsSceneReady}
             init={artworks}
+            sendMove={sendMove}
+            remotePlayersRef={remotePlayersRef}
+            playerInfo={playerInfo}
           />
         )}
       </div>

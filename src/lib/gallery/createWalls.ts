@@ -1,12 +1,34 @@
 import { Cell, WAllType } from '@/types/gallery';
 
+function hashSeed(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 16777619) >>> 0;
+  }
+  return h;
+}
+
+function makeRng(seed: string) {
+  let s = hashSeed(seed);
+  return () => {
+    s ^= s << 13;
+    s ^= s >> 17;
+    s ^= s << 5;
+    s = s >>> 0;
+    return s / 0xffffffff;
+  };
+}
+
 export function generateGalleryWalls(
   roomSize: number,
   gridSize: number,
   cellSize: number,
   wallColor = '#FFFFFF',
-  spawnCornerOffset = 1.5
+  spawnCornerOffset = 1.5,
+  seed = 'default'
 ) {
+  const rng = makeRng(seed);
   const size = gridSize;
   const half = roomSize / 2;
 
@@ -62,7 +84,7 @@ export function generateGalleryWalls(
     }
     if (neighbors.length) {
       stack.push(current);
-      const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+      const next = neighbors[Math.floor(rng() * neighbors.length)];
       if (next.x > x) {
         current.walls.right = false;
         next.walls.left = false;
