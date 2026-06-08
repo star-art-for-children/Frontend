@@ -55,6 +55,7 @@ export default function InnerWalls({
                 htmlRef={(el) => {
                   htmlRefs.current[front] = el;
                 }}
+                videoUrl={init[front].video_url}
               />
             )}
 
@@ -71,6 +72,7 @@ export default function InnerWalls({
                   htmlRef={(el) => {
                     htmlRefs.current[back] = el;
                   }}
+                  videoUrl={init[back].video_url}
                 />
               </group>
             )}

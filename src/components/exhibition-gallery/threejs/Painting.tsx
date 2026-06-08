@@ -1,4 +1,5 @@
-import { Group, Texture } from 'three';
+import { useEffect, useState } from 'react';
+import { Group, Texture, VideoTexture } from 'three';
 import { Html } from '@react-three/drei';
 import { Download, Heart } from 'lucide-react';
 import { checkImgSize } from '@/lib/gallery/image';
@@ -16,6 +17,7 @@ export default function Painting({
   h,
   paintingRef,
   htmlRef,
+  videoUrl,
 }: {
   img: Texture;
   details: GalleryUIArtworkProps;
@@ -23,8 +25,31 @@ export default function Painting({
   h: number;
   paintingRef?: (mesh: Group | null) => void;
   htmlRef?: (el: HTMLDivElement | null) => void;
+  videoUrl?: string | null;
 }) {
-  const [imgW, imgH] = checkImgSize(img, w, h, 0.4);
+  const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
+
+  useEffect(() => {
+    if (!videoUrl) return;
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.src = videoUrl;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.play();
+    const texture = new VideoTexture(video);
+    setVideoTexture(texture);
+    return () => {
+      video.pause();
+      texture.dispose();
+      setVideoTexture(null);
+    };
+  }, [videoUrl]);
+
+  const displayTexture = videoTexture ?? img;
+  const [imgW, imgH] = checkImgSize(displayTexture, w, h, 0.4);
 
   if (!details) return null;
 
@@ -52,7 +77,7 @@ export default function Painting({
       {/* 작품 이미지 */}
       <mesh position={[0, 0, imgZ]}>
         <planeGeometry args={[imgW, imgH]} />
-        <meshStandardMaterial map={img} />
+        <meshStandardMaterial map={displayTexture} />
       </mesh>
 
       {/* 작품 정보 */}
