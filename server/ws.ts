@@ -10,11 +10,11 @@ type PlayerState = {
   z: number;
   yaw: number;
 };
-type Chat={
-  userId:string;
-  message:string;
-  timestamp:string;
-}
+type Chat = {
+  userId: string;
+  message: string;
+  timestamp: string;
+};
 type RoomEntry = {
   ws: WebSocket;
   state: PlayerState | null;
@@ -25,7 +25,7 @@ type RoomEntry = {
 // roomId → (userId → RoomEntry)
 const rooms = new Map<string, Map<string, RoomEntry>>();
 //roomId,Chat
-const roomChats=new Map<string, Chat[]>();
+const roomChats = new Map<string, Chat[]>();
 const wss = new WebSocketServer({ port: PORT });
 
 function getRoomId(req: IncomingMessage): string | null {
@@ -33,7 +33,11 @@ function getRoomId(req: IncomingMessage): string | null {
   return match ? match[1] : null;
 }
 
-function broadcast(room: Map<string, RoomEntry>, senderId: string, raw: string) {
+function broadcast(
+  room: Map<string, RoomEntry>,
+  senderId: string,
+  raw: string
+) {
   room.forEach((entry, id) => {
     if (id !== senderId && entry.ws.readyState === WebSocket.OPEN) {
       entry.ws.send(raw);
@@ -49,9 +53,9 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
   }
 
   if (!rooms.has(roomId)) rooms.set(roomId, new Map());
-  if(!roomChats.has(roomId)) roomChats.set(roomId,[])
+  if (!roomChats.has(roomId)) roomChats.set(roomId, []);
   const room = rooms.get(roomId)!;
-  const roomChat=roomChats.get(roomId)!;
+  const roomChat = roomChats.get(roomId)!;
   let myUserId: string | null = null;
 
   ws.on('message', (data) => {
@@ -73,12 +77,20 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       const userName = (msg.userName as string) || userId;
       room.set(userId, { ws, state: null, chat: [], userName });
 
-      console.log(`[ws] join  room=${roomId} userId=${userId} total=${room.size}`);
+      console.log(
+        `[ws] join  room=${roomId} userId=${userId} total=${room.size}`
+      );
 
       // 기존 플레이어 상태를 신규 접속자에게 전송
       room.forEach((entry, id) => {
         if (id !== userId && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'join', userId: id, userName: entry.userName }));
+          ws.send(
+            JSON.stringify({
+              type: 'join',
+              userId: id,
+              userName: entry.userName,
+            })
+          );
           if (entry.state) {
             ws.send(JSON.stringify({ type: 'move', ...entry.state }));
           }
@@ -90,20 +102,19 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       return;
     }
 
-    if(type==='message'){
-      const chat:Chat ={
+    if (type === 'message') {
+      const chat: Chat = {
         userId,
-        timestamp:Date.now().toString(),
-        message:msg.message as string
-      }
+        timestamp: Date.now().toString(),
+        message: msg.message as string,
+      };
       if (room.has(userId)) {
-        roomChat.push(chat)
-        const prevChat=[...room.get(userId)!.chat]
-        room.get(userId)!.chat = [...prevChat,chat];
-        console.log(roomChat)
+        roomChat.push(chat);
+        const prevChat = [...room.get(userId)!.chat];
+        room.get(userId)!.chat = [...prevChat, chat];
+        console.log(roomChat);
       }
       broadcast(room, userId, raw);
-
     }
     if (type === 'move') {
       const state: PlayerState = {
@@ -125,7 +136,9 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
     if (type === 'leave') {
       broadcast(room, userId, raw);
       room.delete(userId);
-      console.log(`[ws] leave room=${roomId} userId=${userId} remaining=${room.size}`);
+      console.log(
+        `[ws] leave room=${roomId} userId=${userId} remaining=${room.size}`
+      );
       if (room.size === 0) rooms.delete(roomId);
       return;
     }
@@ -134,10 +147,16 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
   ws.on('close', () => {
     if (!myUserId) return;
     room.delete(myUserId);
-    console.log(`[ws] closed room=${roomId} userId=${myUserId} remaining=${room.size}`);
+    console.log(
+      `[ws] closed room=${roomId} userId=${myUserId} remaining=${room.size}`
+    );
 
     // 비정상 종료 시 다른 플레이어에게 퇴장 알림
-    broadcast(room, myUserId, JSON.stringify({ type: 'leave', userId: myUserId }));
+    broadcast(
+      room,
+      myUserId,
+      JSON.stringify({ type: 'leave', userId: myUserId })
+    );
     if (room.size === 0) rooms.delete(roomId);
   });
 

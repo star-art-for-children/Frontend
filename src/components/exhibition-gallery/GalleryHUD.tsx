@@ -15,7 +15,7 @@ interface GalleryHUDProps {
   playerNames: string[];
   sendMessage: (message: string) => void;
   chatHistory: ChatHistory[];
-  isLogged:boolean;
+  isLogged: boolean;
 }
 
 export default function GalleryHUD({
@@ -28,7 +28,7 @@ export default function GalleryHUD({
   playerNames,
   sendMessage,
   chatHistory,
-  isLogged
+  isLogged,
 }: GalleryHUDProps) {
   return (
     <div className="pointer-events-none absolute inset-0 z-40 flex w-full items-start p-5">
@@ -63,11 +63,7 @@ export default function GalleryHUD({
       </div>
 
       {isLogged && (
-        <Chat
-          sendMessage={sendMessage}
-          chatHistory={chatHistory}
-          me={myName}
-        />
+        <Chat sendMessage={sendMessage} chatHistory={chatHistory} me={myName} />
       )}
 
       {!isMuted && (
@@ -88,14 +84,18 @@ export default function GalleryHUD({
   );
 }
 
-function Chat({ sendMessage, chatHistory,me='guest' }: {
+function Chat({
+  sendMessage,
+  chatHistory,
+  me = 'guest',
+}: {
   sendMessage: (msg: string) => void;
   chatHistory: ChatHistory[];
-  me:string;
+  me: string;
 }) {
   const [msg, setMsg] = useState('');
   const messageHandler = (msg: string) => {
-    console.log(msg)
+    console.log(msg);
     sendMessage(msg);
   };
   return (
@@ -115,7 +115,7 @@ function Chat({ sendMessage, chatHistory,me='guest' }: {
         {[...chatHistory].reverse().map((x, i) => (
           <div key={i} className="flex gap-2 text-sm">
             <span
-              className={`shrink-0 ${me === x.userName ? 'text-yellow-400/80' : 'text-white/80'} font-semibold `}
+              className={`shrink-0 ${me === x.userName ? 'text-yellow-400/80' : 'text-white/80'} font-semibold`}
             >
               {x.userName}
             </span>

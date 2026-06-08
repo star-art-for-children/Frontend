@@ -17,11 +17,25 @@ export type ChatHistory = { userId: string; userName: string; message: string };
 type OutboundMessage =
   | { type: 'join'; userId: string; userName: string }
   | { type: 'leave'; userId: string }
-  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
+  | {
+      type: 'move';
+      userId: string;
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+    }
   | { type: 'message'; userId: string; message: string };
 
 type InboundMessage =
-  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
+  | {
+      type: 'move';
+      userId: string;
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+    }
   | { type: 'join'; userId: string; userName: string }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string };
@@ -81,7 +95,12 @@ export function usePlayerSocket(
           { userId: msg.userId, userName: senderName, message: msg.message },
         ]);
       } else if (msg.type === 'join') {
-        remotePlayersRef.current.set(msg.userId, { x: 0, y: 1.6, z: 0, yaw: 0 });
+        remotePlayersRef.current.set(msg.userId, {
+          x: 0,
+          y: 1.6,
+          z: 0,
+          yaw: 0,
+        });
         userNamesRef.current.set(msg.userId, msg.userName);
         setPlayerInfo((prev) =>
           prev.find((p) => p.userId === msg.userId)

@@ -24,10 +24,7 @@ import Room from './Room';
 import Player from './Player';
 import DynamicDecorations, { CircleCollider } from './DynamicDecorations';
 import RemotePlayers from './RemotePlayers';
-import {
-  RemotePlayerData,
-  PlayerInfo,
-} from '@/hooks/usePlayerSocket';
+import { RemotePlayerData, PlayerInfo } from '@/hooks/usePlayerSocket';
 
 function getGridSize(artworkCount: number): number {
   if (artworkCount <= 4) return 1;
@@ -43,7 +40,7 @@ export default function Scene2({
   preset = defaultPreset,
   sendMove,
   remotePlayersRef,
-  playerInfo
+  playerInfo,
 }: {
   exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
@@ -70,7 +67,7 @@ export default function Scene2({
         spawnCornerOffset,
         exhibitionId
       ),
-    [roomSize, gridSize, preset.wallColor,exhibitionId]
+    [roomSize, gridSize, preset.wallColor, exhibitionId]
   );
 
   const walls = useMemo(
@@ -226,7 +223,10 @@ export default function Scene2({
         onColliders={handleColliders}
       />
       {remotePlayersRef && playerInfo && (
-        <RemotePlayers playerInfo={playerInfo} remotePlayersRef={remotePlayersRef} />
+        <RemotePlayers
+          playerInfo={playerInfo}
+          remotePlayersRef={remotePlayersRef}
+        />
       )}
       <Player
         startPos={startPosition}
@@ -240,7 +240,7 @@ export default function Scene2({
         speed={3}
         sendMove={sendMove}
       />
-      <PointerLockControls  selector="canvas" />
+      <PointerLockControls selector="canvas" />
     </Canvas>
   );
 }

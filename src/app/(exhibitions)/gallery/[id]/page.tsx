@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import {  useState } from 'react';
+import { useState } from 'react';
 import { useGalleryData } from '@/lib/gallery/hooks';
 import { usePlayerSocket } from '@/hooks/usePlayerSocket';
 import GalleryEntryModal from '@/components/exhibition-gallery/GalleryEntryModal';
@@ -21,18 +21,17 @@ export default function GalleryExhibitionPage() {
     initError,
   } = useGalleryData(id);
 
-  const { sendMove, sendMessage, remotePlayersRef, playerInfo, chatHistory } = usePlayerSocket(
-    id,
-    user?.id ?? null,
-    user?.user_metadata?.username ?? 'guest'
-  );
+  const { sendMove, sendMessage, remotePlayersRef, playerInfo, chatHistory } =
+    usePlayerSocket(
+      id,
+      user?.id ?? null,
+      user?.user_metadata?.username ?? 'guest'
+    );
 
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [started, setStarted] = useState(false);
   const isAllReady = isInitReady && isSceneReady;
-
-
 
   if (initError) {
     return (

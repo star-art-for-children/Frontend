@@ -8,14 +8,13 @@ function RemotePlayer({
   playerInfo,
   remotePlayersRef,
 }: {
-  playerInfo:PlayerInfo
+  playerInfo: PlayerInfo;
   remotePlayersRef: React.RefObject<Map<string, RemotePlayerData>>;
-
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const targetPos = useRef(new THREE.Vector3());
-  const playerId=playerInfo.userId
-  const playerName=playerInfo.userName
+  const playerId = playerInfo.userId;
+  const playerName = playerInfo.userName;
   useFrame(() => {
     const data = remotePlayersRef.current.get(playerId);
     if (!data || !groupRef.current) return;
@@ -35,7 +34,7 @@ function RemotePlayer({
     <group ref={groupRef}>
       {/* 몸통 */}
       <Html position={[0, 1.9, 0]} center>
-        <div className="rounded-full bg-black/50 px-4 py-0.5 w-fit text-lg text-white whitespace-nowrap">
+        <div className="w-fit rounded-full bg-black/50 px-4 py-0.5 text-lg whitespace-nowrap text-white">
           {playerName}
         </div>
       </Html>
@@ -62,7 +61,11 @@ export default function RemotePlayers({
   return (
     <>
       {playerInfo.map((info) => (
-        <RemotePlayer key={info.userId} playerInfo={info} remotePlayersRef={remotePlayersRef} />
+        <RemotePlayer
+          key={info.userId}
+          playerInfo={info}
+          remotePlayersRef={remotePlayersRef}
+        />
       ))}
     </>
   );
