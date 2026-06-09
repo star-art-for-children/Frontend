@@ -1,4 +1,4 @@
-export type UserRole = 'teacher' | 'user';
+export type UserRole = 'teacher' | 'general';
 
 export type ExhibitionStatus = 'active' | 'upcoming' | 'ended';
 
@@ -24,7 +24,7 @@ export type UserProfile = {
   id: string;
   name: string;
   email: string;
-  role: 'user';
+  role: 'general';
 };
 
 export type Profile = TeacherProfile | UserProfile;

@@ -23,7 +23,7 @@ export default async function MyPage() {
   // PGRST116: row 없음 (정상 edge case) / 그 외 에러는 예외 처리
   if (profileError && profileError.code !== 'PGRST116') redirect('/');
 
-  const role = profileData?.role === 'teacher' ? 'teacher' : 'user';
+  const role = profileData?.role === 'teacher' ? 'teacher' : 'general';
   const name =
     profileData?.username ??
     user.user_metadata?.username ??
@@ -69,7 +69,7 @@ export default async function MyPage() {
       id: user.id,
       name,
       email,
-      role: 'user',
+      role: 'general',
     };
   }
 
