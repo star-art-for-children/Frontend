@@ -69,7 +69,7 @@ export default function ArtworkDetailContent({
 
   return (
     <div
-      className={cn('fixed inset-0 z-50 flex items-center justify-center px-4', DIALOG_OVERLAY_CLASS)}
+      className={cn('fixed top-0 left-0 bottom-0 w-screen z-50 flex items-center justify-center px-4', DIALOG_OVERLAY_CLASS)}
       onClick={onClose}
     >
       <div
