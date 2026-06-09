@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -30,14 +29,6 @@ export default function AppDialog({
   children,
   className,
 }: AppDialogProps) {
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [open]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger}

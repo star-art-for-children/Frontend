@@ -149,6 +149,7 @@ export default function BulkWorkDialog() {
 
       if (fail === 0) {
         handleClose();
+        setOpen(false);
         router.refresh();
       } else {
         setResult({ success, fail });
