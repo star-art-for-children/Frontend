@@ -117,7 +117,12 @@ export default function WorkDialog(props: WorkDialogProps) {
             className="hover:text-primary flex-1 rounded-lg"
           />
         ) : (
-          <Button className={cn('rounded-xl hover:bg-primary/80', addTriggerClassName)} />
+          <Button
+            className={cn(
+              'hover:bg-primary/80 rounded-xl',
+              addTriggerClassName
+            )}
+          />
         )
       }
     >
@@ -151,10 +156,7 @@ export default function WorkDialog(props: WorkDialogProps) {
             rules={{ required: true }}
             render={({ field }) => (
               <WorkFormBox label="작품 이미지" essential>
-                <ImageUploadBox
-                  value={field.value}
-                  onChange={field.onChange}
-                />
+                <ImageUploadBox value={field.value} onChange={field.onChange} />
               </WorkFormBox>
             )}
           />

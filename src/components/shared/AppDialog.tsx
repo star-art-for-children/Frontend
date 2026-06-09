@@ -7,10 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DIALOG_CARD_CLASS,
-  DIALOG_OVERLAY_CLASS,
-} from '@/lib/styles/dialog';
+import { DIALOG_CARD_CLASS, DIALOG_OVERLAY_CLASS } from '@/lib/styles/dialog';
 
 interface AppDialogProps {
   open: boolean;

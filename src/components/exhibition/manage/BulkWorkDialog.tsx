@@ -141,7 +141,9 @@ export default function BulkWorkDialog() {
         setOpen(false);
         router.refresh();
       } else {
-        const failedRows = data.rows.filter((_, i) => results[i].status === 'rejected');
+        const failedRows = data.rows.filter(
+          (_, i) => results[i].status === 'rejected'
+        );
         reset({ rows: failedRows });
         setResult({ success, fail });
       }
@@ -165,10 +167,7 @@ export default function BulkWorkDialog() {
   const trigger = (
     <DialogTrigger
       render={
-        <Button
-          variant="white"
-          className="rounded-xl px-4 py-5 font-bold"
-        />
+        <Button variant="white" className="rounded-xl px-4 py-5 font-bold" />
       }
     >
       <Layers className="h-4 w-4" />
