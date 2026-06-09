@@ -158,6 +158,11 @@ export default function BulkWorkDialog() {
     [id, handleClose, router]
   );
 
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => handleSubmit(submitHandler)(e),
+    [handleSubmit, submitHandler]
+  );
+
   const handleOpenChange = useCallback(
     (v: boolean) => {
       if (!v) handleClose();
@@ -214,7 +219,7 @@ export default function BulkWorkDialog() {
           <p className="text-secondary/40 text-xs">JPG, PNG, GIF, WebP 지원</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(submitHandler)}>
+        <form onSubmit={onSubmit}>
           <div className="space-y-2">
             {fields.map((field, index) => (
               <RowItem
