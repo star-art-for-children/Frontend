@@ -1,10 +1,12 @@
 'use client';
 
+import OAuthButtons from '@/components/auth/OAuthButtons';
 import { sendOtpSchema, signupFormSchema } from '@/lib/schemas/auth';
 import { getAuthErrorMessage } from '@/lib/supabase/authErrors';
 import { createClient } from '@/lib/supabase/client';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  ArrowLeft,
   Building2,
   CheckCircle,
   Eye,
@@ -24,6 +26,8 @@ const FormField = () => {
   const supabase = createClient();
 
   const [userType, setUserType] = useState<UserType>('general');
+  // 'choice': OAuth + 이메일 회원가입 선택 화면 / 'form': 이메일 가입 폼
+  const [view, setView] = useState<'choice' | 'form'>('choice');
   const [emailSent, setEmailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -233,319 +237,372 @@ const FormField = () => {
   };
   return (
     <>
-      {/* Form Card */}
-      <div className="border-secondary/5 rounded-3xl border bg-white p-8 pb-9 shadow-[0px_20px_25px_0px_rgba(0,0,0,0.1),0px_8px_10px_0px_rgba(0,0,0,0.1)]">
-        {/* Tab Switcher */}
-        <div className="mb-6 flex rounded-2xl bg-[#faf7f2] p-1">
-          <button
-            onClick={() => setUserType('general')}
-            className={`h-10 flex-1 rounded-[14px] text-[14px] font-medium transition-all ${
-              userType === 'general'
-                ? 'text-secondary bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]'
-                : 'text-secondary/50'
-            }`}
-          >
-            👤 일반 사용자
-          </button>
-          <button
-            onClick={() => setUserType('teacher')}
-            className={`h-10 flex-1 rounded-[14px] text-[14px] font-medium transition-all ${
-              userType === 'teacher'
-                ? 'text-secondary bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]'
-                : 'text-secondary/50'
-            }`}
-          >
-            🎨 선생님
-          </button>
+      {view === 'choice' ? (
+        /* 선택 화면: OAuth + 이메일 회원가입 */
+        <div className="border-secondary/5 rounded-3xl border bg-white p-8 pb-9 shadow-[0px_20px_25px_0px_rgba(0,0,0,0.1),0px_8px_10px_0px_rgba(0,0,0,0.1)]">
+          <div className="flex flex-col gap-6">
+            {/* 이메일로 회원가입 버튼 */}
+            <button
+              type="button"
+              onClick={() => setView('form')}
+              className="border-secondary/10 text-secondary flex h-13 w-full items-center justify-center gap-3 rounded-[14px] border bg-white text-[16px] font-medium transition-all hover:bg-[#faf7f2] active:scale-[0.99]"
+            >
+              <Mail className="h-5 w-5" />
+              이메일로 회원가입
+            </button>
+
+            {/* "또는" 구분선 */}
+            <div className="flex items-center gap-3">
+              <div className="border-secondary/10 flex-1 border-t" />
+              <span className="text-secondary/40 text-[13px]">또는</span>
+              <div className="border-secondary/10 flex-1 border-t" />
+            </div>
+
+            {/* OAuth 회원가입 (구분선은 아래에서 직접 배치) */}
+            <OAuthButtons showDivider={false} />
+
+            {/* 로그인 링크 */}
+            <p className="text-secondary/50 text-center text-[14px]">
+              이미 계정이 있으신가요?{' '}
+              <Link
+                href="/login"
+                className="text-primary font-medium hover:underline"
+              >
+                로그인
+              </Link>
+            </p>
+          </div>
         </div>
+      ) : (
+        /* Form Card */
+        <div className="border-secondary/5 rounded-3xl border bg-white p-8 pb-9 shadow-[0px_20px_25px_0px_rgba(0,0,0,0.1),0px_8px_10px_0px_rgba(0,0,0,0.1)]">
+          {/* 돌아가기 */}
+          <button
+            type="button"
+            onClick={() => setView('choice')}
+            className="text-secondary/50 hover:text-secondary mb-4 flex items-center gap-1 text-[14px] font-medium transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            돌아가기
+          </button>
 
-        {/* Form Fields */}
-        <div className="flex flex-col gap-6">
-          {/* 기본 필드 + 선생님 필드 컨테이너 */}
-          <div className="flex flex-col">
-            {/* 기본 필드 */}
-            <div className="flex flex-col gap-6">
-              {/* 이름 */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-secondary text-[14px] font-medium">
-                  이름
-                </label>
-                <div className="relative">
-                  <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
-                    <User className="h-3.75 w-3.75" />
-                  </div>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      setName(e.target.value);
-                      clearFieldError('name');
-                    }}
-                    placeholder="이름을 입력하세요"
-                    className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
-                  />
-                </div>
-                {fieldErrors.name && (
-                  <p className="text-[12px] text-red-500">{fieldErrors.name}</p>
-                )}
-              </div>
+          {/* Tab Switcher */}
+          <div className="mb-6 flex rounded-2xl bg-[#faf7f2] p-1">
+            <button
+              onClick={() => setUserType('general')}
+              className={`h-10 flex-1 rounded-[14px] text-[14px] font-medium transition-all ${
+                userType === 'general'
+                  ? 'text-secondary bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]'
+                  : 'text-secondary/50'
+              }`}
+            >
+              👤 일반 사용자
+            </button>
+            <button
+              onClick={() => setUserType('teacher')}
+              className={`h-10 flex-1 rounded-[14px] text-[14px] font-medium transition-all ${
+                userType === 'teacher'
+                  ? 'text-secondary bg-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]'
+                  : 'text-secondary/50'
+              }`}
+            >
+              🎨 선생님
+            </button>
+          </div>
 
-              {/* 이메일 */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-secondary text-[14px] font-medium">
-                  이메일
-                </label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
+          {/* Form Fields */}
+          <div className="flex flex-col gap-6">
+            {/* 기본 필드 + 선생님 필드 컨테이너 */}
+            <div className="flex flex-col">
+              {/* 기본 필드 */}
+              <div className="flex flex-col gap-6">
+                {/* 이름 */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-secondary text-[14px] font-medium">
+                    이름
+                  </label>
+                  <div className="relative">
                     <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
-                      <Mail className="h-3.75 w-3.75" />
+                      <User className="h-3.75 w-3.75" />
                     </div>
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      placeholder="example@email.com"
+                      type="text"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        clearFieldError('name');
+                      }}
+                      placeholder="이름을 입력하세요"
                       className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={isSendingOtp}
-                    className="bg-primary/10 text-primary hover:bg-primary/20 h-12.5 rounded-[14px] px-4 text-[14px] font-medium whitespace-nowrap transition-colors disabled:opacity-60"
-                  >
-                    {isSendingOtp
-                      ? '발송 중...'
-                      : emailSent
-                        ? '재발송'
-                        : '인증발송'}
-                  </button>
-                </div>
-                {fieldErrors.email && (
-                  <p className="text-[12px] text-red-500">
-                    {fieldErrors.email}
-                  </p>
-                )}
-                {emailStatusMessage && (
-                  <p
-                    className={`text-[12px] ${
-                      emailStatusMessage.type === 'error'
-                        ? 'text-red-500'
-                        : 'text-[#00c950]'
-                    }`}
-                  >
-                    {emailStatusMessage.text}
-                  </p>
-                )}
-              </div>
-
-              {/* 인증번호 */}
-              {emailSent && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-secondary text-[14px] font-medium">
-                    인증번호
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={8}
-                      value={otp}
-                      onChange={(e) => {
-                        setOtp(e.target.value.replace(/\D/g, ''));
-                        clearFieldError('otp');
-                      }}
-                      placeholder="인증번호 8자리 입력"
-                      className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 flex-1 rounded-[14px] border bg-[#faf7f2] px-4 text-[16px] transition-all outline-none focus:ring-2"
-                    />
-                    <div className="flex shrink-0 items-center gap-1">
-                      <CheckCircle className="h-3.5 w-3.5 text-[#00c950]" />
-                      <span className="text-[14px] text-[#00c950]">발송됨</span>
-                    </div>
-                  </div>
-                  {fieldErrors.otp && (
+                  {fieldErrors.name && (
                     <p className="text-[12px] text-red-500">
-                      {fieldErrors.otp}
+                      {fieldErrors.name}
                     </p>
                   )}
                 </div>
-              )}
 
-              {/* 비밀번호 */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-secondary text-[14px] font-medium">
-                  비밀번호
-                </label>
-                <div className="relative">
-                  <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
-                    <Lock className="h-3.75 w-3.75" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      clearFieldError('password');
-                      clearFieldError('confirmPassword');
-                    }}
-                    placeholder="8자 이상, 영문·숫자·특수문자 포함"
-                    className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-secondary/40 hover:text-secondary/70 absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-3.75 w-3.75" />
-                    ) : (
-                      <Eye className="h-3.75 w-3.75" />
-                    )}
-                  </button>
-                </div>
-                {fieldErrors.password && (
-                  <p className="text-[12px] text-red-500">
-                    {fieldErrors.password}
-                  </p>
-                )}
-              </div>
-
-              {/* 비밀번호 확인 */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-secondary text-[14px] font-medium">
-                  비밀번호 확인
-                </label>
-                <div className="relative">
-                  <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
-                    <Lock className="h-3.75 w-3.75" />
-                  </div>
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      clearFieldError('confirmPassword');
-                    }}
-                    placeholder="비밀번호 재입력"
-                    className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="text-secondary/40 hover:text-secondary/70 absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-3.75 w-3.75" />
-                    ) : (
-                      <Eye className="h-3.75 w-3.75" />
-                    )}
-                  </button>
-                </div>
-                {fieldErrors.confirmPassword && (
-                  <p className="text-[12px] text-red-500">
-                    {fieldErrors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* 선생님 전용 필드 */}
-            <AnimatePresence initial={false}>
-              {userType === 'teacher' && (
-                <motion.div
-                  key="teacher-fields"
-                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                  animate={{
-                    opacity: 1,
-                    height: 'auto',
-                    marginTop: '1.5rem',
-                  }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="flex flex-col gap-6 overflow-hidden"
-                >
-                  {/* 교육기관명 */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-secondary text-[14px] font-medium">
-                      교육기관명
-                    </label>
-                    <div className="relative">
+                {/* 이메일 */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-secondary text-[14px] font-medium">
+                    이메일
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
                       <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
-                        <Building2 className="h-3.75 w-3.75" />
+                        <Mail className="h-3.75 w-3.75" />
                       </div>
                       <input
-                        type="text"
-                        value={organization}
-                        onChange={(e) => {
-                          setOrganization(e.target.value);
-                          clearFieldError('organization');
-                        }}
-                        placeholder="학원 / 학교명"
+                        type="email"
+                        value={email}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        placeholder="example@email.com"
                         className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
                       />
                     </div>
-                    {fieldErrors.organization && (
-                      <p className="text-[12px] text-red-500">
-                        {fieldErrors.organization}
-                      </p>
-                    )}
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={isSendingOtp}
+                      className="bg-primary/10 text-primary hover:bg-primary/20 h-12.5 rounded-[14px] px-4 text-[14px] font-medium whitespace-nowrap transition-colors disabled:opacity-60"
+                    >
+                      {isSendingOtp
+                        ? '발송 중...'
+                        : emailSent
+                          ? '재발송'
+                          : '인증발송'}
+                    </button>
                   </div>
+                  {fieldErrors.email && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.email}
+                    </p>
+                  )}
+                  {emailStatusMessage && (
+                    <p
+                      className={`text-[12px] ${
+                        emailStatusMessage.type === 'error'
+                          ? 'text-red-500'
+                          : 'text-[#00c950]'
+                      }`}
+                    >
+                      {emailStatusMessage.text}
+                    </p>
+                  )}
+                </div>
 
-                  {/* 사용 목적 */}
+                {/* 인증번호 */}
+                {emailSent && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-secondary text-[14px] font-medium">
-                      사용 목적
+                      인증번호
                     </label>
-                    <textarea
-                      value={purpose}
-                      onChange={(e) => {
-                        setPurpose(e.target.value);
-                        clearFieldError('purpose');
-                      }}
-                      placeholder="사용 목적을 간략하게 작성해주세요"
-                      rows={4}
-                      className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 w-full resize-none rounded-[14px] border bg-[#faf7f2] px-4 py-3 text-[16px] leading-6 transition-all outline-none focus:ring-2"
-                    />
-                    {fieldErrors.purpose && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={8}
+                        value={otp}
+                        onChange={(e) => {
+                          setOtp(e.target.value.replace(/\D/g, ''));
+                          clearFieldError('otp');
+                        }}
+                        placeholder="인증번호 8자리 입력"
+                        className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 flex-1 rounded-[14px] border bg-[#faf7f2] px-4 text-[16px] transition-all outline-none focus:ring-2"
+                      />
+                      <div className="flex shrink-0 items-center gap-1">
+                        <CheckCircle className="h-3.5 w-3.5 text-[#00c950]" />
+                        <span className="text-[14px] text-[#00c950]">
+                          발송됨
+                        </span>
+                      </div>
+                    </div>
+                    {fieldErrors.otp && (
                       <p className="text-[12px] text-red-500">
-                        {fieldErrors.purpose}
+                        {fieldErrors.otp}
                       </p>
                     )}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                )}
+
+                {/* 비밀번호 */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-secondary text-[14px] font-medium">
+                    비밀번호
+                  </label>
+                  <div className="relative">
+                    <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
+                      <Lock className="h-3.75 w-3.75" />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        clearFieldError('password');
+                        clearFieldError('confirmPassword');
+                      }}
+                      placeholder="8자 이상, 영문·숫자·특수문자 포함"
+                      className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-secondary/40 hover:text-secondary/70 absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-3.75 w-3.75" />
+                      ) : (
+                        <Eye className="h-3.75 w-3.75" />
+                      )}
+                    </button>
+                  </div>
+                  {fieldErrors.password && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* 비밀번호 확인 */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-secondary text-[14px] font-medium">
+                    비밀번호 확인
+                  </label>
+                  <div className="relative">
+                    <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
+                      <Lock className="h-3.75 w-3.75" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        clearFieldError('confirmPassword');
+                      }}
+                      placeholder="비밀번호 재입력"
+                      className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-12 pl-10 text-[16px] transition-all outline-none focus:ring-2"
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="text-secondary/40 hover:text-secondary/70 absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-3.75 w-3.75" />
+                      ) : (
+                        <Eye className="h-3.75 w-3.75" />
+                      )}
+                    </button>
+                  </div>
+                  {fieldErrors.confirmPassword && (
+                    <p className="text-[12px] text-red-500">
+                      {fieldErrors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* 선생님 전용 필드 */}
+              <AnimatePresence initial={false}>
+                {userType === 'teacher' && (
+                  <motion.div
+                    key="teacher-fields"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{
+                      opacity: 1,
+                      height: 'auto',
+                      marginTop: '1.5rem',
+                    }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="flex flex-col gap-6 overflow-hidden"
+                  >
+                    {/* 교육기관명 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-secondary text-[14px] font-medium">
+                        교육기관명
+                      </label>
+                      <div className="relative">
+                        <div className="text-secondary/40 absolute top-1/2 left-3.5 -translate-y-1/2">
+                          <Building2 className="h-3.75 w-3.75" />
+                        </div>
+                        <input
+                          type="text"
+                          value={organization}
+                          onChange={(e) => {
+                            setOrganization(e.target.value);
+                            clearFieldError('organization');
+                          }}
+                          placeholder="학원 / 학교명"
+                          className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 h-12.5 w-full rounded-[14px] border bg-[#faf7f2] pr-4 pl-10 text-[16px] transition-all outline-none focus:ring-2"
+                        />
+                      </div>
+                      {fieldErrors.organization && (
+                        <p className="text-[12px] text-red-500">
+                          {fieldErrors.organization}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 사용 목적 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-secondary text-[14px] font-medium">
+                        사용 목적
+                      </label>
+                      <textarea
+                        value={purpose}
+                        onChange={(e) => {
+                          setPurpose(e.target.value);
+                          clearFieldError('purpose');
+                        }}
+                        placeholder="사용 목적을 간략하게 작성해주세요"
+                        rows={4}
+                        className="border-secondary/5 text-secondary placeholder:text-secondary/30 focus:border-primary/40 focus:ring-primary/30 w-full resize-none rounded-[14px] border bg-[#faf7f2] px-4 py-3 text-[16px] leading-6 transition-all outline-none focus:ring-2"
+                      />
+                      {fieldErrors.purpose && (
+                        <p className="text-[12px] text-red-500">
+                          {fieldErrors.purpose}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* 메시지 영역 */}
+            {errorMessage && (
+              <p className="text-[14px] text-red-500">{errorMessage}</p>
+            )}
+
+            {/* 취소 / 회원가입 버튼 */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setView('choice')}
+                disabled={isSubmitting}
+                className="border-secondary/10 text-secondary/70 h-13 rounded-[14px] border bg-white px-6 text-[16px] font-medium transition-all hover:bg-[#faf7f2] active:scale-[0.99] disabled:opacity-60"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleSignup}
+                disabled={isSubmitting}
+                className="bg-primary h-13 flex-1 rounded-[14px] text-[16px] font-semibold text-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-all hover:bg-[#e5aa35] active:scale-[0.99] disabled:opacity-60"
+              >
+                {isSubmitting ? '처리 중...' : '회원가입 완료'}
+              </button>
+            </div>
           </div>
-
-          {/* 메시지 영역 */}
-          {errorMessage && (
-            <p className="text-[14px] text-red-500">{errorMessage}</p>
-          )}
-
-          {/* 회원가입 버튼 */}
-          <button
-            type="button"
-            onClick={handleSignup}
-            disabled={isSubmitting}
-            className="bg-primary h-13 w-full rounded-[14px] text-[16px] font-semibold text-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-all hover:bg-[#e5aa35] active:scale-[0.99] disabled:opacity-60"
-          >
-            {isSubmitting ? '처리 중...' : '회원가입 완료'}
-          </button>
-
-          {/* 로그인 링크 */}
-          <p className="text-secondary/50 text-center text-[14px]">
-            이미 계정이 있으신가요?{' '}
-            <Link
-              href="/login"
-              className="text-primary font-medium hover:underline"
-            >
-              로그인
-            </Link>
-          </p>
         </div>
-      </div>
+      )}
     </>
   );
 };
