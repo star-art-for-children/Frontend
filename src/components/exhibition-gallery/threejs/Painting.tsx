@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Group, Texture, Vector3, VideoTexture } from 'three';
+import { useEffect, useMemo, useRef } from 'react';
+import {
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  SRGBColorSpace,
+  Texture,
+  Vector3,
+  VideoTexture,
+} from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Download, Heart } from 'lucide-react';
@@ -30,9 +38,10 @@ export default function Painting({
   videoUrl?: string | null;
 }) {
   const localRef = useRef<Group>(null);
+  const meshRef = useRef<Mesh>(null);
   const worldPosRef = useRef(new Vector3());
   const isNearRef = useRef(false);
-  const [isNear, setIsNear] = useState(false);
+  const mountedAtRef = useRef(Date.now());
 
   const videoData = useMemo(() => {
     if (!videoUrl) return null;
@@ -42,34 +51,51 @@ export default function Painting({
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
-    return { video, texture: new VideoTexture(video) };
+    video.preload = 'auto';
+    const texture = new VideoTexture(video);
+    texture.colorSpace = SRGBColorSpace;
+    return { video, texture };
   }, [videoUrl]);
 
   useEffect(() => {
+    const v = videoData?.video;
+    if (!v) return;
+    v.load();
+    v.play().catch(() => {});
     return () => {
-      videoData?.video.pause();
-      videoData?.texture.dispose();
+      v.pause();
+      videoData.texture.dispose();
     };
   }, [videoData]);
 
   useFrame(({ camera }) => {
-    if (!localRef.current || !videoData) return;
+    if (!localRef.current || !videoData || !meshRef.current) return;
     localRef.current.getWorldPosition(worldPosRef.current);
     const near =
       camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
-    if (near !== isNearRef.current) {
-      isNearRef.current = near;
-      setIsNear(near);
-      if (near) {
-        videoData.video.play().catch(() => {});
-      } else {
-        videoData.video.pause();
-      }
+    const videoReady = videoData.video.readyState >= 3;
+    const shouldShow = near && videoReady;
+
+    const warmedUp = Date.now() - mountedAtRef.current > 3000;
+    if (near && videoData.video.paused) {
+      videoData.video.play().catch(() => {});
+    } else if (!near && !videoData.video.paused && warmedUp) {
+      videoData.video.pause();
+    }
+
+    if (shouldShow !== isNearRef.current) {
+      isNearRef.current = shouldShow;
+      const mat = meshRef.current.material as MeshStandardMaterial;
+      mat.map = shouldShow ? videoData.texture : img;
+      mat.needsUpdate = true;
+    }
+
+    if (isNearRef.current && videoData.video.readyState >= 2) {
+      videoData.texture.needsUpdate = true;
     }
   });
 
-  const displayTexture = isNear && videoData ? videoData.texture : img;
-  const [imgW, imgH] = checkImgSize(displayTexture, w, h, 0.4);
+  const [imgW, imgH] = checkImgSize(img, w, h, 0.4);
 
   if (!details) return null;
 
@@ -101,9 +127,9 @@ export default function Painting({
       </mesh>
 
       {/* 작품 이미지 */}
-      <mesh position={[0, 0, imgZ]}>
+      <mesh ref={meshRef} position={[0, 0, imgZ]}>
         <planeGeometry args={[imgW, imgH]} />
-        <meshStandardMaterial map={displayTexture} />
+        <meshStandardMaterial map={img} />
       </mesh>
 
       {/* 작품 정보 */}
