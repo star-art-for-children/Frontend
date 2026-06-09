@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -19,26 +19,25 @@ const fieldClass =
 
 function RowItem({
   index,
-  fieldId,
   imageFile,
-  urlCache,
   onRemove,
   register,
 }: {
   index: number;
-  fieldId: string;
   imageFile: File | undefined;
-  urlCache: React.RefObject<Map<string, string>>;
   onRemove: () => void;
   register: ReturnType<typeof useForm<BulkForm>>['register'];
 }) {
-  let preview = '';
-  if (imageFile) {
-    if (!urlCache.current.has(fieldId)) {
-      urlCache.current.set(fieldId, URL.createObjectURL(imageFile));
-    }
-    preview = urlCache.current.get(fieldId)!;
-  }
+  const preview = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : ''),
+    [imageFile]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   return (
     <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-[0_1px_4px_rgba(44,40,38,0.06)]">
@@ -88,7 +87,6 @@ export default function BulkWorkDialog() {
     fail: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const urlCache = useRef<Map<string, string>>(new Map());
 
   const {
     register,
@@ -114,18 +112,9 @@ export default function BulkWorkDialog() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleRemove = (index: number, fieldId: string) => {
-    const url = urlCache.current.get(fieldId);
-    if (url) {
-      URL.revokeObjectURL(url);
-      urlCache.current.delete(fieldId);
-    }
-    remove(index);
-  };
+  const handleRemove = (index: number) => remove(index);
 
   const handleClose = useCallback(() => {
-    urlCache.current.forEach((url) => URL.revokeObjectURL(url));
-    urlCache.current.clear();
     reset();
     setResult(null);
   }, [reset]);
@@ -225,10 +214,8 @@ export default function BulkWorkDialog() {
               <RowItem
                 key={field.id}
                 index={index}
-                fieldId={field.id}
                 imageFile={rowValues[index]?.image}
-                urlCache={urlCache}
-                onRemove={() => handleRemove(index, field.id)}
+                onRemove={() => handleRemove(index)}
                 register={register}
               />
             ))}
