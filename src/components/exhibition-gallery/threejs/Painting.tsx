@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Group,
   Mesh,
@@ -19,6 +19,8 @@ const MAT_M = 0.035;
 const FRAME_D = 0.06;
 const MAT_D = 0.035;
 const VIDEO_NEAR_THRESHOLD = 5;
+
+type VideoData = { video: HTMLVideoElement; texture: VideoTexture };
 
 export default function Painting({
   img,
@@ -41,10 +43,12 @@ export default function Painting({
   const meshRef = useRef<Mesh>(null);
   const worldPosRef = useRef(new Vector3());
   const isNearRef = useRef(false);
-  const mountedAtRef = useRef(Date.now());
+  const mountedAtRef = useRef(0);
+  const videoDataRef = useRef<VideoData | null>(null);
 
-  const videoData = useMemo(() => {
-    if (!videoUrl) return null;
+  useEffect(() => {
+    mountedAtRef.current = Date.now();
+    if (!videoUrl) return;
     const video = document.createElement('video');
     video.crossOrigin = 'anonymous';
     video.src = videoUrl;
@@ -54,44 +58,44 @@ export default function Painting({
     video.preload = 'auto';
     const texture = new VideoTexture(video);
     texture.colorSpace = SRGBColorSpace;
-    return { video, texture };
+    videoDataRef.current = { video, texture };
+    video.load();
+    video.play().catch(() => {});
+    return () => {
+      video.pause();
+      texture.dispose();
+      videoDataRef.current = null;
+    };
   }, [videoUrl]);
 
-  useEffect(() => {
-    const v = videoData?.video;
-    if (!v) return;
-    v.load();
-    v.play().catch(() => {});
-    return () => {
-      v.pause();
-      videoData.texture.dispose();
-    };
-  }, [videoData]);
-
   useFrame(({ camera }) => {
-    if (!localRef.current || !videoData || !meshRef.current) return;
+    const videoData = videoDataRef.current;
+    if (!localRef.current || !meshRef.current) return;
     localRef.current.getWorldPosition(worldPosRef.current);
     const near =
       camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
-    const videoReady = videoData.video.readyState >= 3;
-    const shouldShow = near && videoReady;
 
-    const warmedUp = Date.now() - mountedAtRef.current > 3000;
-    if (near && videoData.video.paused) {
-      videoData.video.play().catch(() => {});
-    } else if (!near && !videoData.video.paused && warmedUp) {
-      videoData.video.pause();
-    }
+    if (videoData) {
+      const videoReady = videoData.video.readyState >= 3;
+      const shouldShow = near && videoReady;
 
-    if (shouldShow !== isNearRef.current) {
-      isNearRef.current = shouldShow;
-      const mat = meshRef.current.material as MeshStandardMaterial;
-      mat.map = shouldShow ? videoData.texture : img;
-      mat.needsUpdate = true;
-    }
+      const warmedUp = Date.now() - mountedAtRef.current > 3000;
+      if (near && videoData.video.paused) {
+        videoData.video.play().catch(() => {});
+      } else if (!near && !videoData.video.paused && warmedUp) {
+        videoData.video.pause();
+      }
 
-    if (isNearRef.current && videoData.video.readyState >= 2) {
-      videoData.texture.needsUpdate = true;
+      if (shouldShow !== isNearRef.current) {
+        isNearRef.current = shouldShow;
+        const mat = meshRef.current.material as MeshStandardMaterial;
+        mat.map = shouldShow ? videoData.texture : img;
+        mat.needsUpdate = true;
+      }
+
+      if (isNearRef.current && videoData.video.readyState >= 2) {
+        videoData.texture.needsUpdate = true;
+      }
     }
   });
 
