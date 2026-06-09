@@ -34,7 +34,7 @@ export default function AppDialog({
       {trigger}
       <DialogContent
         className={cn(
-          'max-h-[90vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-0!',
+          'w-[calc(100%-2rem)] max-w-lg overflow-hidden p-0!',
           DIALOG_CARD_CLASS,
           className
         )}
@@ -42,14 +42,16 @@ export default function AppDialog({
         showCloseButton={false}
         initialFocus={false}
       >
-        <div className="px-6 pt-6 pb-2">
-          <DialogHeader>
-            <DialogTitle className="text-secondary text-lg font-bold">
-              {title}
-            </DialogTitle>
-          </DialogHeader>
+        <div className="max-h-[90vh] overflow-y-auto">
+          <div className="px-6 pt-6 pb-2">
+            <DialogHeader>
+              <DialogTitle className="text-secondary text-lg font-bold">
+                {title}
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="px-6 pb-6">{children}</div>
         </div>
-        <div className="px-6 pb-6">{children}</div>
       </DialogContent>
     </Dialog>
   );
