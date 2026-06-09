@@ -11,6 +11,7 @@ export default function Player({
   startPos,
   startLookAt,
   circleCollidersRef,
+  sendMove,
 }: {
   size?: number;
   speed: number;
@@ -18,6 +19,7 @@ export default function Player({
   startPos: { x: number; y: number; z: number };
   startLookAt?: { x: number; y: number; z: number };
   circleCollidersRef?: React.RefObject<CircleCollider[]>;
+  sendMove?: (camera: THREE.Camera) => void;
 }) {
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());
@@ -33,6 +35,8 @@ export default function Player({
   });
 
   const localPos = useRef(new THREE.Vector3());
+  const prevPos = useRef(new THREE.Vector3(Infinity, Infinity, Infinity));
+  const prevYaw = useRef(Infinity);
 
   const initialized = useRef(false);
 
@@ -96,6 +100,8 @@ export default function Player({
       initialized.current = true;
     }
 
+    if (!document.pointerLockElement) return;
+
     direction.current.set(0, 0, 0);
 
     if (keys.current.w) direction.current.z -= 1;
@@ -156,6 +162,23 @@ export default function Player({
 
     if (!blocked) {
       camera.position.copy(newPos);
+    }
+
+    if (sendMove) {
+      forward.current.set(0, 0, -1).applyQuaternion(camera.quaternion);
+      forward.current.y = 0;
+      forward.current.normalize();
+      const yaw = Math.atan2(forward.current.x, forward.current.z);
+
+      const posMoved =
+        camera.position.distanceToSquared(prevPos.current) > 0.0001;
+      const yawChanged = Math.abs(yaw - prevYaw.current) > 0.01;
+
+      if (posMoved || yawChanged) {
+        prevPos.current.copy(camera.position);
+        prevYaw.current = yaw;
+        sendMove(camera);
+      }
     }
   });
 

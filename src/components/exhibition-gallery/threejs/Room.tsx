@@ -5,7 +5,6 @@ import { Group, Quaternion, RepeatWrapping, Vector3 } from 'three';
 import { likesToggle } from '@/lib/artwork/service';
 import { useImageDownload } from '@/hooks/useImageDownload';
 
-import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
 import { FloorConfig, WallPatternConfig } from '@/types/gallery-theme';
@@ -21,7 +20,7 @@ export default function Room({
   walls,
   innerWalls,
   exhibitionId,
-  user,
+  canLikes,
   floorConfig = defaultPreset.floor,
   wallColor = defaultPreset.wallColor,
   wallPattern,
@@ -32,7 +31,7 @@ export default function Room({
   walls: WAllType[];
   innerWalls: WAllType[];
   exhibitionId: string;
-  user: User | null;
+  canLikes: boolean;
   floorConfig?: FloorConfig;
   wallColor?: string;
   wallPattern?: WallPatternConfig;
@@ -184,11 +183,12 @@ export default function Room({
     };
 
     const handler = (e: KeyboardEvent) => {
+      if (!document.pointerLockElement) return;
       const painting = closestPaintingRef.current;
       if (!painting) return;
 
       if (e.key === '1') {
-        if (!user) return;
+        if (!canLikes) return;
         postLikes();
       }
 
@@ -204,7 +204,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [exhibitionId, user, router, download]);
+  }, [exhibitionId, canLikes, router, download]);
 
   return (
     <>
