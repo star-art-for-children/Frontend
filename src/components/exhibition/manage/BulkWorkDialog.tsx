@@ -141,10 +141,12 @@ export default function BulkWorkDialog() {
         setOpen(false);
         router.refresh();
       } else {
+        const failedRows = data.rows.filter((_, i) => results[i].status === 'rejected');
+        reset({ rows: failedRows });
         setResult({ success, fail });
       }
     },
-    [id, handleClose, router]
+    [id, handleClose, reset, router]
   );
 
   const onSubmit = useCallback(
