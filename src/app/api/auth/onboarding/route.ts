@@ -75,19 +75,17 @@ export async function POST(req: NextRequest) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  const { error: upsertError } = await supabaseAdmin
-    .from('profiles')
-    .upsert(
-      {
-        id: user.id,
-        username: name,
-        role,
-        institution,
-        purpose,
-        onboarded: true,
-      },
-      { onConflict: 'id' }
-    );
+  const { error: upsertError } = await supabaseAdmin.from('profiles').upsert(
+    {
+      id: user.id,
+      username: name,
+      role,
+      institution,
+      purpose,
+      onboarded: true,
+    },
+    { onConflict: 'id' }
+  );
 
   if (upsertError) {
     return NextResponse.json(

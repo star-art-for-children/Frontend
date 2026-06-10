@@ -9,7 +9,7 @@ export default async function SignupPage() {
   if (user && onboarded) redirect('/');
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#FAF7F2] px-4 pt-28 pb-12">
+    <main className="flex flex-1 items-center justify-center bg-[#FAF7F2] px-4 pt-28 pb-12">
       <div className="w-full max-w-lg">
         {/* Logo + Title */}
         <div className="mb-8 flex flex-col items-center gap-3">
