@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PlayerInfo, RemotePlayerData } from '@/hooks/usePlayerSocket';
 import { Html } from '@react-three/drei';
-import FallGuysCharacter from './FallGuysCharacter';
+import HumanCharacter from './characters/HumanCharacter';
+import BunnyCharacter from '@/components/exhibition-gallery/threejs/characters/BunnyCharacter';
 
 function RemotePlayer({
   playerInfo,
@@ -16,6 +17,7 @@ function RemotePlayer({
   const targetPos = useRef(new THREE.Vector3());
   const playerId = playerInfo.userId;
   const playerName = playerInfo.userName;
+  const playerModel=playerInfo.model;
   const initializedRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
@@ -51,7 +53,10 @@ function RemotePlayer({
         </Html>
       )}
 
-      <FallGuysCharacter />
+      {
+        playerModel==='human' ?<HumanCharacter /> : <BunnyCharacter/>
+      }
+
     </group>
   );
 }

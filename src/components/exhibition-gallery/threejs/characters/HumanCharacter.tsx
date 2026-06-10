@@ -16,7 +16,7 @@ type HumanGLTFResult = GLTF & {
   animations: THREE.AnimationClip[];
 };
 
-export default function FallGuysCharacter() {
+export default function HumanCharacter() {
   const groupRef = useRef<THREE.Group>(null);
   const actionsRef = useRef<Partial<Record<ActionName, THREE.AnimationAction>>>(
     {}

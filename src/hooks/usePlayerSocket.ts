@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
 
 export type SendMoveFn = (camera: THREE.Camera) => void;
+export type CharacterModel = 'bunny' | 'human';
 
 export type RemotePlayerData = {
   x: number;
@@ -10,33 +11,19 @@ export type RemotePlayerData = {
   yaw: number;
 };
 
-export type PlayerInfo = { userId: string; userName: string };
+export type PlayerInfo = { userId: string; userName: string; model: CharacterModel };
 
 export type ChatHistory = { userId: string; userName: string; message: string };
 
 type OutboundMessage =
-  | { type: 'join'; userId: string; userName: string }
+  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
-  | {
-      type: 'move';
-      userId: string;
-      x: number;
-      y: number;
-      z: number;
-      yaw: number;
-    }
+  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
   | { type: 'message'; userId: string; message: string };
 
 type InboundMessage =
-  | {
-      type: 'move';
-      userId: string;
-      x: number;
-      y: number;
-      z: number;
-      yaw: number;
-    }
-  | { type: 'join'; userId: string; userName: string }
+  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
+  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string };
 
@@ -46,7 +33,8 @@ const _forward = new THREE.Vector3();
 export function usePlayerSocket(
   exhibitionId: string,
   userId: string | null,
-  userName: string | null
+  userName: string | null,
+  model: CharacterModel = 'human'
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const lastSentAt = useRef(0);
@@ -78,7 +66,7 @@ export function usePlayerSocket(
 
     ws.onopen = () => {
       const myName = userName ?? userId;
-      ws.send(JSON.stringify({ type: 'join', userId, userName: myName }));
+      ws.send(JSON.stringify({ type: 'join', userId, userName: myName, model }));
     };
 
     ws.onmessage = (e: MessageEvent) => {
@@ -104,7 +92,7 @@ export function usePlayerSocket(
         setPlayerInfo((prev) =>
           prev.find((p) => p.userId === msg.userId)
             ? prev
-            : [...prev, { userId: msg.userId, userName: msg.userName }]
+            : [...prev, { userId: msg.userId, userName: msg.userName, model: msg.model }]
         );
       } else if (msg.type === 'leave') {
         remotePlayersRef.current.delete(msg.userId);
@@ -123,7 +111,7 @@ export function usePlayerSocket(
       }
       ws.close();
     };
-  }, [exhibitionId, userId, userName]);
+  }, [exhibitionId, userId, userName, model]);
 
   const sendMove = useCallback(
     (camera: THREE.Camera) => {
