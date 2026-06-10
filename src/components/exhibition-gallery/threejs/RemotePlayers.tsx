@@ -25,7 +25,9 @@ function RemotePlayer({
     groupRef.current.position.lerp(targetPos.current, 0.15);
 
     let diff = data.yaw - groupRef.current.rotation.y;
-    diff = ((diff + Math.PI) % (Math.PI * 2)) - Math.PI;
+    diff =
+      ((((diff + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) -
+      Math.PI;
     groupRef.current.rotation.y += diff * 0.15;
   });
 
