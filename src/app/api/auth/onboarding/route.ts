@@ -36,22 +36,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 중복 온보딩 차단
-  const { data: existing } = await supabase
-    .from('profiles')
-    .select('onboarded')
-    .eq('id', user.id)
-    .single();
-
-  if (existing?.onboarded) {
-    return NextResponse.json(
-      { error: '이미 온보딩을 완료한 계정입니다.' },
-      { status: 409 }
-    );
-  }
-
   const { role, name } = parsed.data;
-  // 폼 organization -> 컬럼 institution 매핑 (teacher만 값 존재)
   const institution =
     parsed.data.role === 'teacher' ? parsed.data.organization : null;
   const purpose = parsed.data.role === 'teacher' ? parsed.data.purpose : null;
@@ -66,14 +51,31 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 트리거가 행을 못 만든 경우(삭제된 행/트리거 이전 가입 계정 등)도 대비해 upsert.
-  // profiles INSERT는 보통 트리거(security definer)가 전담해 유저용 INSERT 정책이
-  // 없으므로, 회원가입 route와 동일하게 서비스롤로 RLS를 우회해 행을 보장한다.
   const supabaseAdmin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
+
+  const { data: existing, error: existingError } = await supabaseAdmin
+    .from('profiles')
+    .select('onboarded')
+    .eq('id', user.id)
+    .single();
+
+  if (existingError && existingError.code !== 'PGRST116') {
+    return NextResponse.json(
+      { error: '프로필 확인 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+
+  if (existing?.onboarded) {
+    return NextResponse.json(
+      { error: '이미 온보딩을 완료한 계정입니다.' },
+      { status: 409 }
+    );
+  }
 
   const { error: upsertError } = await supabaseAdmin.from('profiles').upsert(
     {
@@ -94,8 +96,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // metadata 동기화 (본인 정보 → admin client 불필요). 트리거는 AFTER INSERT
-  // 전용이라 updateUser(=UPDATE)로 재실행되지 않음 → profiles 덮어쓰기 없음.
   await supabase.auth.updateUser({
     data: { username: name, role, institution, purpose, onboarded: true },
   });

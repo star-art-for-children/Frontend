@@ -31,11 +31,15 @@ export async function GET(req: NextRequest) {
   }
 
   // 온보딩 완료 여부로 분기 (행 없음/false → 온보딩 강제)
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('onboarded')
     .eq('id', user.id)
     .single();
+
+  if (profileError && profileError.code !== 'PGRST116') {
+    return NextResponse.redirect(`${origin}/`);
+  }
 
   const destination = profile?.onboarded ? '/' : '/onboarding';
   return NextResponse.redirect(`${origin}${destination}`);
