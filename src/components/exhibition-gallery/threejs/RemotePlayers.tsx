@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PlayerInfo, RemotePlayerData } from '@/hooks/usePlayerSocket';
@@ -16,12 +16,22 @@ function RemotePlayer({
   const targetPos = useRef(new THREE.Vector3());
   const playerId = playerInfo.userId;
   const playerName = playerInfo.userName;
+  const initializedRef = useRef(false);
+  const [visible, setVisible] = useState(false);
+
   useFrame(() => {
     const data = remotePlayersRef.current.get(playerId);
     if (!data || !groupRef.current) return;
 
-    targetPos.current.set(data.x, 0, data.z);
+    if (!initializedRef.current) {
+      groupRef.current.position.set(data.x, 0, data.z);
+      groupRef.current.rotation.y = data.yaw;
+      initializedRef.current = true;
+      setVisible(true);
+      return;
+    }
 
+    targetPos.current.set(data.x, 0, data.z);
     groupRef.current.position.lerp(targetPos.current, 0.15);
 
     let diff = data.yaw - groupRef.current.rotation.y;
@@ -32,12 +42,15 @@ function RemotePlayer({
   });
 
   return (
-    <group ref={groupRef}>
-      <Html position={[0, 1.9, 0]} center>
-        <div className="w-fit rounded-full bg-black/50 px-4 py-0.5 text-lg whitespace-nowrap text-white">
-          {playerName}
-        </div>
-      </Html>
+    <group ref={groupRef} visible={visible}>
+      {visible && (
+        <Html position={[0, 1.9, 0]} center>
+          <div className="w-fit rounded-full bg-black/50 px-4 py-0.5 text-lg whitespace-nowrap text-white">
+            {playerName}
+          </div>
+        </Html>
+      )}
+
       <FallGuysCharacter />
     </group>
   );

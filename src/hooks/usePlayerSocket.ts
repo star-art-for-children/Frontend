@@ -100,12 +100,6 @@ export function usePlayerSocket(
           { userId: msg.userId, userName: senderName, message: msg.message },
         ]);
       } else if (msg.type === 'join') {
-        remotePlayersRef.current.set(msg.userId, {
-          x: 0,
-          y: 1.6,
-          z: 0,
-          yaw: 0,
-        });
         userNamesRef.current.set(msg.userId, msg.userName);
         setPlayerInfo((prev) =>
           prev.find((p) => p.userId === msg.userId)
