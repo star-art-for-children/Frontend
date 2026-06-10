@@ -9,9 +9,9 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  // 이미 로그인한 사용자는 접근 차단 (미온보딩은 온보딩으로)
+  // 온보딩까지 완료한 로그인 사용자만 접근 차단 (미온보딩=비로그인 정책: 다른 계정으로 재시도 가능해야 함)
   const { user, onboarded } = await getAuthContext();
-  if (user) redirect(onboarded ? '/' : '/onboarding');
+  if (user && onboarded) redirect('/');
 
   const { error } = await searchParams;
   return (

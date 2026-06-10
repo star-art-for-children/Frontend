@@ -4,9 +4,9 @@ import { getAuthContext } from '@/lib/auth/getAuthContext';
 import FormField from '@/components/auth/SignupFormField';
 
 export default async function SignupPage() {
-  // 이미 로그인한 사용자는 접근 차단 (미온보딩은 온보딩으로)
+  // 온보딩까지 완료한 로그인 사용자만 접근 차단 (미온보딩=비로그인 정책: 다른 계정으로 재시도 가능해야 함)
   const { user, onboarded } = await getAuthContext();
-  if (user) redirect(onboarded ? '/' : '/onboarding');
+  if (user && onboarded) redirect('/');
 
   return (
     <main className="flex min-h-screen flex-1 items-center justify-center bg-[#FAF7F2] px-4 pt-28 pb-12">
