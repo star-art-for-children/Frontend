@@ -37,7 +37,6 @@ export default function GalleryEntryModal({
   onEnter,
   onBack,
 }: GalleryEntryModalProps) {
-
   return (
     <ModalWrapper isOpen height={540} width={448} className="bg-black!">
       <div className="flex h-full flex-col items-center justify-center gap-5 p-8">
