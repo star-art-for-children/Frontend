@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import FormField from '@/components/auth/LoginFormField';
 
 export default async function LoginPage({
@@ -7,6 +9,10 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  // 이미 로그인한 사용자는 접근 차단 (미온보딩은 온보딩으로)
+  const { user, onboarded } = await getAuthContext();
+  if (user) redirect(onboarded ? '/' : '/onboarding');
+
   const { error } = await searchParams;
   return (
     <main className="flex min-h-screen flex-1 items-center justify-center bg-[#faf7f2] px-4 py-12">

@@ -1,7 +1,13 @@
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import FormField from '@/components/auth/SignupFormField';
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  // 이미 로그인한 사용자는 접근 차단 (미온보딩은 온보딩으로)
+  const { user, onboarded } = await getAuthContext();
+  if (user) redirect(onboarded ? '/' : '/onboarding');
+
   return (
     <main className="flex min-h-screen flex-1 items-center justify-center bg-[#FAF7F2] px-4 pt-28 pb-12">
       <div className="w-full max-w-lg">
