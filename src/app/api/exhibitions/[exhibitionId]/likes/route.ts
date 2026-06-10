@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -42,12 +43,10 @@ export async function POST(
   try {
     const supabase = await createClient();
 
-    // user 정보
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // user 정보 (미온보딩은 비로그인 취급)
+    const { user, onboarded } = await getAuthContext();
 
-    if (!user) {
+    if (!user || !onboarded) {
       return NextResponse.json(
         { message: '로그인이 필요한 기능입니다.' },
         { status: 401 }
@@ -88,12 +87,10 @@ export async function DELETE(
   try {
     const supabase = await createClient();
 
-    // user 정보
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // user 정보 (미온보딩은 비로그인 취급)
+    const { user, onboarded } = await getAuthContext();
 
-    if (!user) {
+    if (!user || !onboarded) {
       return NextResponse.json(
         { message: '로그인이 필요한 기능입니다.' },
         { status: 401 }
