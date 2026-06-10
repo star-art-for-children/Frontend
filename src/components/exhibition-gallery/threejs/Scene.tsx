@@ -23,7 +23,8 @@ import { defaultPreset } from '@/lib/gallery/presets';
 import Room from './Room';
 import Player from './Player';
 import DynamicDecorations, { CircleCollider } from './DynamicDecorations';
-import { User } from '@supabase/supabase-js';
+import RemotePlayers from './RemotePlayers';
+import { RemotePlayerData, PlayerInfo } from '@/hooks/usePlayerSocket';
 
 function getGridSize(artworkCount: number): number {
   if (artworkCount <= 4) return 1;
@@ -35,14 +36,20 @@ export default function Scene2({
   exhibitionId,
   ready,
   init,
-  user,
+  canLikes,
   preset = defaultPreset,
+  sendMove,
+  remotePlayersRef,
+  playerInfo,
 }: {
   exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
   init: GalleryUIArtworkProps[];
-  user: User | null;
+  canLikes: boolean;
   preset?: GalleryPreset;
+  sendMove?: (camera: THREE.Camera) => void;
+  remotePlayersRef?: React.RefObject<Map<string, RemotePlayerData>>;
+  playerInfo?: PlayerInfo[];
 }) {
   const height = 9;
   const cellSize = 12;
@@ -57,9 +64,10 @@ export default function Scene2({
         gridSize,
         cellSize,
         preset.wallColor,
-        spawnCornerOffset
+        spawnCornerOffset,
+        exhibitionId
       ),
-    [roomSize, gridSize, preset.wallColor]
+    [roomSize, gridSize, preset.wallColor, exhibitionId]
   );
 
   const walls = useMemo(
@@ -194,7 +202,7 @@ export default function Scene2({
       />
 
       <Room
-        user={user}
+        canLikes={canLikes}
         exhibitionId={exhibitionId}
         size={roomSize}
         height={height}
@@ -214,6 +222,12 @@ export default function Scene2({
         innerWalls={innerWalls}
         onColliders={handleColliders}
       />
+      {remotePlayersRef && playerInfo && (
+        <RemotePlayers
+          playerInfo={playerInfo}
+          remotePlayersRef={remotePlayersRef}
+        />
+      )}
       <Player
         startPos={startPosition}
         startLookAt={{
@@ -224,8 +238,9 @@ export default function Scene2({
         innerWalls={innerWalls}
         circleCollidersRef={circleCollidersRef}
         speed={3}
+        sendMove={sendMove}
       />
-      <PointerLockControls />
+      <PointerLockControls selector="canvas" />
     </Canvas>
   );
 }
