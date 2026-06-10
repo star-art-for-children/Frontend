@@ -135,6 +135,21 @@ export async function GET(
     if (likesError) {
       return NextResponse.json({ message: 'likes error' }, { status: 400 });
     }
+
+    // 스탬프 투어: 로그인 유저의 수집 기록만 조회 (RLS상 본인 것만 반환)
+    let myStampedIds = new Set<string>();
+    if (user) {
+      const { data: stamps, error: stampsError } = await supabase
+        .from('artwork_stamps')
+        .select('artwork_id')
+        .eq('user_id', user.id)
+        .in('artwork_id', artworksIds);
+      if (stampsError) {
+        return NextResponse.json({ message: 'stamps error' }, { status: 400 });
+      }
+      myStampedIds = new Set(stamps.map((s) => s.artwork_id));
+    }
+
     const artworks = artworksRaw.map((x) => {
       const artworkLikes = likes.filter((xx) => xx.artwork_id === x.id);
 
@@ -144,6 +159,7 @@ export async function GET(
         likesByMe: user
           ? artworkLikes.some((xx) => xx.user_id === user.id)
           : false,
+        stampedByMe: myStampedIds.has(x.id),
       };
     });
     return NextResponse.json({ message: 'success', artworks }, { status: 200 });

@@ -75,6 +75,20 @@ export async function likesToggle(exhibitionId: string, closestId: string) {
   return result.json();
 }
 
+// 스탬프 투어: 그림 발견 시 스탬프 수집 (insert-only)
+export async function collectStamp(exhibitionId: string, artworkId: string) {
+  const res = await fetch(
+    `/api/exhibitions/${exhibitionId}/artworks/${artworkId}/stamp`,
+    { method: 'POST' }
+  );
+
+  if (!res.ok) {
+    throw new Error('request failed');
+  }
+
+  return res.json();
+}
+
 export const toggleArtworkLike = async (
   exhibitionId: string,
   artworkId: string,

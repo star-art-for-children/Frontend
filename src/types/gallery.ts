@@ -48,4 +48,5 @@ export type GalleryUIArtworkProps = {
   video_url?: string | null;
   likes: number;
   likesByMe: boolean;
+  stampedByMe: boolean;
 };

@@ -16,6 +16,8 @@ interface GalleryHUDProps {
   sendMessage: (message: string) => void;
   chatHistory: ChatHistory[];
   isLogged: boolean;
+  stampCollected: number;
+  stampTotal: number;
 }
 
 export default function GalleryHUD({
@@ -29,6 +31,8 @@ export default function GalleryHUD({
   sendMessage,
   chatHistory,
   isLogged,
+  stampCollected,
+  stampTotal,
 }: GalleryHUDProps) {
   return (
     <div className="pointer-events-none absolute inset-0 z-40 flex w-full items-start p-5">
@@ -46,20 +50,30 @@ export default function GalleryHUD({
             <p className="text-sm text-white/30">{host}</p>
           </div>
         </button>
-        {isLogged && (
-          <div className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg">
-            <div className="flex flex-col items-center">
-              {[myName, ...playerNames].map((playerId, i) => (
-                <p
-                  key={i}
-                  className={`font-bold ${playerId === myName ? 'text-yellow-400/80' : 'text-white/80'} `}
-                >
-                  {playerId}
-                </p>
-              ))}
+        <div className="flex flex-col items-end gap-2">
+          {isLogged && stampTotal > 0 && (
+            <div className="flex items-center gap-2 rounded-2xl bg-black/50 px-3 py-2 backdrop-blur-lg">
+              <span className="text-base">🎫</span>
+              <span className="text-sm font-bold text-white/80">
+                스탬프 {stampCollected} / {stampTotal}
+              </span>
             </div>
-          </div>
-        )}
+          )}
+          {isLogged && (
+            <div className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg">
+              <div className="flex flex-col items-center">
+                {[myName, ...playerNames].map((playerId, i) => (
+                  <p
+                    key={i}
+                    className={`font-bold ${playerId === myName ? 'text-yellow-400/80' : 'text-white/80'} `}
+                  >
+                    {playerId}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {isLogged && (
@@ -71,6 +85,7 @@ export default function GalleryHUD({
           <div className="flex items-center gap-3 rounded-lg bg-black/50 px-3 py-2 text-[14px] backdrop-blur-lg">
             <p className="text-white/80">숫자키 1 - 좋아요</p>
             <p className="text-white/80">숫자키 2 - 다운로드</p>
+            {isLogged && <p className="text-white/80">숫자키 3 - 스탬프</p>}
           </div>
           <button
             onClick={onMute}
