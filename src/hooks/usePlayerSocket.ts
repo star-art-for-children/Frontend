@@ -11,18 +11,36 @@ export type RemotePlayerData = {
   yaw: number;
 };
 
-export type PlayerInfo = { userId: string; userName: string; model: CharacterModel };
+export type PlayerInfo = {
+  userId: string;
+  userName: string;
+  model: CharacterModel;
+};
 
 export type ChatHistory = { userId: string; userName: string; message: string };
 
 type OutboundMessage =
   | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
-  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
+  | {
+      type: 'move';
+      userId: string;
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+    }
   | { type: 'message'; userId: string; message: string };
 
 type InboundMessage =
-  | { type: 'move'; userId: string; x: number; y: number; z: number; yaw: number }
+  | {
+      type: 'move';
+      userId: string;
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+    }
   | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string };
@@ -66,7 +84,9 @@ export function usePlayerSocket(
 
     ws.onopen = () => {
       const myName = userName ?? userId;
-      ws.send(JSON.stringify({ type: 'join', userId, userName: myName, model }));
+      ws.send(
+        JSON.stringify({ type: 'join', userId, userName: myName, model })
+      );
     };
 
     ws.onmessage = (e: MessageEvent) => {
@@ -92,7 +112,14 @@ export function usePlayerSocket(
         setPlayerInfo((prev) =>
           prev.find((p) => p.userId === msg.userId)
             ? prev
-            : [...prev, { userId: msg.userId, userName: msg.userName, model: msg.model }]
+            : [
+                ...prev,
+                {
+                  userId: msg.userId,
+                  userName: msg.userName,
+                  model: msg.model,
+                },
+              ]
         );
       } else if (msg.type === 'leave') {
         remotePlayersRef.current.delete(msg.userId);

@@ -18,7 +18,9 @@ type BunnyGLTFResult = GLTF & {
 
 export default function BunnyCharacter() {
   const groupRef = useRef<THREE.Group>(null);
-  const actionsRef = useRef<Partial<Record<ActionName, THREE.AnimationAction>>>({});
+  const actionsRef = useRef<Partial<Record<ActionName, THREE.AnimationAction>>>(
+    {}
+  );
   const currentActionRef = useRef<THREE.AnimationAction | null>(null);
 
   const { scene, animations } = useGLTF(BUNNY_PATH);

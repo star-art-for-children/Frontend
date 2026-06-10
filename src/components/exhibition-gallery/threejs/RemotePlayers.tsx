@@ -17,7 +17,7 @@ function RemotePlayer({
   const targetPos = useRef(new THREE.Vector3());
   const playerId = playerInfo.userId;
   const playerName = playerInfo.userName;
-  const playerModel=playerInfo.model;
+  const playerModel = playerInfo.model;
   const initializedRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
@@ -53,10 +53,7 @@ function RemotePlayer({
         </Html>
       )}
 
-      {
-        playerModel==='human' ?<HumanCharacter /> : <BunnyCharacter/>
-      }
-
+      {playerModel === 'human' ? <HumanCharacter /> : <BunnyCharacter />}
     </group>
   );
 }
