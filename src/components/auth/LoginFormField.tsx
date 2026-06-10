@@ -7,7 +7,11 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
-const FormField = () => {
+type LoginFormFieldProps = {
+  initialError?: string;
+};
+
+const FormField = ({ initialError }: LoginFormFieldProps) => {
   const router = useRouter();
   const supabase = createClient();
 
@@ -15,7 +19,9 @@ const FormField = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    initialError ? getAuthErrorMessage({ code: initialError }) : null
+  );
   const submissionLockRef = useRef(false);
 
   const handleLogin = async () => {

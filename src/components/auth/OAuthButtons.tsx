@@ -20,7 +20,7 @@ const OAuthButtons = ({ showDivider = true }: OAuthButtonsProps) => {
     if (loadingProvider) return;
     setLoadingProvider(provider);
 
-    const redirectTo = `${window.location.origin}/auth/callback`;
+    const redirectTo = `${window.location.origin}/api/auth/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,

@@ -2,7 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import FormField from '@/components/auth/LoginFormField';
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   return (
     <main className="flex min-h-screen flex-1 items-center justify-center bg-[#faf7f2] px-4 py-12">
       <div className="flex w-full max-w-4xl items-center gap-8">
@@ -52,7 +57,7 @@ export default function LoginPage() {
           </div>
 
           {/* 로그인 입력 폼 */}
-          <FormField />
+          <FormField initialError={error} />
 
           {/* 회원가입 링크 */}
           <p className="text-secondary/50 mt-6 text-center text-[14px]">

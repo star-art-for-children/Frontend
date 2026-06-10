@@ -9,12 +9,14 @@ export type AuthProfile = {
   username: string | null;
   role: string | null;
   institution: string | null;
+  onboarded: boolean | null;
 };
 
 // AuthContext 반환 데이터 타입
 export type AuthContext = {
   user: User | null;
   profile: AuthProfile | null;
+  onboarded: boolean;
 };
 
 // 한 번의 요청 사이클에서 맨 처음 getUser() 함수 결과값을 캐싱하고 이후엔 캐싱된 값을 반환하는 함수
@@ -28,17 +30,19 @@ export const getAuthContext = cache(async (): Promise<AuthContext> => {
     return {
       user: null,
       profile: null,
+      onboarded: false,
     };
   }
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, role, institution')
+    .select('username, role, institution, onboarded')
     .eq('id', user.id)
     .maybeSingle<AuthProfile>();
 
   return {
     user,
     profile,
+    onboarded: profile?.onboarded === true,
   };
 });

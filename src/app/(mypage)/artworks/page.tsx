@@ -26,6 +26,13 @@ export default async function MyArtworksPage() {
 
   if (!user) redirect('/login');
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('onboarded')
+    .eq('id', user.id)
+    .maybeSingle<{ onboarded: boolean | null }>();
+  if (!profile?.onboarded) redirect('/onboarding');
+
   const [{ data, error }, { data: likedData, error: likedError }] =
     await Promise.all([
       supabase
