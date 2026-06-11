@@ -4,7 +4,8 @@ import * as THREE from 'three';
 import { PlayerInfo, RemotePlayerData } from '@/hooks/usePlayerSocket';
 import { Html } from '@react-three/drei';
 import HumanCharacter from './characters/HumanCharacter';
-import BunnyCharacter from '@/components/exhibition-gallery/threejs/characters/BunnyCharacter';
+import BunnyCharacter from './characters/BunnyCharacter';
+import CartoonCharacter from './characters/CartoonCharacter';
 
 function RemotePlayer({
   playerInfo,
@@ -53,7 +54,13 @@ function RemotePlayer({
         </Html>
       )}
 
-      {playerModel === 'human' ? <HumanCharacter /> : <BunnyCharacter />}
+      {playerModel === 'human' ? (
+        <HumanCharacter />
+      ) : playerModel === 'bunny' ? (
+        <BunnyCharacter />
+      ) : (
+        <CartoonCharacter />
+      )}
     </group>
   );
 }

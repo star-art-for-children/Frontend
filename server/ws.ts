@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 
-type CharacterModel = 'bunny' | 'human';
+type CharacterModel = 'bunny' | 'human' | 'cartoon';
 type PlayerState = {
   userId: string;
   x: number;
@@ -101,6 +101,15 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         }
       });
 
+      if (roomChat.length !== 0) {
+        ws.send(
+          JSON.stringify({
+            type: 'messageInit',
+            userId,
+            messages: roomChat,
+          })
+        );
+      }
       // 다른 플레이어에게 입장 알림
       broadcast(room, userId, raw);
       return;
@@ -161,7 +170,10 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       myUserId,
       JSON.stringify({ type: 'leave', userId: myUserId })
     );
-    if (room.size === 0) rooms.delete(roomId);
+    if (room.size === 0) {
+      roomChats.delete(roomId);
+      rooms.delete(roomId);
+    }
   });
 
   ws.on('error', (err) => {

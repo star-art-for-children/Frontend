@@ -14,6 +14,7 @@ const CONTROLS = [
 const MODELS: { value: CharacterModel; label: string; emoji: string }[] = [
   { value: 'human', label: '사람', emoji: '🧑' },
   { value: 'bunny', label: '토끼', emoji: '🐰' },
+  { value: 'cartoon', label: '카툰', emoji: '🎨' },
 ];
 
 interface GalleryEntryModalProps {
