@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
 
 export type SendMoveFn = (camera: THREE.Camera) => void;
-export type CharacterModel = 'bunny' | 'human';
+export type CharacterModel = 'bunny' | 'human' | 'cartoon';
 
 export type RemotePlayerData = {
   x: number;

@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 
-type CharacterModel = 'bunny' | 'human';
+type CharacterModel = 'bunny' | 'human' | 'cartoon';
 type PlayerState = {
   userId: string;
   x: number;
