@@ -43,8 +43,8 @@ type InboundMessage =
     }
   | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
-  | { type: 'message'; userId: string; message: string };
-
+  | { type: 'message'; userId: string; message: string }
+  | { type: 'messageInit'; userId: string; messages: string };
 const THROTTLE_MS = 50;
 const _forward = new THREE.Vector3();
 
@@ -125,6 +125,8 @@ export function usePlayerSocket(
         remotePlayersRef.current.delete(msg.userId);
         userNamesRef.current.delete(msg.userId);
         setPlayerInfo((prev) => prev.filter((p) => p.userId !== msg.userId));
+      } else if (msg.type === 'messageInit') {
+        console.log(msg)
       }
     };
 

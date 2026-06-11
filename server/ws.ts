@@ -101,6 +101,15 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         }
       });
 
+      if (roomChat.length !== 0) {
+        ws.send(
+          JSON.stringify({
+            type: 'messageInit',
+            userId,
+            messages: roomChat,
+          })
+        );
+      }
       // 다른 플레이어에게 입장 알림
       broadcast(room, userId, raw);
       return;
