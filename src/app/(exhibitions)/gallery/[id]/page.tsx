@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Star } from 'lucide-react';
 import { useGalleryData } from '@/lib/gallery/hooks';
-import { usePlayerSocket } from '@/hooks/usePlayerSocket';
+import { usePlayerSocket, CharacterModel } from '@/hooks/usePlayerSocket';
 import GalleryEntryModal from '@/components/exhibition-gallery/GalleryEntryModal';
 import GalleryHUD from '@/components/exhibition-gallery/GalleryHUD';
 import StampBook from '@/components/exhibition-gallery/StampBook';
@@ -24,11 +24,14 @@ export default function GalleryExhibitionPage() {
     initError,
   } = useGalleryData(id);
 
+  const [selectedModel, setSelectedModel] = useState<CharacterModel>('human');
+
   const { sendMove, sendMessage, remotePlayersRef, playerInfo, chatHistory } =
     usePlayerSocket(
       id,
       user?.id ?? null,
-      user?.user_metadata?.username ?? 'guest'
+      user?.user_metadata?.username ?? 'guest',
+      selectedModel
     );
 
   const [isSceneReady, setIsSceneReady] = useState(false);
@@ -130,6 +133,8 @@ export default function GalleryExhibitionPage() {
           isInitReady={isInitReady}
           title={exhibitionDetails.title}
           host={exhibitionDetails.host}
+          selectedModel={selectedModel}
+          onModelSelect={setSelectedModel}
           onEnter={() => setStarted(true)}
           onBack={() => router.back()}
         />

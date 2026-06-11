@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import * as THREE from 'three';
 
 export type SendMoveFn = (camera: THREE.Camera) => void;
+export type CharacterModel = 'bunny' | 'human' | 'cartoon';
 
 export type RemotePlayerData = {
   x: number;
@@ -10,12 +11,20 @@ export type RemotePlayerData = {
   yaw: number;
 };
 
-export type PlayerInfo = { userId: string; userName: string };
+export type PlayerInfo = {
+  userId: string;
+  userName: string;
+  model: CharacterModel;
+};
 
 export type ChatHistory = { userId: string; userName: string; message: string };
-
+type ChatRaw = {
+  userId: string;
+  timestamp: string;
+  message: string;
+};
 type OutboundMessage =
-  | { type: 'join'; userId: string; userName: string }
+  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
   | {
       type: 'move';
@@ -36,17 +45,18 @@ type InboundMessage =
       z: number;
       yaw: number;
     }
-  | { type: 'join'; userId: string; userName: string }
+  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
-  | { type: 'message'; userId: string; message: string };
-
+  | { type: 'message'; userId: string; message: string }
+  | { type: 'messageInit'; userId: string; messages: ChatRaw[] };
 const THROTTLE_MS = 50;
 const _forward = new THREE.Vector3();
 
 export function usePlayerSocket(
   exhibitionId: string,
   userId: string | null,
-  userName: string | null
+  userName: string | null,
+  model: CharacterModel = 'human'
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const lastSentAt = useRef(0);
@@ -78,13 +88,16 @@ export function usePlayerSocket(
 
     ws.onopen = () => {
       const myName = userName ?? userId;
-      ws.send(JSON.stringify({ type: 'join', userId, userName: myName }));
+      userNamesRef.current.set(userId, myName);
+      ws.send(
+        JSON.stringify({ type: 'join', userId, userName: myName, model })
+      );
     };
 
     ws.onmessage = (e: MessageEvent) => {
       const msg: InboundMessage = JSON.parse(e.data);
 
-      if (msg.userId === userId) return;
+      // if (msg.userId === userId) return;
 
       if (msg.type === 'move') {
         remotePlayersRef.current.set(msg.userId, {
@@ -100,22 +113,31 @@ export function usePlayerSocket(
           { userId: msg.userId, userName: senderName, message: msg.message },
         ]);
       } else if (msg.type === 'join') {
-        remotePlayersRef.current.set(msg.userId, {
-          x: 0,
-          y: 1.6,
-          z: 0,
-          yaw: 0,
-        });
         userNamesRef.current.set(msg.userId, msg.userName);
         setPlayerInfo((prev) =>
           prev.find((p) => p.userId === msg.userId)
             ? prev
-            : [...prev, { userId: msg.userId, userName: msg.userName }]
+            : [
+                ...prev,
+                {
+                  userId: msg.userId,
+                  userName: msg.userName,
+                  model: msg.model,
+                },
+              ]
         );
       } else if (msg.type === 'leave') {
         remotePlayersRef.current.delete(msg.userId);
         userNamesRef.current.delete(msg.userId);
         setPlayerInfo((prev) => prev.filter((p) => p.userId !== msg.userId));
+      } else if (msg.type === 'messageInit') {
+        const raw = msg.messages;
+        const parsed = raw.map((chat) => ({
+          userId: chat.userId,
+          userName: userNamesRef.current.get(chat.userId) ?? 'guest',
+          message: chat.message,
+        }));
+        setChatHistory(parsed);
       }
     };
 
@@ -129,7 +151,7 @@ export function usePlayerSocket(
       }
       ws.close();
     };
-  }, [exhibitionId, userId, userName]);
+  }, [exhibitionId, userId, userName, model]);
 
   const sendMove = useCallback(
     (camera: THREE.Camera) => {

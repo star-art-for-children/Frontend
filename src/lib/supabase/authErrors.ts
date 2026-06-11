@@ -25,6 +25,10 @@ const AUTH_ERROR_CODE_MAP: Record<string, string> = {
   token_expired: '토큰이 만료되었습니다.',
   captcha_failed: '캡차 인증에 실패했습니다.',
   provider_disabled: '해당 인증 방식이 비활성화되어 있습니다.',
+  oauth_failed: 'OAuth 로그인에 실패했습니다. 다시 시도해주세요.',
+  oauth_unknown: '알 수 없는 오류로 로그인하지 못했습니다. 다시 시도해주세요.',
+  email_conflict:
+    '이미 이메일/비밀번호로 가입된 계정입니다. 이메일로 로그인해주세요.',
   unexpected_failure:
     '예기치 않은 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
 };

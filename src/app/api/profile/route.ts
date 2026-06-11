@@ -1,14 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { NextRequest, NextResponse } from 'next/server';
 import { profilePatchSchema } from '@/lib/schemas/profile';
 
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 미온보딩은 비로그인 취급
+  const { user, profile } = await getAuthContext();
 
-  if (!user) {
+  if (!user || !profile?.onboarded) {
     return NextResponse.json({ message: 'unauthorized' }, { status: 401 });
   }
 
@@ -25,16 +25,6 @@ export async function PATCH(req: NextRequest) {
       { message: result.error.issues[0].message },
       { status: 400 }
     );
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile) {
-    return NextResponse.json({ message: 'profile not found' }, { status: 404 });
   }
 
   const updates: Record<string, string> = { username: result.data.name };

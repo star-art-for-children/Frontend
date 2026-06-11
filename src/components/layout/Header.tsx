@@ -6,12 +6,15 @@ import { getAuthContext } from '@/lib/auth/getAuthContext';
 
 export default async function Header() {
   // 캐싱된 유저 데이터 조회(없다면 새로 요청)
-  const { user, profile } = await getAuthContext();
+  const { user, profile, onboarded } = await getAuthContext();
 
-  const displayName = user
+  // 진짜 로그인 = 세션 있음 + 온보딩 완료. 미온보딩은 비로그인으로 취급.
+  const isAuthed = !!user && onboarded;
+
+  const displayName = isAuthed
     ? profile?.username?.trim() ||
-      user.user_metadata?.username ||
-      user.email?.split('@')[0] ||
+      user?.user_metadata?.username ||
+      user?.email?.split('@')[0] ||
       '사용자'
     : null;
 
@@ -41,7 +44,7 @@ export default async function Header() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
-            {user ? (
+            {isAuthed ? (
               <UserMenu name={displayName} />
             ) : (
               <>
@@ -63,7 +66,7 @@ export default async function Header() {
 
           {/* 모바일 */}
           <div className="md:hidden">
-            <MobileMenu isLoggedIn={!!user} />
+            <MobileMenu isLoggedIn={isAuthed} />
           </div>
         </div>
       </div>

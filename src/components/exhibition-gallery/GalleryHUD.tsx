@@ -2,7 +2,7 @@
 
 import { IoIosArrowBack } from 'react-icons/io';
 import { Star, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChatHistory } from '@/hooks/usePlayerSocket';
 
 interface GalleryHUDProps {
@@ -118,8 +118,20 @@ function Chat({
   me: string;
 }) {
   const [msg, setMsg] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && document.activeElement !== inputRef.current) {
+        document.exitPointerLock();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   const messageHandler = (msg: string) => {
-    console.log(msg);
     sendMessage(msg);
   };
   return (
@@ -150,11 +162,16 @@ function Chat({
       {/* 입력창 */}
       <div className="flex gap-2">
         <input
+          ref={inputRef}
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+            if (
+              e.key === 'Enter' &&
+              !e.nativeEvent.isComposing &&
+              msg.trim().length !== 0
+            ) {
               messageHandler(msg);
               setMsg('');
             }
@@ -163,6 +180,7 @@ function Chat({
           className="flex-1 rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white placeholder-white/30 outline-none"
         />
         <button
+          disabled={!msg.trim().length}
           onClick={(e) => {
             e.preventDefault();
             messageHandler(msg);

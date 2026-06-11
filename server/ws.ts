@@ -3,6 +3,7 @@ import { IncomingMessage } from 'http';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 
+type CharacterModel = 'bunny' | 'human' | 'cartoon';
 type PlayerState = {
   userId: string;
   x: number;
@@ -20,6 +21,7 @@ type RoomEntry = {
   state: PlayerState | null;
   chat: Chat[] | [];
   userName: string;
+  model: CharacterModel;
 };
 
 // roomId → (userId → RoomEntry)
@@ -75,7 +77,8 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
     if (type === 'join') {
       myUserId = userId;
       const userName = (msg.userName as string) || userId;
-      room.set(userId, { ws, state: null, chat: [], userName });
+      const model = (msg.model as CharacterModel) || 'human';
+      room.set(userId, { ws, state: null, chat: [], userName, model });
 
       console.log(
         `[ws] join  room=${roomId} userId=${userId} total=${room.size}`
@@ -89,6 +92,7 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
               type: 'join',
               userId: id,
               userName: entry.userName,
+              model: entry.model,
             })
           );
           if (entry.state) {
@@ -97,6 +101,15 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         }
       });
 
+      if (roomChat.length !== 0) {
+        ws.send(
+          JSON.stringify({
+            type: 'messageInit',
+            userId,
+            messages: roomChat,
+          })
+        );
+      }
       // 다른 플레이어에게 입장 알림
       broadcast(room, userId, raw);
       return;
@@ -157,7 +170,10 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       myUserId,
       JSON.stringify({ type: 'leave', userId: myUserId })
     );
-    if (room.size === 0) rooms.delete(roomId);
+    if (room.size === 0) {
+      roomChats.delete(roomId);
+      rooms.delete(roomId);
+    }
   });
 
   ws.on('error', (err) => {

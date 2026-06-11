@@ -17,7 +17,7 @@ export default async function Home({
   const page = Math.max(1, parseInt(pageParams ?? '1', 10));
 
   // 캐싱된 유저 데이터 조회(없다면 새로 요청)
-  const { profile, user } = await getAuthContext();
+  const { profile, user, onboarded } = await getAuthContext();
   const isTeacher = profile?.role === 'teacher';
 
   if (sortParam === 'mine' && !isTeacher) {
@@ -72,9 +72,9 @@ export default async function Home({
             sort={sort}
             search={search}
             page={page}
-            userId={user?.id}
+            userId={onboarded ? user?.id : undefined}
             isTeacher={isTeacher}
-            isLoggedIn={!!user}
+            isLoggedIn={!!user && onboarded}
           />
         </Suspense>
       </div>
