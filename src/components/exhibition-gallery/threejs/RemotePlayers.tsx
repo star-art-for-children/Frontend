@@ -54,7 +54,13 @@ function RemotePlayer({
         </Html>
       )}
 
-      {playerModel === 'human' ? <HumanCharacter /> : playerModel === 'bunny' ? <BunnyCharacter /> : <CartoonCharacter />}
+      {playerModel === 'human' ? (
+        <HumanCharacter />
+      ) : playerModel === 'bunny' ? (
+        <BunnyCharacter />
+      ) : (
+        <CartoonCharacter />
+      )}
     </group>
   );
 }
