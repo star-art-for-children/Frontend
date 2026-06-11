@@ -35,7 +35,7 @@ export default function Room({
   exhibitionId: string;
   canLikes: boolean;
   canStamp?: boolean;
-  onStampProgress?: (collected: number, total: number) => void;
+  onStampProgress?: (artworks: GalleryUIArtworkProps[]) => void;
   floorConfig?: FloorConfig;
   wallColor?: string;
   wallPattern?: WallPatternConfig;
@@ -152,10 +152,9 @@ export default function Room({
     prevDir.current.copy(forward);
   });
 
-  // 스탬프 수집 진행률을 상위(HUD)로 전달 — 초기 로드/새로고침 시에도 복원
+  // 스탬프 수집 상태를 상위(HUD/스탬프북)로 전달 — 초기 로드/새로고침 시에도 복원
   useEffect(() => {
-    const collected = artworks.filter((x) => x.stampedByMe).length;
-    onStampProgress?.(collected, artworks.length);
+    onStampProgress?.(artworks);
   }, [artworks, onStampProgress]);
 
   useEffect(() => {

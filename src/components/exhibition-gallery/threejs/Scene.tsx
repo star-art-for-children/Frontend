@@ -49,7 +49,7 @@ export default function Scene2({
   init: GalleryUIArtworkProps[];
   canLikes: boolean;
   canStamp?: boolean;
-  onStampProgress?: (collected: number, total: number) => void;
+  onStampProgress?: (artworks: GalleryUIArtworkProps[]) => void;
   preset?: GalleryPreset;
   sendMove?: (camera: THREE.Camera) => void;
   remotePlayersRef?: React.RefObject<Map<string, RemotePlayerData>>;

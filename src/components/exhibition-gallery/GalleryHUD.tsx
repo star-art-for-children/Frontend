@@ -1,7 +1,7 @@
 'use client';
 
 import { IoIosArrowBack } from 'react-icons/io';
-import { X } from 'lucide-react';
+import { Star, X } from 'lucide-react';
 import { useState } from 'react';
 import { ChatHistory } from '@/hooks/usePlayerSocket';
 
@@ -18,6 +18,7 @@ interface GalleryHUDProps {
   isLogged: boolean;
   stampCollected: number;
   stampTotal: number;
+  onOpenStampBook: () => void;
 }
 
 export default function GalleryHUD({
@@ -33,6 +34,7 @@ export default function GalleryHUD({
   isLogged,
   stampCollected,
   stampTotal,
+  onOpenStampBook,
 }: GalleryHUDProps) {
   return (
     <div className="pointer-events-none absolute inset-0 z-40 flex w-full items-start p-5">
@@ -52,12 +54,18 @@ export default function GalleryHUD({
         </button>
         <div className="flex flex-col items-end gap-2">
           {isLogged && stampTotal > 0 && (
-            <div className="flex items-center gap-2 rounded-2xl bg-black/50 px-3 py-2 backdrop-blur-lg">
-              <span className="text-base">🎫</span>
-              <span className="text-sm font-bold text-white/80">
+            <button
+              onClick={onOpenStampBook}
+              className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 px-3 py-2 backdrop-blur-lg transition-colors hover:bg-black/70"
+            >
+              <Star size={16} className="fill-[#f4b942] text-[#f4b942]" />
+              <span
+                key={stampCollected}
+                className="inline-block animate-[stamp-bounce_0.5s_ease-out] text-sm font-bold text-white/80"
+              >
                 스탬프 {stampCollected} / {stampTotal}
               </span>
-            </div>
+            </button>
           )}
           {isLogged && (
             <div className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg">
@@ -86,6 +94,7 @@ export default function GalleryHUD({
             <p className="text-white/80">숫자키 1 - 좋아요</p>
             <p className="text-white/80">숫자키 2 - 다운로드</p>
             {isLogged && <p className="text-white/80">숫자키 3 - 스탬프</p>}
+            {isLogged && <p className="text-white/80">Tab - 스탬프북</p>}
           </div>
           <button
             onClick={onMute}

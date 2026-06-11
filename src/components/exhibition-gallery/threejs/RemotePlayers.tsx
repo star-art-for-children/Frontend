@@ -33,7 +33,7 @@ function RemotePlayer({
   return (
     <group ref={groupRef}>
       {/* 몸통 */}
-      <Html position={[0, 1.9, 0]} center>
+      <Html position={[0, 1.9, 0]} center zIndexRange={[30, 0]}>
         <div className="w-fit rounded-full bg-black/50 px-4 py-0.5 text-lg whitespace-nowrap text-white">
           {playerName}
         </div>
