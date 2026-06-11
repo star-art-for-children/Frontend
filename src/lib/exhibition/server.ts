@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createClient } from '@/lib/supabase/server';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import {
   ArtworkRow,
   ExhibitionDetailRow,
@@ -213,10 +214,9 @@ export async function fetchExhibitionDetail(
 ): Promise<ExhibitionDetailItem | null> {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
+  // 미온보딩은 비로그인 취급 (좋아요 API의 onboarded 검증과 동일 기준)
+  const { user, onboarded } = await getAuthContext();
+  const currentUserId = user && onboarded ? user.id : null;
 
   const { data: rawData, error } = await supabase
     .from('exhibitions')

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { reviewCreateSchema } from '@/lib/schemas/review';
 import { fetchExhibitionReviews } from '@/lib/review/server';
 
@@ -48,10 +49,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const { exhibitionId: id } = await params;
     const supabase = await createClient();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
+    // 미온보딩은 비로그인 취급
+    const { user, onboarded } = await getAuthContext();
+    if (!user || !onboarded) {
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 

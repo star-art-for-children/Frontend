@@ -16,14 +16,17 @@ export default async function MyPage() {
   // profiles 테이블에서 현재 유저의 프로필 조회
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
-    .select('username, role, institution')
+    .select('username, role, institution, onboarded')
     .eq('id', user.id)
     .single();
 
   // PGRST116: row 없음 (정상 edge case) / 그 외 에러는 예외 처리
   if (profileError && profileError.code !== 'PGRST116') redirect('/');
 
-  const role = profileData?.role === 'teacher' ? 'teacher' : 'user';
+  // 온보딩 미완료(또는 profile 행 없음)는 비로그인 취급 → 온보딩으로
+  if (!profileData?.onboarded) redirect('/onboarding');
+
+  const role = profileData?.role === 'teacher' ? 'teacher' : 'general';
   const name =
     profileData?.username ??
     user.user_metadata?.username ??
@@ -69,7 +72,7 @@ export default async function MyPage() {
       id: user.id,
       name,
       email,
-      role: 'user',
+      role: 'general',
     };
   }
 

@@ -75,3 +75,23 @@ export const signupFormSchema = z
 
 export type SignupRequestInput = z.infer<typeof signupRequestSchema>;
 export type SignupFormInput = z.infer<typeof signupFormSchema>;
+
+// OAuth 가입자 온보딩: OTP/비밀번호 없이 역할·이름(+선생님 기관/목적)만 수집
+const onboardingGeneralSchema = z.object({
+  role: z.literal('general'),
+  name: trimStr('이름을 입력해주세요.'),
+});
+
+const onboardingTeacherSchema = z.object({
+  role: z.literal('teacher'),
+  name: trimStr('이름을 입력해주세요.'),
+  organization: trimStr('교육기관명을 입력해주세요.'),
+  purpose: trimStr('가입 목적을 입력해주세요.'),
+});
+
+export const onboardingSchema = z.discriminatedUnion('role', [
+  onboardingGeneralSchema,
+  onboardingTeacherSchema,
+]);
+
+export type OnboardingInput = z.infer<typeof onboardingSchema>;

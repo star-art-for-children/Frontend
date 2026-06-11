@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 
 export async function POST(
   req: NextRequest,
@@ -9,11 +10,10 @@ export async function POST(
     const supabase = await createClient();
     const { artworksId } = await params;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // 미온보딩은 비로그인 취급
+    const { user, onboarded } = await getAuthContext();
 
-    if (!user) {
+    if (!user || !onboarded) {
       return Response.json({ message: 'no session' }, { status: 401 });
     }
 
@@ -64,12 +64,10 @@ export async function DELETE(
   try {
     const supabase = await createClient();
 
-    // user 정보
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // user 정보 (미온보딩은 비로그인 취급)
+    const { user, onboarded } = await getAuthContext();
 
-    if (!user) {
+    if (!user || !onboarded) {
       return NextResponse.json(
         { message: '로그인이 필요한 기능입니다.' },
         { status: 401 }
