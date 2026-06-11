@@ -18,7 +18,11 @@ export type PlayerInfo = {
 };
 
 export type ChatHistory = { userId: string; userName: string; message: string };
-
+type ChatRaw = {
+  userId: string;
+  timestamp: string;
+  message: string;
+};
 type OutboundMessage =
   | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
@@ -44,7 +48,7 @@ type InboundMessage =
   | { type: 'join'; userId: string; userName: string; model: CharacterModel }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string }
-  | { type: 'messageInit'; userId: string; messages: string };
+  | { type: 'messageInit'; userId: string; messages: ChatRaw[] };
 const THROTTLE_MS = 50;
 const _forward = new THREE.Vector3();
 
@@ -84,6 +88,7 @@ export function usePlayerSocket(
 
     ws.onopen = () => {
       const myName = userName ?? userId;
+      userNamesRef.current.set(userId, myName);
       ws.send(
         JSON.stringify({ type: 'join', userId, userName: myName, model })
       );
@@ -92,7 +97,7 @@ export function usePlayerSocket(
     ws.onmessage = (e: MessageEvent) => {
       const msg: InboundMessage = JSON.parse(e.data);
 
-      if (msg.userId === userId) return;
+      // if (msg.userId === userId) return;
 
       if (msg.type === 'move') {
         remotePlayersRef.current.set(msg.userId, {
@@ -126,7 +131,13 @@ export function usePlayerSocket(
         userNamesRef.current.delete(msg.userId);
         setPlayerInfo((prev) => prev.filter((p) => p.userId !== msg.userId));
       } else if (msg.type === 'messageInit') {
-        console.log(msg)
+        const raw = msg.messages;
+        const parsed = raw.map((chat) => ({
+          userId: chat.userId,
+          userName: userNamesRef.current.get(chat.userId) ?? 'guest',
+          message: chat.message,
+        }));
+        setChatHistory(parsed);
       }
     };
 

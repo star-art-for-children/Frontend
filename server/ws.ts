@@ -170,7 +170,10 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       myUserId,
       JSON.stringify({ type: 'leave', userId: myUserId })
     );
-    if (room.size === 0) rooms.delete(roomId);
+    if (room.size === 0) {
+      roomChats.delete(roomId);
+      rooms.delete(roomId);
+    }
   });
 
   ws.on('error', (err) => {
