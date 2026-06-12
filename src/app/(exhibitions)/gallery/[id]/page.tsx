@@ -200,23 +200,20 @@ export default function GalleryExhibitionPage() {
           <div className="fill-mode-[both] animate-[stamp-shake_0.35s_ease-out_0.15s]">
             <div className="relative flex h-36 w-36 items-center justify-center">
               {/* 잉크 파동 링 */}
-              <div className="absolute inset-0 animate-[stamp-ring_0.9s_ease-out_forwards] rounded-full border-4 border-[#c8901c]/70" />
+              <div className="absolute inset-0 animate-[stamp-ring_0.9s_ease-out_forwards] rounded-full border-4 border-[#ff6b35]/80" />
               {/* 도장 자국 */}
               <div
-                className="flex h-full w-full animate-[stamp-slam_1.1s_linear_forwards] flex-col items-center justify-center gap-1 rounded-full border-[5px] border-double border-[#c8901c]/90"
+                className="flex h-full w-full animate-[stamp-slam_1.1s_linear_forwards] flex-col items-center justify-center gap-1 rounded-full border-[5px] border-double border-[#ff6b35]"
                 style={{
                   filter: 'url(#stamp-ink)',
                   background:
-                    'radial-gradient(circle at 32% 38%, rgba(200,144,28,0.22), transparent 55%),' +
-                    'radial-gradient(circle at 68% 64%, rgba(200,144,28,0.16), transparent 50%),' +
-                    'radial-gradient(circle at 50% 50%, rgba(200,144,28,0.08), transparent 70%)',
+                    'radial-gradient(circle at 32% 38%, rgba(255,107,53,0.28), transparent 55%),' +
+                    'radial-gradient(circle at 68% 64%, rgba(255,107,53,0.2), transparent 50%),' +
+                    'radial-gradient(circle at 50% 50%, rgba(255,107,53,0.1), transparent 70%)',
                 }}
               >
-                <Star
-                  size={30}
-                  className="fill-[#c8901c]/90 text-[#c8901c]/90"
-                />
-                <span className="text-lg font-extrabold text-[#c8901c] drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)]">
+                <Star size={30} className="fill-[#ff6b35] text-[#ff6b35]" />
+                <span className="text-lg font-extrabold text-[#ff6b35] drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
                   찾았어요!
                 </span>
               </div>

@@ -23,8 +23,8 @@ function StampCell({ art }: { art: GalleryUIArtworkProps }) {
       />
       {art.stampedByMe ? (
         <>
-          <div className="absolute top-1.5 right-1.5 flex h-9 w-9 -rotate-12 items-center justify-center rounded-full border-2 border-[#c8901c]/80 bg-white/85">
-            <span className="text-[9px] font-extrabold text-[#c8901c]/90">
+          <div className="absolute top-1.5 right-1.5 flex h-9 w-9 -rotate-12 items-center justify-center rounded-full border-2 border-[#ff6b35]/90 bg-white/85">
+            <span className="text-[9px] font-extrabold text-[#ff6b35]">
               찾음!
             </span>
           </div>
