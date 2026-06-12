@@ -47,6 +47,7 @@ export default function GalleryExhibitionPage() {
   // 미완료 → 완료로 전환되는 순간에만 축하 모달 노출
   // (이미 완료한 상태로 재진입 시엔 뜨지 않도록 첫 진행률은 baseline 처리)
   const prevCollectedRef = useRef<number | null>(null);
+  const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isAllReady = isInitReady && isSceneReady;
 
   const stampCollected = stampArtworks.filter((x) => x.stampedByMe).length;
@@ -71,7 +72,7 @@ export default function GalleryExhibitionPage() {
 
       // 마지막 스탬프 → 도장 연출이 끝난 뒤 완료 모달
       if (collected === total && prev < total) {
-        setTimeout(() => {
+        completeTimerRef.current = setTimeout(() => {
           setShowStampComplete(true);
           // 마우스로 모달 버튼을 누를 수 있도록 포인터 잠금 해제
           document.exitPointerLock?.();
@@ -80,6 +81,13 @@ export default function GalleryExhibitionPage() {
     },
     []
   );
+
+  // 언마운트 시 완료 모달 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+    };
+  }, []);
 
   const openStampBook = useCallback(() => {
     setShowStampBook(true);
