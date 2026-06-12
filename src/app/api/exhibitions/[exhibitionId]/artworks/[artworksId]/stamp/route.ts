@@ -18,6 +18,29 @@ export async function POST(
       return NextResponse.json({ message: 'no session' }, { status: 401 });
     }
 
+    // 작품이 실제로 해당 전시회 소속인지 검증
+    const { data: artwork, error: artworkError } = await supabase
+      .from('artworks')
+      .select('id')
+      .eq('id', artworksId)
+      .eq('exhibition_id', exhibitionId)
+      .maybeSingle();
+
+    if (artworkError) {
+      console.log(artworkError);
+      return NextResponse.json(
+        { message: 'artwork lookup error' },
+        { status: 500 }
+      );
+    }
+
+    if (!artwork) {
+      return NextResponse.json(
+        { message: 'artwork not found in exhibition' },
+        { status: 404 }
+      );
+    }
+
     // 이미 수집했으면 그대로 성공 처리 (idempotent)
     const { data: existing, error: exError } = await supabase
       .from('artwork_stamps')
