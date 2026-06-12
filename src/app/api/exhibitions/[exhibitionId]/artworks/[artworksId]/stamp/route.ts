@@ -41,31 +41,16 @@ export async function POST(
       );
     }
 
-    // 이미 수집했으면 그대로 성공 처리 (idempotent)
-    const { data: existing, error: exError } = await supabase
-      .from('artwork_stamps')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('artwork_id', artworksId)
-      .maybeSingle();
-
-    if (exError) {
-      console.log(exError);
-      return NextResponse.json(
-        { message: 'artwork_stamps search error' },
-        { status: 500 }
-      );
-    }
-
-    if (existing) {
-      return NextResponse.json({ stamped: true });
-    }
-
-    const { error } = await supabase.from('artwork_stamps').insert({
-      artwork_id: artworksId,
-      exhibition_id: exhibitionId,
-      user_id: user.id,
-    });
+    // upsert + 충돌 무시(ON CONFLICT DO NOTHING)로 동시 요청에도
+    // 중복 없이 항상 성공하는 idempotent 처리
+    const { error } = await supabase.from('artwork_stamps').upsert(
+      {
+        artwork_id: artworksId,
+        exhibition_id: exhibitionId,
+        user_id: user.id,
+      },
+      { onConflict: 'user_id,artwork_id', ignoreDuplicates: true }
+    );
 
     if (error) {
       console.log(error);
