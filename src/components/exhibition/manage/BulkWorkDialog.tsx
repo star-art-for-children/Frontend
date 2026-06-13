@@ -126,6 +126,8 @@ export default function BulkWorkDialog() {
 
   const submitHandler = useCallback(
     async (data: BulkForm) => {
+      // 업로드가 이미 진행 중이면 재진입 차단 (이전 배치 취소 핸들 보호)
+      if (abortControllerRef.current) return;
       const controller = new AbortController();
       abortControllerRef.current = controller;
       setUploading(true);
