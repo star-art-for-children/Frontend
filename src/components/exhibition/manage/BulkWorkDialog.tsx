@@ -87,6 +87,7 @@ export default function BulkWorkDialog() {
     fail: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const {
     register,
@@ -115,22 +116,36 @@ export default function BulkWorkDialog() {
   const handleRemove = (index: number) => remove(index);
 
   const handleClose = useCallback(() => {
+    // 진행 중인 업로드가 있으면 모두 취소
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setUploading(false);
     reset();
     setResult(null);
   }, [reset]);
 
   const submitHandler = useCallback(
     async (data: BulkForm) => {
+      // 업로드가 이미 진행 중이면 재진입 차단 (이전 배치 취소 핸들 보호)
+      if (abortControllerRef.current) return;
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
       setUploading(true);
+
       const results = await Promise.allSettled(
         data.rows.map((row) => {
           const formData = new FormData();
           formData.append('image_url', row.image);
           formData.append('title', row.title);
           formData.append('artist_name', row.artist_name);
-          return postArtWorksByExhibitionId(id, formData);
+          return postArtWorksByExhibitionId(id, formData, controller.signal);
         })
       );
+
+      // 업로드 도중 다이얼로그를 닫아 취소된 경우, 후속 처리를 건너뛴다
+      if (controller.signal.aborted) return;
+
+      abortControllerRef.current = null;
       setUploading(false);
 
       const success = results.filter((r) => r.status === 'fulfilled').length;

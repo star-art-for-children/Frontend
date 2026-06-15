@@ -1,10 +1,12 @@
 export async function postArtWorksByExhibitionId(
   id: string,
-  formData: FormData
+  formData: FormData,
+  signal?: AbortSignal
 ) {
   const res = await fetch(`/api/exhibitions/${id}/artworks`, {
     method: 'POST',
     body: formData,
+    signal,
   });
   if (!res.ok) {
     const error = await res.json();
