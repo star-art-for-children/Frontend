@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
       role,
       institution: role === 'teacher' ? organization : null,
       purpose: role === 'teacher' ? purpose : null,
+      onboarded: true,
     },
   });
 

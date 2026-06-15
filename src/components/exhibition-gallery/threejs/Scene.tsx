@@ -42,6 +42,8 @@ export default function Scene2({
   ready,
   init,
   canLikes,
+  canStamp = false,
+  onStampProgress,
   preset = defaultPreset,
   sendMove,
   remotePlayersRef,
@@ -55,6 +57,8 @@ export default function Scene2({
   ready: Dispatch<SetStateAction<boolean>>;
   init: GalleryUIArtworkProps[];
   canLikes: boolean;
+  canStamp?: boolean;
+  onStampProgress?: (artworks: GalleryUIArtworkProps[]) => void;
   preset?: GalleryPreset;
   sendMove?: (camera: THREE.Camera) => void;
   remotePlayersRef?: React.RefObject<Map<string, RemotePlayerData>>;
@@ -220,6 +224,8 @@ export default function Scene2({
 
       <Room
         canLikes={canLikes}
+        canStamp={canStamp}
+        onStampProgress={onStampProgress}
         exhibitionId={exhibitionId}
         size={roomSize}
         height={height}

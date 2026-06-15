@@ -4,6 +4,7 @@ import { ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AddWorkDialog,
+  BulkWorkDialog,
   DeleteArtworkDialog,
   EditWorkDialog,
   EndExhibitionDialog,
@@ -91,7 +92,8 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
         )}
 
         {/* 작품 목록 헤더 */}
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <BulkWorkDialog />
           <AddWorkDialog triggerClassName="px-4 py-5 font-bold" />
         </div>
 

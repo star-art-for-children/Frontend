@@ -3,7 +3,7 @@ import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Group, Quaternion, RepeatWrapping, Vector3 } from 'three';
 import { RefObject } from 'react';
-import { likesToggle } from '@/lib/artwork/service';
+import { likesToggle, collectStamp } from '@/lib/artwork/service';
 import { useImageDownload } from '@/hooks/useImageDownload';
 
 import { useRouter } from 'next/navigation';
@@ -23,6 +23,8 @@ export default function Room({
   innerWalls,
   exhibitionId,
   canLikes,
+  canStamp = false,
+  onStampProgress,
   floorConfig = defaultPreset.floor,
   wallColor = defaultPreset.wallColor,
   wallPattern,
@@ -35,6 +37,8 @@ export default function Room({
   innerWalls: WAllType[];
   exhibitionId: string;
   canLikes: boolean;
+  canStamp?: boolean;
+  onStampProgress?: (artworks: GalleryUIArtworkProps[]) => void;
   floorConfig?: FloorConfig;
   wallColor?: string;
   wallPattern?: WallPatternConfig;
@@ -42,6 +46,7 @@ export default function Room({
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
+  const stampLoadingRef = useRef(false);
   const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
   const paintingTextures = useTexture(urls);
 
@@ -144,6 +149,11 @@ export default function Room({
     prevDir.current.copy(forward);
   });
 
+  // 스탬프 수집 상태를 상위(HUD/스탬프북)로 전달 — 초기 로드/새로고침 시에도 복원
+  useEffect(() => {
+    onStampProgress?.(artworks);
+  }, [artworks, onStampProgress]);
+
   useEffect(() => {
     const postLikes = async () => {
       const painting = closestPaintingRef.current;
@@ -179,6 +189,34 @@ export default function Room({
       }
     };
 
+    const postStamp = async () => {
+      const painting = closestPaintingRef.current;
+      if (!painting || stampLoadingRef.current) return;
+      if (painting.stampedByMe) return; // 이미 수집한 그림
+
+      const targetId = painting.id;
+      stampLoadingRef.current = true;
+
+      // 낙관적 업데이트
+      setArtworks((prev) =>
+        prev.map((x) => (x.id === targetId ? { ...x, stampedByMe: true } : x))
+      );
+
+      try {
+        await collectStamp(exhibitionId, targetId);
+      } catch (e) {
+        console.log(e);
+        // 실패 시 롤백
+        setArtworks((prev) =>
+          prev.map((x) =>
+            x.id === targetId ? { ...x, stampedByMe: false } : x
+          )
+        );
+      } finally {
+        stampLoadingRef.current = false;
+      }
+    };
+
     const handler = (e: KeyboardEvent) => {
       if (!document.pointerLockElement) return;
       const painting = closestPaintingRef.current;
@@ -194,6 +232,11 @@ export default function Room({
           console.error('download fail', err)
         );
       }
+
+      if (e.key === '3') {
+        if (!canStamp) return;
+        postStamp();
+      }
     };
 
     window.addEventListener('keydown', handler);
@@ -201,7 +244,7 @@ export default function Room({
     return () => {
       window.removeEventListener('keydown', handler);
     };
-  }, [exhibitionId, canLikes, router, download]);
+  }, [exhibitionId, canLikes, canStamp, router, download]);
 
   return (
     <>

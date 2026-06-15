@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { createClient } from '@/lib/supabase/server';
 import type { Artwork } from '@/types/artwork';
 import ArtworksScreen from '@/components/my-artworks/ArtworksScreen';
@@ -19,13 +20,12 @@ type RawArtwork = {
 };
 
 export default async function MyArtworksPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, onboarded } = await getAuthContext();
 
   if (!user) redirect('/login');
+  if (!onboarded) redirect('/onboarding');
 
+  const supabase = await createClient();
   const [{ data, error }, { data: likedData, error: likedError }] =
     await Promise.all([
       supabase

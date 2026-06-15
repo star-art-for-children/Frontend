@@ -47,8 +47,8 @@ function RemotePlayer({
   return (
     <group ref={groupRef} visible={visible}>
       {visible && (
-        <Html position={[0, 1.9, 0]} center>
-          <div className="w-fit rounded-full bg-black/50 px-3 py-0.5 text-sm font-bold whitespace-nowrap text-white">
+        <Html position={[0, 1.9, 0]} center zIndexRange={[30, 0]}>
+          <div className="w-fit rounded-full bg-black/50 px-3 py-0.5 text-sm whitespace-nowrap text-white">
             {playerName}
           </div>
         </Html>

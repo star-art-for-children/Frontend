@@ -83,13 +83,15 @@ export default function ExhibitionList({ exhibitions }: ExhibitionListProps) {
                   idx > 0 ? 'mt-1' : ''
                 }`}
               >
-                <Image
-                  src={ex.thumbnail || '/images/default_thumb.jpg'}
-                  alt=""
-                  width={44}
-                  height={44}
-                  className="shrink-0 rounded-[14px] object-cover"
-                />
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[14px]">
+                  <Image
+                    src={ex.thumbnail || '/images/default_thumb.jpg'}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="44px"
+                  />
+                </div>
 
                 <div className="min-w-0 flex-1">
                   <p className="mb-1 text-[14px] font-semibold text-[#2b2724]">
