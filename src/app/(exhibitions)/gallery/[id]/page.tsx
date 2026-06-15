@@ -34,8 +34,9 @@ export default function GalleryExhibitionPage() {
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [started, setStarted] = useState(false);
+  const [isThirdPerson, setIsThirdPerson] = useState(false);
   const isAllReady = isInitReady && isSceneReady;
-
+  const myName = user?.user_metadata?.username ?? 'guest';
   if (initError) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-black text-white">
@@ -72,7 +73,7 @@ export default function GalleryExhibitionPage() {
         onMute={() => setIsMuted(true)}
         onBack={() => router.back()}
         isLogged={!!user}
-        myName={user?.user_metadata?.username ?? 'guest'}
+        myName={myName}
         playerNames={playerInfo.map((p) => p.userName)}
         sendMessage={sendMessage}
         chatHistory={chatHistory}
@@ -95,6 +96,10 @@ export default function GalleryExhibitionPage() {
             sendMove={sendMove}
             remotePlayersRef={remotePlayersRef}
             playerInfo={playerInfo}
+            selectedModel={selectedModel}
+            myName={myName}
+            isThirdPerson={isThirdPerson}
+            onToggleThirdPerson={() => setIsThirdPerson((v) => !v)}
           />
         )}
       </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Group, Quaternion, RepeatWrapping, Vector3 } from 'three';
+import { RefObject } from 'react';
 import { likesToggle } from '@/lib/artwork/service';
 import { useImageDownload } from '@/hooks/useImageDownload';
 
@@ -13,6 +14,7 @@ import { defaultPreset } from '@/lib/gallery/presets';
 import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
 import Walls from '@/components/exhibition-gallery/threejs/Walls';
 import DynamicFloor from '@/components/exhibition-gallery/threejs/DynamicFloor';
+import * as THREE from 'three';
 
 export default function Room({
   init,
@@ -24,6 +26,7 @@ export default function Room({
   floorConfig = defaultPreset.floor,
   wallColor = defaultPreset.wallColor,
   wallPattern,
+  playerPosRef,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -35,6 +38,7 @@ export default function Room({
   floorConfig?: FloorConfig;
   wallColor?: string;
   wallPattern?: WallPatternConfig;
+  playerPosRef: RefObject<THREE.Vector3>;
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
@@ -82,10 +86,11 @@ export default function Room({
   const { download } = useImageDownload();
 
   useFrame(({ camera }) => {
+    const playerPos = playerPosRef.current;
     camera.getWorldDirection(tempForward.current);
     const forward = tempForward.current;
 
-    const moved = prevPos.current.distanceToSquared(camera.position) > 0.01;
+    const moved = prevPos.current.distanceToSquared(playerPos) > 0.01;
     const rotated = 1 - prevDir.current.dot(forward) > 0.01;
 
     if (!moved && !rotated) return;
@@ -99,7 +104,7 @@ export default function Room({
 
       mesh.getWorldPosition(tempPos.current);
 
-      tempDir.current.copy(tempPos.current).sub(camera.position);
+      tempDir.current.copy(tempPos.current).sub(playerPos);
 
       const distanceSq = tempDir.current.lengthSq();
 
@@ -109,10 +114,8 @@ export default function Room({
 
       if (fovDot < 0.5 || distanceSq > 35) continue;
 
-      // 그림의 앞면(+Z 월드 노말)과 카메라 방향 비교 — 뒷면이면 스킵
       mesh.getWorldQuaternion(tempQuat.current);
       tempNormal.current.set(0, 0, 1).applyQuaternion(tempQuat.current);
-      // tempDir은 카메라→그림 방향이므로, dot > 0이면 노말과 같은 방향 = 카메라가 뒷면
       if (tempNormal.current.dot(tempDir.current) > 0) continue;
 
       const score = fovDot * 20 - Math.sqrt(distanceSq) * 10;
@@ -126,24 +129,18 @@ export default function Room({
     if (prevIndexRef.current !== bestIndex) {
       if (prevIndexRef.current !== -1) {
         const prevHtml = htmlRefs.current[prevIndexRef.current];
-        if (prevHtml) {
-          prevHtml.style.opacity = '0';
-        }
+        if (prevHtml) prevHtml.style.opacity = '0';
       }
-
       if (bestIndex !== -1) {
         const nextHtml = htmlRefs.current[bestIndex];
-        if (nextHtml) {
-          nextHtml.style.opacity = '1';
-        }
+        if (nextHtml) nextHtml.style.opacity = '1';
       }
-
       prevIndexRef.current = bestIndex;
     }
 
     closestPaintingRef.current = bestIndex !== -1 ? artworks[bestIndex] : null;
 
-    prevPos.current.copy(camera.position);
+    prevPos.current.copy(playerPos);
     prevDir.current.copy(forward);
   });
 
