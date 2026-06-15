@@ -1,10 +1,12 @@
 export async function postArtWorksByExhibitionId(
   id: string,
-  formData: FormData
+  formData: FormData,
+  signal?: AbortSignal
 ) {
   const res = await fetch(`/api/exhibitions/${id}/artworks`, {
     method: 'POST',
     body: formData,
+    signal,
   });
   if (!res.ok) {
     const error = await res.json();
@@ -73,6 +75,20 @@ export async function likesToggle(exhibitionId: string, closestId: string) {
   }
 
   return result.json();
+}
+
+// 스탬프 투어: 그림 발견 시 스탬프 수집 (insert-only)
+export async function collectStamp(exhibitionId: string, artworkId: string) {
+  const res = await fetch(
+    `/api/exhibitions/${exhibitionId}/artworks/${artworkId}/stamp`,
+    { method: 'POST' }
+  );
+
+  if (!res.ok) {
+    throw new Error('request failed');
+  }
+
+  return res.json();
 }
 
 // 작품 이모지 반응 (4종)
