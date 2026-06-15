@@ -10,6 +10,11 @@ import GalleryHUD from '@/components/exhibition-gallery/GalleryHUD';
 import StampBook from '@/components/exhibition-gallery/StampBook';
 import Scene2 from '@/components/exhibition-gallery/threejs/Scene';
 import { GalleryUIArtworkProps } from '@/types/gallery';
+import {
+  fetchMyAchievements,
+  updateSelectedTitle,
+  type MyAchievements,
+} from '@/lib/achievements/client';
 
 export default function GalleryExhibitionPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +47,7 @@ export default function GalleryExhibitionPage() {
   );
   const [showStampComplete, setShowStampComplete] = useState(false);
   const [showStampBook, setShowStampBook] = useState(false);
+  const [achievement, setAchievement] = useState<MyAchievements | null>(null);
   // 도장 연출: key를 증가시켜 재마운트 → 애니메이션 재생
   const [stampFxId, setStampFxId] = useState(0);
   // 미완료 → 완료로 전환되는 순간에만 축하 모달 노출
@@ -87,6 +93,37 @@ export default function GalleryExhibitionPage() {
     return () => {
       if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
     };
+  }, []);
+
+  // 로그인 유저의 업적 현황 로드 (스탬프북 표시용)
+  useEffect(() => {
+    if (!user) return;
+    fetchMyAchievements()
+      .then(setAchievement)
+      .catch((e) => console.error('업적 로드 실패', e));
+  }, [user]);
+
+  // 스탬프 수집/완주로 진행 상황이 바뀌면 업적 현황 갱신
+  useEffect(() => {
+    if (!user || stampArtworks.length === 0) return;
+    const collected = stampArtworks.filter((x) => x.stampedByMe).length;
+    if (collected === 0) return;
+    fetchMyAchievements()
+      .then(setAchievement)
+      .catch((e) => console.error('업적 갱신 실패', e));
+  }, [user, stampArtworks]);
+
+  const handleSelectTitle = useCallback(async (next: string | null) => {
+    setAchievement((prev) => (prev ? { ...prev, selectedTitle: next } : prev));
+    try {
+      await updateSelectedTitle(next);
+    } catch (e) {
+      console.error('칭호 변경 실패', e);
+      // 실패 시 서버 상태로 복원
+      fetchMyAchievements()
+        .then(setAchievement)
+        .catch(() => {});
+    }
   }, []);
 
   const openStampBook = useCallback(() => {
@@ -233,6 +270,8 @@ export default function GalleryExhibitionPage() {
       {showStampBook && (
         <StampBook
           artworks={stampArtworks}
+          achievement={achievement}
+          onSelectTitle={handleSelectTitle}
           onClose={() => setShowStampBook(false)}
         />
       )}
@@ -246,6 +285,9 @@ export default function GalleryExhibitionPage() {
             </p>
             <p className="text-secondary/60 text-sm">
               전시관의 작품 {stampTotal}개를 모두 스탬프로 모았어요.
+            </p>
+            <p className="text-primary text-sm font-semibold">
+              🏅 마이페이지에서 완주 업적과 칭호를 확인해보세요!
             </p>
             <button
               onClick={() => setShowStampComplete(false)}
