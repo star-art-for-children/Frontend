@@ -143,6 +143,8 @@ export default function Painting({
         position={[0, -h / 2 + 0.8, 0.13]}
         distanceFactor={2}
         center
+        // 모달(z-100)·HUD(z-40)보다 항상 아래에 깔리도록 제한
+        zIndexRange={[30, 0]}
         style={{
           opacity: 0,
           pointerEvents: 'none',
