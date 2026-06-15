@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Calendar, Heart, Settings, Star } from 'lucide-react';
+import { Calendar, Heart, Settings, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { ExhibitionDetailItem } from '@/lib/exhibition/server';
 import { formatDate } from '@/lib/exhibition/dateStatus';
@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { toggleExhibitionLike } from '@/lib/exhibition/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import ShareDialog from './ShareDialog';
 
 interface ActionProps {
   exhibition: ExhibitionDetailItem;
@@ -77,14 +78,7 @@ export default function ExhibitionActionBar({
           <Heart className={cn('h-4 w-4', liked && 'fill-red-500')} />
           {liked ? '좋아요 취소' : '좋아요'}
         </Button>
-        <Link
-          href={`/gallery/${exhibition.id}`}
-          className="bg-primary inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-white transition-colors hover:bg-[#E09415]"
-        >
-          <span>🎨</span>
-          전시회 입장하기
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        <ShareDialog exhibitionId={exhibition.id} title={exhibition.title} />
       </div>
     </section>
   );
