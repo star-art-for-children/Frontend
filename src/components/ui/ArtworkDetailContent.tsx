@@ -53,7 +53,12 @@ export default function ArtworkDetailContent({
   const [showLoginHint, setShowLoginHint] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
-  const REACTIONS = ['❤️', '😍', '😮', '👏'];
+  const REACTIONS: { emoji: string; label: string }[] = [
+    { emoji: '❤️', label: '좋아요' },
+    { emoji: '😍', label: '멋져요' },
+    { emoji: '😮', label: '놀라워요' },
+    { emoji: '👏', label: '대단해요' },
+  ];
 
   const handleReactClick = (emoji: string) => {
     if (isLoggedIn === false) {
@@ -215,7 +220,7 @@ export default function ArtworkDetailContent({
 
           {/* 이모지 반응 */}
           <div className="mb-4 flex flex-wrap gap-2">
-            {REACTIONS.map((emoji) => {
+            {REACTIONS.map(({ emoji, label }) => {
               const count = reactions[emoji] ?? 0;
               const active = myReaction === emoji;
               return (
@@ -230,6 +235,14 @@ export default function ArtworkDetailContent({
                   )}
                 >
                   <span className="text-[15px]">{emoji}</span>
+                  <span
+                    className={cn(
+                      'font-medium',
+                      active ? 'text-[#D9663F]' : 'text-[#444340]'
+                    )}
+                  >
+                    {label}
+                  </span>
                   {count > 0 && (
                     <span
                       className={cn(
