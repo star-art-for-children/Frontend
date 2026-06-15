@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
+import { fetchUserAchievements } from '@/lib/achievements/server';
 import type { Profile } from '@/types/profile';
 import MyPageScreen from '@/components/my-page/MyPageScreen';
 
@@ -16,7 +17,7 @@ export default async function MyPage() {
   // profiles 테이블에서 현재 유저의 프로필 조회
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
-    .select('username, role, institution, onboarded')
+    .select('username, role, institution, onboarded, selected_title')
     .eq('id', user.id)
     .single();
 
@@ -33,6 +34,10 @@ export default async function MyPage() {
     user.email?.split('@')[0] ??
     '사용자';
   const email = user.email ?? '';
+  const selectedTitle = profileData?.selected_title ?? null;
+
+  // 스탬프 데이터 기반 업적 달성 현황 계산
+  const achievementResult = await fetchUserAchievements(supabase, user.id);
 
   let profile: Profile;
 
@@ -52,6 +57,7 @@ export default async function MyPage() {
       email,
       academy_name: profileData?.institution ?? '',
       role: 'teacher',
+      selectedTitle,
       exhibitions: (exhibitionsData ?? []).map((ex) => {
         // dateStatus.ts의 getStatus()를 재사용해서 상태 계산
         // ongoing/upcoming → active, ended → ended 로 매핑
@@ -73,8 +79,9 @@ export default async function MyPage() {
       name,
       email,
       role: 'general',
+      selectedTitle,
     };
   }
 
-  return <MyPageScreen profile={profile} />;
+  return <MyPageScreen profile={profile} achievement={achievementResult} />;
 }
