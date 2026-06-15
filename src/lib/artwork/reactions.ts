@@ -23,10 +23,17 @@ export async function fetchArtworkReactions(
     return { reactionsMap, myReactionMap };
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('artwork_reactions')
     .select('artwork_id, user_id, emoji')
     .in('artwork_id', artworkIds);
+
+  // 반응은 부가 기능이므로 조회 실패 시 페이지 전체를 막지 않고
+  // 빈 집계를 반환한다. (에러는 로깅하여 추적 가능하게)
+  if (error) {
+    console.error('artwork reactions 집계 실패:', error);
+    return { reactionsMap, myReactionMap };
+  }
 
   for (const row of data ?? []) {
     const counts = reactionsMap.get(row.artwork_id) ?? {};
