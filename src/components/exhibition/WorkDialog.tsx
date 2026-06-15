@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { likesToggle, toggleReaction } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useImageDownload } from '@/hooks/useImageDownload';
@@ -58,9 +58,11 @@ export default function WorkDialog({
   const [myReaction, setMyReaction] = useState<string | null>(
     work.myReaction ?? null
   );
+  // 반응 요청 직렬화 — 응답 순서 역전으로 인한 UI/DB 불일치 방지
+  const reactionPendingRef = useRef(false);
 
   const handleReaction = async (emoji: string) => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn || reactionPendingRef.current) return;
 
     const prevReactions = reactions;
     const prevMine = myReaction;
@@ -78,12 +80,15 @@ export default function WorkDialog({
     setReactions(next);
     setMyReaction(nextMine);
 
+    reactionPendingRef.current = true;
     try {
       await toggleReaction(exhibitionId, work.id, emoji);
     } catch (err) {
       console.error('reaction toggle error', err);
       setReactions(prevReactions);
       setMyReaction(prevMine);
+    } finally {
+      reactionPendingRef.current = false;
     }
   };
 
