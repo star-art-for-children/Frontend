@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
 import { createClient } from '@/lib/supabase/server';
+import { fetchArtworkReactions } from '@/lib/artwork/reactions';
 import type { Artwork } from '@/types/artwork';
 import ArtworksScreen from '@/components/my-artworks/ArtworksScreen';
 
@@ -48,21 +49,28 @@ export default async function MyArtworksPage() {
 
   const likedSet = new Set((likedData ?? []).map((l) => l.artwork_id));
 
-  const artworks: Artwork[] = ((data ?? []) as unknown as RawArtwork[]).map(
-    (raw) => ({
-      id: raw.id,
-      exhibitionId: raw.exhibitions?.id ?? '',
-      title: raw.title,
-      artist: raw.artist_name ?? '',
-      description: raw.description ?? '',
-      exhibitionTitle: raw.exhibitions?.title ?? '',
-      academyName: raw.exhibitions?.profiles?.institution ?? '',
-      imageUrl: raw.image_url ?? '',
-      likesCount: (raw.artwork_likes ?? [])[0]?.count ?? 0,
-      isLiked: likedSet.has(raw.id),
-      createdAt: raw.created_at,
-    })
+  const rawArtworks = (data ?? []) as unknown as RawArtwork[];
+  const { reactionsMap, myReactionMap } = await fetchArtworkReactions(
+    supabase,
+    rawArtworks.map((raw) => raw.id),
+    user.id
   );
+
+  const artworks: Artwork[] = rawArtworks.map((raw) => ({
+    id: raw.id,
+    exhibitionId: raw.exhibitions?.id ?? '',
+    title: raw.title,
+    artist: raw.artist_name ?? '',
+    description: raw.description ?? '',
+    exhibitionTitle: raw.exhibitions?.title ?? '',
+    academyName: raw.exhibitions?.profiles?.institution ?? '',
+    imageUrl: raw.image_url ?? '',
+    likesCount: (raw.artwork_likes ?? [])[0]?.count ?? 0,
+    isLiked: likedSet.has(raw.id),
+    createdAt: raw.created_at,
+    reactions: reactionsMap.get(raw.id) ?? {},
+    myReaction: myReactionMap.get(raw.id) ?? null,
+  }));
 
   return <ArtworksScreen artworks={artworks} />;
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { likesToggle } from '@/lib/artwork/service';
+import { useState } from 'react';
+import { likesToggle, toggleReaction } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useImageDownload } from '@/hooks/useImageDownload';
 import { Artwork } from '@/types/artwork';
@@ -31,6 +32,41 @@ export default function ArtworkModal({
     onSuccess: (nextLiked, nextLikes) => onLikeChange?.(nextLiked, nextLikes),
   });
 
+  // 이모지 반응 (좋아요와 별개) — 낙관적 업데이트
+  const [reactions, setReactions] = useState<Record<string, number>>(
+    artwork.reactions ?? {}
+  );
+  const [myReaction, setMyReaction] = useState<string | null>(
+    artwork.myReaction ?? null
+  );
+
+  const handleReaction = async (emoji: string) => {
+    if (!isLoggedIn) return;
+
+    const prevReactions = reactions;
+    const prevMine = myReaction;
+
+    const next = { ...reactions };
+    if (prevMine) next[prevMine] = Math.max((next[prevMine] ?? 1) - 1, 0);
+    let nextMine: string | null;
+    if (prevMine === emoji) {
+      nextMine = null;
+    } else {
+      next[emoji] = (next[emoji] ?? 0) + 1;
+      nextMine = emoji;
+    }
+    setReactions(next);
+    setMyReaction(nextMine);
+
+    try {
+      await toggleReaction(artwork.exhibitionId, artwork.id, emoji);
+    } catch (err) {
+      console.error('reaction toggle error', err);
+      setReactions(prevReactions);
+      setMyReaction(prevMine);
+    }
+  };
+
   const { download } = useImageDownload();
 
   const handleDownload = async () => {
@@ -56,6 +92,9 @@ export default function ArtworkModal({
       onClose={onClose}
       onLike={handleLike}
       onDownload={handleDownload}
+      reactions={reactions}
+      myReaction={myReaction}
+      onReact={handleReaction}
     />
   );
 }

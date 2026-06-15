@@ -2,6 +2,7 @@ import 'server-only';
 
 import { createClient } from '@/lib/supabase/server';
 import { getAuthContext } from '@/lib/auth/getAuthContext';
+import { fetchArtworkReactions } from '@/lib/artwork/reactions';
 import {
   ArtworkRow,
   ExhibitionDetailRow,
@@ -191,6 +192,9 @@ export type ExhibitionWorkItem = {
   likes: number;
   liked: boolean;
   videoUrl: string | null;
+  // 이모지별 반응 수 (예: { '❤️': 3, '😍': 1 })와 내가 누른 반응
+  reactions: Record<string, number>;
+  myReaction: string | null;
 };
 
 export type ExhibitionDetailItem = {
@@ -278,6 +282,13 @@ export async function fetchExhibitionDetail(
     }
   }
 
+  // 작품 이모지 반응 집계 (공통 헬퍼 재사용)
+  const { reactionsMap, myReactionMap } = await fetchArtworkReactions(
+    supabase,
+    artworkIds,
+    currentUserId
+  );
+
   const profile = Array.isArray(rawData.profile)
     ? rawData.profile[0]
     : rawData.profile;
@@ -304,6 +315,8 @@ export async function fetchExhibitionDetail(
       likes: likesCountMap.get(work.id) ?? 0,
       liked: likedArtworkIds.has(work.id),
       videoUrl: work.video_url ?? null,
+      reactions: reactionsMap.get(work.id) ?? {},
+      myReaction: myReactionMap.get(work.id) ?? null,
     })),
   };
 }

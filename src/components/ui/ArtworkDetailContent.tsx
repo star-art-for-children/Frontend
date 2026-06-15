@@ -23,6 +23,9 @@ export interface ArtworkDetailContentProps {
   isOwner?: boolean;
   isAnimating?: boolean;
   onAnimate?: () => void;
+  reactions?: Record<string, number>;
+  myReaction?: string | null;
+  onReact?: (emoji: string) => void;
 }
 
 export default function ArtworkDetailContent({
@@ -43,9 +46,22 @@ export default function ArtworkDetailContent({
   isOwner = false,
   isAnimating = false,
   onAnimate,
+  reactions = {},
+  myReaction = null,
+  onReact,
 }: ArtworkDetailContentProps) {
   const [showLoginHint, setShowLoginHint] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+
+  const REACTIONS = ['❤️', '😍', '😮', '👏'];
+
+  const handleReactClick = (emoji: string) => {
+    if (isLoggedIn === false) {
+      setShowLoginHint(true);
+      return;
+    }
+    onReact?.(emoji);
+  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -196,6 +212,38 @@ export default function ArtworkDetailContent({
               {description}
             </p>
           )}
+
+          {/* 이모지 반응 */}
+          <div className="mb-4 flex flex-wrap gap-2">
+            {REACTIONS.map((emoji) => {
+              const count = reactions[emoji] ?? 0;
+              const active = myReaction === emoji;
+              return (
+                <button
+                  key={emoji}
+                  onClick={() => handleReactClick(emoji)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors',
+                    active
+                      ? 'border-[#F4845F] bg-[#FDEEE8]'
+                      : 'border-[#EDEBE4] hover:bg-[#F5F0E8]'
+                  )}
+                >
+                  <span className="text-[15px]">{emoji}</span>
+                  {count > 0 && (
+                    <span
+                      className={cn(
+                        'font-medium',
+                        active ? 'text-[#D9663F]' : 'text-[#888780]'
+                      )}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-[#F4845F]" />
