@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
     }
 
     const orderId = await createOrder(user.id, parsed.data.amount);
-    return NextResponse.json({ orderId, amount: parsed.data.amount }, { status: 200 });
+    return NextResponse.json(
+      { orderId, amount: parsed.data.amount },
+      { status: 200 }
+    );
   } catch (e) {
     console.error('checkout error:', e);
     return NextResponse.json({ message: 'checkout failed' }, { status: 500 });

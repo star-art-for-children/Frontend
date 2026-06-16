@@ -22,7 +22,11 @@ export const getOrder = async (orderId: string) => {
     .select('user_id, amount, status')
     .eq('order_id', orderId)
     .maybeSingle();
-  return data as { user_id: string; amount: number; status: OrderStatus } | null;
+  return data as {
+    user_id: string;
+    amount: number;
+    status: OrderStatus;
+  } | null;
 };
 
 export const markOrderDone = async (

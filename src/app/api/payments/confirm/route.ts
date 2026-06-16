@@ -38,11 +38,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'forbidden' }, { status: 403 });
     }
 
-    const toss = await confirmTossPayment({ paymentKey, orderId, amount: queryAmount });
+    const toss = await confirmTossPayment({
+      paymentKey,
+      orderId,
+      amount: queryAmount,
+    });
     if (!toss.ok) {
       await markOrderFailed(orderId);
       return NextResponse.json(
-        { message: toss.data.message ?? 'confirm failed', code: toss.data.code },
+        {
+          message: toss.data.message ?? 'confirm failed',
+          code: toss.data.code,
+        },
         { status: 400 }
       );
     }

@@ -20,7 +20,9 @@ export const ChargeWidget = ({ customerKey }: Props) => {
     setError(null);
     const parsed = chargeAmountSchema.safeParse(amount);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? '올바른 금액을 입력해주세요.');
+      setError(
+        parsed.error.issues[0]?.message ?? '올바른 금액을 입력해주세요.'
+      );
       return;
     }
     setLoading(true);

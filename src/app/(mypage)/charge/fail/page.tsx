@@ -13,7 +13,8 @@ const MESSAGES: Record<string, string> = {
 const FailContent = () => {
   const params = useSearchParams();
   const code = params.get('code') ?? '';
-  const message = MESSAGES[code] ?? params.get('message') ?? '결제에 실패했습니다.';
+  const message =
+    MESSAGES[code] ?? params.get('message') ?? '결제에 실패했습니다.';
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f8f4ee] px-5 text-[#2d2926]">
