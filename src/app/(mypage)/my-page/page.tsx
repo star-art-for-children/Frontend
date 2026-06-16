@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
+import { getBalance } from '@/lib/payments/credit';
 import type { Profile } from '@/types/profile';
 import MyPageScreen from '@/components/my-page/MyPageScreen';
 
@@ -33,6 +34,9 @@ export default async function MyPage() {
     user.email?.split('@')[0] ??
     '사용자';
   const email = user.email ?? '';
+
+  // 마이페이지 상단에 보여줄 현재 크레딧 잔액
+  const balance = await getBalance(user.id);
 
   let profile: Profile;
 
@@ -76,5 +80,5 @@ export default async function MyPage() {
     };
   }
 
-  return <MyPageScreen profile={profile} />;
+  return <MyPageScreen profile={profile} balance={balance} />;
 }
