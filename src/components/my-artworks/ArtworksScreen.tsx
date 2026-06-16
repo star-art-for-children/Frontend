@@ -61,6 +61,7 @@ export default function ArtworksScreen({
         <ArtworkModal
           key={selectedArtwork.id}
           artwork={selectedArtwork}
+          isLoggedIn
           onClose={() => setSelectedArtwork(null)}
           onLikeChange={(liked, newCount) => {
             setArtworks((prev) =>

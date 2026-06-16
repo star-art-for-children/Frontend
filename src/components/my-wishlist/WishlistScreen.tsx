@@ -60,6 +60,7 @@ export default function WishlistScreen({
         <ArtworkModal
           key={selectedArtwork.id}
           artwork={selectedArtwork}
+          isLoggedIn
           onClose={() => setSelectedArtwork(null)}
           onLikeChange={(liked) => {
             if (!liked) {

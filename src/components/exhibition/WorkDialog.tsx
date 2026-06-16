@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { likesToggle } from '@/lib/artwork/service';
+import { useRef, useState } from 'react';
+import { likesToggle, toggleReaction } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useImageDownload } from '@/hooks/useImageDownload';
 import ArtworkDetailContent from '@/components/ui/ArtworkDetailContent';
@@ -16,6 +16,8 @@ export interface Work {
   likes: number;
   liked: boolean;
   videoUrl?: string | null;
+  reactions?: Record<string, number>;
+  myReaction?: string | null;
 }
 
 interface WorkDialogProps {
@@ -48,6 +50,47 @@ export default function WorkDialog({
     onToggle: () => likesToggle(exhibitionId, work.id),
     refreshOnSuccess: true,
   });
+
+  // 이모지 반응 (좋아요와 별개) — 낙관적 업데이트
+  const [reactions, setReactions] = useState<Record<string, number>>(
+    work.reactions ?? {}
+  );
+  const [myReaction, setMyReaction] = useState<string | null>(
+    work.myReaction ?? null
+  );
+  // 반응 요청 직렬화 — 응답 순서 역전으로 인한 UI/DB 불일치 방지
+  const reactionPendingRef = useRef(false);
+
+  const handleReaction = async (emoji: string) => {
+    if (!isLoggedIn || reactionPendingRef.current) return;
+
+    const prevReactions = reactions;
+    const prevMine = myReaction;
+
+    // 낙관적 계산: 같은 이모지 → 해제, 다른 이모지 → 교체
+    const next = { ...reactions };
+    if (prevMine) next[prevMine] = Math.max((next[prevMine] ?? 1) - 1, 0);
+    let nextMine: string | null;
+    if (prevMine === emoji) {
+      nextMine = null;
+    } else {
+      next[emoji] = (next[emoji] ?? 0) + 1;
+      nextMine = emoji;
+    }
+    setReactions(next);
+    setMyReaction(nextMine);
+
+    reactionPendingRef.current = true;
+    try {
+      await toggleReaction(exhibitionId, work.id, emoji);
+    } catch (err) {
+      console.error('reaction toggle error', err);
+      setReactions(prevReactions);
+      setMyReaction(prevMine);
+    } finally {
+      reactionPendingRef.current = false;
+    }
+  };
 
   const { download } = useImageDownload();
 
@@ -133,6 +176,9 @@ export default function WorkDialog({
           isOwner={isOwner}
           isAnimating={isAnimating}
           onAnimate={handleAnimate}
+          reactions={reactions}
+          myReaction={myReaction}
+          onReact={handleReaction}
         />
       )}
     </>

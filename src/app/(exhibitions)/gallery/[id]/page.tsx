@@ -37,6 +37,7 @@ export default function GalleryExhibitionPage() {
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [started, setStarted] = useState(false);
+  const [isThirdPerson, setIsThirdPerson] = useState(false);
   const [stampArtworks, setStampArtworks] = useState<GalleryUIArtworkProps[]>(
     []
   );
@@ -49,6 +50,7 @@ export default function GalleryExhibitionPage() {
   const prevCollectedRef = useRef<number | null>(null);
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isAllReady = isInitReady && isSceneReady;
+  const myName = user?.user_metadata?.username ?? 'guest';
 
   const stampCollected = stampArtworks.filter((x) => x.stampedByMe).length;
   const stampTotal = stampArtworks.length;
@@ -155,7 +157,7 @@ export default function GalleryExhibitionPage() {
         onMute={() => setIsMuted(true)}
         onBack={() => router.back()}
         isLogged={!!user}
-        myName={user?.user_metadata?.username ?? 'guest'}
+        myName={myName}
         playerNames={playerInfo.map((p) => p.userName)}
         sendMessage={sendMessage}
         chatHistory={chatHistory}
@@ -183,6 +185,10 @@ export default function GalleryExhibitionPage() {
             sendMove={sendMove}
             remotePlayersRef={remotePlayersRef}
             playerInfo={playerInfo}
+            selectedModel={selectedModel}
+            myName={myName}
+            isThirdPerson={isThirdPerson}
+            onToggleThirdPerson={() => setIsThirdPerson((v) => !v)}
           />
         )}
       </div>
