@@ -193,6 +193,32 @@
   }
 }
 
+/* 스탬프 투어: 도장 도구가 위에서 내려와 찍고 빠지는 모션 */
+@keyframes stamp-tool-slam {
+  0% {
+    transform: translateY(-260px) rotate(-8deg);
+    opacity: 0;
+  }
+  18% {
+    /* 쾅 — 바닥에 내려찍힘 */
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  28% {
+    /* 반동으로 살짝 튕김 */
+    transform: translateY(-22px) rotate(0deg);
+  }
+  42% {
+    transform: translateY(-30px) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    /* 위로 빠지며 사라짐 */
+    transform: translateY(-280px) rotate(6deg);
+    opacity: 0;
+  }
+}
+
 /* 스탬프 투어: 스탬프북 책장 펼침 */
 @keyframes book-open {
   0% {
