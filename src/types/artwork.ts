@@ -12,6 +12,8 @@ export type Artwork = {
   likesCount: number;
   isLiked: boolean;
   createdAt: string; // ISO string
+  reactions: Record<string, number>;
+  myReaction: string | null;
 };
 
 export type ArtworkWithEmail = {
