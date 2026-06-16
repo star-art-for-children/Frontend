@@ -36,10 +36,12 @@ export const applyCredit = async (p: {
 
 export const getBalance = async (userId: string): Promise<number> => {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('credit_wallets')
     .select('balance')
     .eq('user_id', userId)
     .maybeSingle();
+  if (error) throw error;
+  // 행 없음(지갑 미생성)만 0으로 처리
   return data?.balance ?? 0;
 };

@@ -17,11 +17,12 @@ export const createOrder = async (userId: string, amount: number) => {
 
 export const getOrder = async (orderId: string) => {
   const supabase = createAdminClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('payment_orders')
     .select('user_id, amount, status')
     .eq('order_id', orderId)
     .maybeSingle();
+  if (error) throw error;
   return data as {
     user_id: string;
     amount: number;
@@ -35,7 +36,7 @@ export const markOrderDone = async (
   raw: Record<string, unknown>
 ) => {
   const supabase = createAdminClient();
-  await supabase
+  const { error } = await supabase
     .from('payment_orders')
     .update({
       status: 'DONE',
@@ -44,12 +45,14 @@ export const markOrderDone = async (
       approved_at: new Date().toISOString(),
     })
     .eq('order_id', orderId);
+  if (error) throw error;
 };
 
 export const markOrderFailed = async (orderId: string) => {
   const supabase = createAdminClient();
-  await supabase
+  const { error } = await supabase
     .from('payment_orders')
     .update({ status: 'FAILED' })
     .eq('order_id', orderId);
+  if (error) throw error;
 };

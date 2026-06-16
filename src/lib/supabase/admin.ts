@@ -1,3 +1,4 @@
+import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
 // 서버 전용. service role 키 사용 → RLS 우회. 절대 클라이언트에서 import 금지.

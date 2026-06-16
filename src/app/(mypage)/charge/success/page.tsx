@@ -19,20 +19,27 @@ const SuccessContent = () => {
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) return;
     (async () => {
-      const res = await fetch('/api/payments/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
+      try {
+        const res = await fetch('/api/payments/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setState({
+            status: 'error',
+            message: data.message ?? '결제 승인에 실패했습니다.',
+          });
+          return;
+        }
+        setState({ status: 'done', balance: data.balance });
+      } catch {
         setState({
           status: 'error',
-          message: data.message ?? '결제 승인에 실패했습니다.',
+          message: '결제 승인 중 오류가 발생했습니다. 다시 시도해주세요.',
         });
-        return;
       }
-      setState({ status: 'done', balance: data.balance });
     })();
   }, [paymentKey, orderId, amount]);
 
