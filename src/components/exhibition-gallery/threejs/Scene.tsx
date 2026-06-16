@@ -24,7 +24,12 @@ import Room from './Room';
 import Player from './Player';
 import DynamicDecorations, { CircleCollider } from './DynamicDecorations';
 import RemotePlayers from './RemotePlayers';
-import { RemotePlayerData, PlayerInfo } from '@/hooks/usePlayerSocket';
+import LocalPlayerCharacter from './LocalPlayerCharacter';
+import {
+  RemotePlayerData,
+  PlayerInfo,
+  CharacterModel,
+} from '@/hooks/usePlayerSocket';
 
 function getGridSize(artworkCount: number): number {
   if (artworkCount <= 4) return 1;
@@ -43,6 +48,10 @@ export default function Scene2({
   sendMove,
   remotePlayersRef,
   playerInfo,
+  myName,
+  selectedModel = 'human',
+  isThirdPerson,
+  onToggleThirdPerson,
 }: {
   exhibitionId: string;
   ready: Dispatch<SetStateAction<boolean>>;
@@ -54,6 +63,10 @@ export default function Scene2({
   sendMove?: (camera: THREE.Camera) => void;
   remotePlayersRef?: React.RefObject<Map<string, RemotePlayerData>>;
   playerInfo?: PlayerInfo[];
+  myName: string;
+  selectedModel?: CharacterModel;
+  isThirdPerson?: boolean;
+  onToggleThirdPerson?: () => void;
 }) {
   const height = 9;
   const cellSize = 12;
@@ -89,6 +102,9 @@ export default function Scene2({
     circleCollidersRef.current = c;
   }, []);
 
+  const playerPosRef = useRef<THREE.Vector3>(new THREE.Vector3());
+  const playerYawRef = useRef<number>(0);
+
   const atmosphere = preset.atmosphere ?? defaultPreset.atmosphere;
   const lighting = preset.lighting ?? defaultPreset.lighting;
   const mergedPreset: typeof preset = {
@@ -107,6 +123,7 @@ export default function Scene2({
       camera={{ fov: 65 }}
       gl={{
         antialias: true,
+        preserveDrawingBuffer: true,
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: lighting.toneMappingExposure,
       }}
@@ -218,6 +235,7 @@ export default function Scene2({
         floorConfig={mergedPreset.floor}
         wallColor={mergedPreset.wallColor}
         wallPattern={mergedPreset.wallPattern}
+        playerPosRef={playerPosRef}
       />
       <DynamicDecorations
         preset={mergedPreset}
@@ -245,8 +263,19 @@ export default function Scene2({
         circleCollidersRef={circleCollidersRef}
         speed={3}
         sendMove={sendMove}
+        isThirdPerson={isThirdPerson ?? false}
+        onToggleThirdPerson={onToggleThirdPerson ?? (() => {})}
+        playerPosRef={playerPosRef}
+        playerYawRef={playerYawRef}
       />
-      <PointerLockControls selector="canvas" />
+      <LocalPlayerCharacter
+        myName={myName}
+        model={selectedModel}
+        visible={isThirdPerson ?? false}
+        playerPosRef={playerPosRef}
+        playerYawRef={playerYawRef}
+      />
+      <PointerLockControls enabled={!isThirdPerson} selector="canvas" />
     </Canvas>
   );
 }
