@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "ws": "tsx server/ws.ts",
-    "ws:watch": "tsx watch server/ws.ts"
+    "ws:watch": "tsx watch server/ws.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
@@ -18,6 +20,7 @@
     "@react-three/fiber": "^9.6.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
+    "@tosspayments/tosspayments-sdk": "^2.7.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "class-variance-authority": "^0.7.1",
@@ -52,6 +55,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5",
+    "vitest": "^4.1.8",
     "ws": "^8.21.0"
   }
 }

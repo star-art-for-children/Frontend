@@ -1,3 +1,4 @@
+import CreditCard from './CreditCard';
 import ExhibitionList from './ExhibitionList';
 import LogoutButton from './LogoutButton';
 import NewExhibitionBanner from './NewExhibitionBanner';
@@ -7,14 +8,16 @@ import type { Profile } from '@/types/profile';
 
 interface Props {
   profile: Profile;
+  balance: number;
 }
 
-export default function MyPageScreen({ profile }: Props) {
+export default function MyPageScreen({ profile, balance }: Props) {
   return (
     <main className="bg-[#f8f4ee] text-[#2d2926]">
       <div className="mx-auto w-full max-w-[1080px] px-5 py-7">
         <section className="mx-auto w-full max-w-[720px] space-y-4 pb-16">
           <ProfileCard profile={profile} />
+          <CreditCard balance={balance} />
           {profile.role === 'teacher' && <NewExhibitionBanner />}
           <QuickLinks />
           {profile.role === 'teacher' && (
