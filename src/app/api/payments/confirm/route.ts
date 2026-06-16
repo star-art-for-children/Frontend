@@ -19,9 +19,17 @@ export async function POST(req: NextRequest) {
     const queryAmount = Number(amount);
 
     const order = await getOrder(orderId);
+    if (!order) {
+      return NextResponse.json({ message: 'ORDER_NOT_FOUND' }, { status: 404 });
+    }
+    // 소유자 검증을 상태 분기보다 먼저 수행 (타인 주문의 존재/상태 노출 차단)
+    if (order.user_id !== user.id) {
+      return NextResponse.json({ message: 'ORDER_NOT_FOUND' }, { status: 404 });
+    }
+
     const check = verifyConfirm({
-      storedStatus: order?.status ?? null,
-      storedAmount: order?.amount ?? null,
+      storedStatus: order.status,
+      storedAmount: order.amount,
       queryAmount,
     });
 
@@ -33,9 +41,6 @@ export async function POST(req: NextRequest) {
     }
     if (check.status === 'reject') {
       return NextResponse.json({ message: check.reason }, { status: 400 });
-    }
-    if (order!.user_id !== user.id) {
-      return NextResponse.json({ message: 'forbidden' }, { status: 403 });
     }
 
     const toss = await confirmTossPayment({
@@ -57,7 +62,7 @@ export async function POST(req: NextRequest) {
     // ref=orderId 로 멱등 적립 → markOrderDone 실패해도 재시도 안전
     const balance = await applyCredit({
       userId: user.id,
-      delta: order!.amount,
+      delta: order.amount,
       type: 'charge',
       ref: orderId,
     });
