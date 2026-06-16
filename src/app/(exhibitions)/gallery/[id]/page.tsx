@@ -111,7 +111,12 @@ export default function GalleryExhibitionPage() {
       .catch((e) => console.error('업적 갱신 실패', e));
   }, [user, stampCollected]);
 
+  // 칭호 변경 요청 직렬화 — 연속 클릭 시 PATCH 경쟁으로 최종값이 뒤바뀌는 것 방지
+  const titleUpdateInFlightRef = useRef(false);
+
   const handleSelectTitle = useCallback(async (next: string | null) => {
+    if (titleUpdateInFlightRef.current) return;
+    titleUpdateInFlightRef.current = true;
     setAchievement((prev) => (prev ? { ...prev, selectedTitle: next } : prev));
     try {
       await updateSelectedTitle(next);
@@ -121,6 +126,8 @@ export default function GalleryExhibitionPage() {
       fetchMyAchievements()
         .then(setAchievement)
         .catch(() => {});
+    } finally {
+      titleUpdateInFlightRef.current = false;
     }
   }, []);
 
