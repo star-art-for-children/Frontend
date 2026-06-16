@@ -103,15 +103,13 @@ export default function GalleryExhibitionPage() {
       .catch((e) => console.error('업적 로드 실패', e));
   }, [user]);
 
-  // 스탬프 수집/완주로 진행 상황이 바뀌면 업적 현황 갱신
+  // 수집 개수가 바뀔 때만 업적 현황 갱신
   useEffect(() => {
-    if (!user || stampArtworks.length === 0) return;
-    const collected = stampArtworks.filter((x) => x.stampedByMe).length;
-    if (collected === 0) return;
+    if (!user || stampCollected === 0) return;
     fetchMyAchievements()
       .then(setAchievement)
       .catch((e) => console.error('업적 갱신 실패', e));
-  }, [user, stampArtworks]);
+  }, [user, stampCollected]);
 
   const handleSelectTitle = useCallback(async (next: string | null) => {
     setAchievement((prev) => (prev ? { ...prev, selectedTitle: next } : prev));
