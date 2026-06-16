@@ -43,10 +43,12 @@ const SuccessContent = () => {
       : state;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f8f4ee] px-5 text-[#2d2926]">
+    <main className="flex items-center justify-center bg-[#f8f4ee] px-5 py-25 text-[#2d2926]">
       <div className="w-full max-w-[400px] rounded-[26px] border border-[#e8e1d7] bg-white px-8 py-10 text-center shadow-[0_2px_8px_rgba(64,48,33,0.04)]">
         {view.status === 'loading' && (
-          <p className="text-[14px] text-[#827b73]">결제를 확인하는 중입니다…</p>
+          <p className="text-[14px] text-[#827b73]">
+            결제를 확인하는 중입니다…
+          </p>
         )}
         {view.status === 'done' && (
           <>
