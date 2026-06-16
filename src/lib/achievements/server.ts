@@ -34,9 +34,10 @@ export async function fetchUserAchievements(
     .select('exhibition_id')
     .eq('user_id', userId);
 
+  // 조회 실패를 0 진행도로 숨기면 칭호 검증에서 오판정되므로 예외로 전파한다.
+  // (표시용 호출처는 자체적으로 try/catch 폴백)
   if (stampError) {
-    console.error('업적 집계: 스탬프 조회 실패', stampError);
-    return empty;
+    throw new Error('업적 집계: 스탬프 조회 실패');
   }
 
   const totalStamps = stamps?.length ?? 0;
@@ -58,8 +59,7 @@ export async function fetchUserAchievements(
     .in('exhibition_id', exhibitionIds);
 
   if (artworkError) {
-    console.error('업적 집계: 작품 수 조회 실패', artworkError);
-    return { ...empty, totalStamps };
+    throw new Error('업적 집계: 작품 수 조회 실패');
   }
 
   const artworkCountByExhibition = new Map<string, number>();

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
 import { fetchUserAchievements } from '@/lib/achievements/server';
+import { ACHIEVEMENTS } from '@/lib/achievements/definitions';
 import type { Profile } from '@/types/profile';
 import MyPageScreen from '@/components/my-page/MyPageScreen';
 
@@ -37,7 +38,18 @@ export default async function MyPage() {
   const selectedTitle = profileData?.selected_title ?? null;
 
   // 스탬프 데이터 기반 업적 달성 현황 계산
-  const achievementResult = await fetchUserAchievements(supabase, user.id);
+  // 표시용이므로 조회 실패 시 빈 현황으로 폴백 (페이지 전체는 막지 않음)
+  let achievementResult;
+  try {
+    achievementResult = await fetchUserAchievements(supabase, user.id);
+  } catch (e) {
+    console.error('업적 조회 실패', e);
+    achievementResult = {
+      achievements: ACHIEVEMENTS.map((a) => ({ id: a.id, achieved: false })),
+      totalStamps: 0,
+      clearedCount: 0,
+    };
+  }
 
   let profile: Profile;
 
