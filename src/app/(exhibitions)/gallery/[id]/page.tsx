@@ -41,6 +41,10 @@ export default function GalleryExhibitionPage() {
 
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const [volume, setVolume] = useState(0.15);
+  const soundOnRef = useRef(soundOn);
+  const volumeRef = useRef(volume);
   const [started, setStarted] = useState(false);
   const [isThirdPerson, setIsThirdPerson] = useState(false);
   const [stampArtworks, setStampArtworks] = useState<GalleryUIArtworkProps[]>(
@@ -51,6 +55,7 @@ export default function GalleryExhibitionPage() {
   const [achievement, setAchievement] = useState<MyAchievements | null>(null);
   // 도장 연출: key를 증가시켜 재마운트 → 애니메이션 재생
   const [stampFxId, setStampFxId] = useState(0);
+  const stampAudioRef = useRef<HTMLAudioElement | null>(null);
   // 미완료 → 완료로 전환되는 순간에만 축하 모달 노출
   // (이미 완료한 상태로 재진입 시엔 뜨지 않도록 첫 진행률은 baseline 처리)
   const prevCollectedRef = useRef<number | null>(null);
@@ -73,9 +78,17 @@ export default function GalleryExhibitionPage() {
       prevCollectedRef.current = collected;
       if (prev === null) return;
 
-      // 새 스탬프 획득 → 도장 쾅 연출
+      // 새 스탬프 획득 → 도장 쾅 연출 + 도구가 닿는 순간(~0.16s) 효과음
       if (collected > prev) {
         setStampFxId((n) => n + 1);
+        setTimeout(() => {
+          const audio = stampAudioRef.current;
+          if (audio && soundOnRef.current) {
+            audio.currentTime = 0;
+            audio.volume = volumeRef.current;
+            audio.play().catch(() => {});
+          }
+        }, 160);
       }
 
       // 마지막 스탬프 → 도장 연출이 끝난 뒤 완료 모달
@@ -89,6 +102,21 @@ export default function GalleryExhibitionPage() {
     },
     []
   );
+
+  // 효과음 on/off·볼륨 최신값을 콜백에서 참조할 수 있도록 ref 동기화
+  useEffect(() => {
+    soundOnRef.current = soundOn;
+  }, [soundOn]);
+  useEffect(() => {
+    volumeRef.current = volume;
+  }, [volume]);
+
+  // 도장 효과음 미리 로드
+  useEffect(() => {
+    const audio = new Audio('/sounds/stamp.mp3');
+    audio.preload = 'auto';
+    stampAudioRef.current = audio;
+  }, []);
 
   // 언마운트 시 완료 모달 타이머 정리
   useEffect(() => {
@@ -206,6 +234,14 @@ export default function GalleryExhibitionPage() {
         stampCollected={stampCollected}
         stampTotal={stampTotal}
         onOpenStampBook={openStampBook}
+        soundOn={soundOn}
+        onToggleSound={() => setSoundOn((v) => !v)}
+        volume={volume}
+        onVolumeChange={(v) => {
+          setVolume(v);
+          // 슬라이더로 볼륨을 0보다 올리면 음소거 자동 해제, 0이면 음소거
+          setSoundOn(v > 0);
+        }}
       />
 
       <div
@@ -241,39 +277,38 @@ export default function GalleryExhibitionPage() {
           key={stampFxId}
           className="pointer-events-none absolute inset-0 z-100 flex items-center justify-center"
         >
-          {/* 잉크 질감: 가장자리를 거칠게 만드는 노이즈 필터 */}
-          <svg className="absolute h-0 w-0" aria-hidden>
-            <filter id="stamp-ink">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.05"
-                numOctaves="2"
-                result="noise"
-              />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
-            </filter>
-          </svg>
-          <div className="fill-mode-[both] animate-[stamp-shake_0.35s_ease-out_0.15s]">
+          {/* 잉크 자국 — 도구가 닿는 순간(0.16s)에 맞춰 등장 */}
+          <div className="fill-mode-[both] animate-[stamp-shake_0.35s_ease-out_0.16s]">
             <div className="relative flex h-36 w-36 items-center justify-center">
-              {/* 잉크 파동 링 */}
-              <div className="absolute inset-0 animate-[stamp-ring_0.9s_ease-out_forwards] rounded-full border-4 border-[#ff6b35]/80" />
-              {/* 도장 자국 */}
+              {/* 몽글몽글 파동 링 (둥근 점선) */}
+              <div className="absolute inset-0 animate-[stamp-ring_0.9s_ease-out_0.16s_both] rounded-full border-[5px] border-dotted border-[#ff8a5c]/70" />
+              {/* 도장 자국 — 부드러운 코랄 + 둥근 점선 */}
               <div
-                className="flex h-full w-full animate-[stamp-slam_1.1s_linear_forwards] flex-col items-center justify-center gap-1 rounded-full border-[5px] border-double border-[#ff6b35]"
+                className="flex h-full w-full animate-[stamp-slam_1.1s_linear_0.16s_both] flex-col items-center justify-center gap-1 rounded-full border-[6px] border-dotted border-[#ff8a5c]"
                 style={{
-                  filter: 'url(#stamp-ink)',
                   background:
-                    'radial-gradient(circle at 32% 38%, rgba(255,107,53,0.28), transparent 55%),' +
-                    'radial-gradient(circle at 68% 64%, rgba(255,107,53,0.2), transparent 50%),' +
-                    'radial-gradient(circle at 50% 50%, rgba(255,107,53,0.1), transparent 70%)',
+                    'radial-gradient(circle at 50% 45%, rgba(255,138,92,0.18), rgba(255,138,92,0.05) 70%)',
                 }}
               >
-                <Star size={30} className="fill-[#ff6b35] text-[#ff6b35]" />
-                <span className="text-lg font-extrabold text-[#ff6b35] drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
+                <Star size={30} className="fill-[#ff8a5c] text-[#ff8a5c]" />
+                <span className="text-lg font-extrabold text-[#ff7043] drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
                   찾았어요!
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* 도장 도구 — 위에서 쾅 내려찍고 빠짐 (잉크 자국 위에 겹침) */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{ top: '30%' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/stamp.svg"
+              alt=""
+              className="h-40 w-40 animate-[stamp-tool-slam_0.9s_ease-out_forwards] drop-shadow-[0_8px_12px_rgba(0,0,0,0.25)]"
+            />
           </div>
         </div>
       )}
