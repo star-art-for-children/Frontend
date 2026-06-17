@@ -250,6 +250,17 @@ const styles = StyleSheet.create({
     maxHeight: 350,
     objectFit: 'contain',
   },
+  // 이미지 URL이 없을 때 자리 표시 (빈 src는 PDF 전체 렌더를 깨므로 렌더하지 않음)
+  imagePlaceholder: {
+    width: '100%',
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePlaceholderText: {
+    fontSize: 12,
+    color: COLORS.sub,
+  },
   // 사진 모서리에 대각으로 걸치는 마스킹 테이프 (트림된 PNG 비율 유지)
   tapeImg: {
     position: 'absolute',
@@ -690,8 +701,17 @@ export default function AlbumPdfDocument({
           </View>
 
           <View style={styles.imageCard}>
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <Image src={art.imageUrl} style={styles.image} />
+            {/* 빈 src는 PDF 전체 생성을 깨므로, 이미지가 있을 때만 렌더 */}
+            {art.imageUrl ? (
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image src={art.imageUrl} style={styles.image} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.imagePlaceholderText}>
+                  이미지를 불러올 수 없어요
+                </Text>
+              </View>
+            )}
             {/* 마스킹 테이프 — 왼쪽 위 + 오른쪽 아래 모서리에 대각으로 */}
             {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image
