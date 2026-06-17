@@ -88,16 +88,6 @@ export async function POST(
             throw new Error('video generation failed');
           }
 
-          const { error: updateError } = await supabase
-            .from('artworks')
-            .update({ video_url: url })
-            .eq('id', artworkId);
-
-          if (updateError) {
-            console.error('video_url update error:', updateError);
-            throw new Error('database update error');
-          }
-
           return url;
         },
       });
@@ -113,6 +103,19 @@ export async function POST(
         );
       }
       throw err;
+    }
+
+    const { error: updateError } = await supabase
+      .from('artworks')
+      .update({ video_url: videoUrl })
+      .eq('id', artworkId);
+
+    if (updateError) {
+      console.error('CRITICAL: video generated but video_url persist failed', {
+        artworkId,
+        videoUrl,
+        updateError,
+      });
     }
 
     return NextResponse.json({ videoUrl }, { status: 200 });
