@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStatus } from '@/lib/exhibition/dateStatus';
+import { fetchUserAchievements } from '@/lib/achievements/server';
+import { ACHIEVEMENTS } from '@/lib/achievements/definitions';
 import { getBalance } from '@/lib/payments/credit';
 import type { Profile } from '@/types/profile';
 import MyPageScreen from '@/components/my-page/MyPageScreen';
@@ -17,7 +19,7 @@ export default async function MyPage() {
   // profiles 테이블에서 현재 유저의 프로필 조회
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
-    .select('username, role, institution, onboarded')
+    .select('username, role, institution, onboarded, selected_title')
     .eq('id', user.id)
     .single();
 
@@ -34,9 +36,24 @@ export default async function MyPage() {
     user.email?.split('@')[0] ??
     '사용자';
   const email = user.email ?? '';
+  const selectedTitle = profileData?.selected_title ?? null;
 
   // 마이페이지 상단에 보여줄 현재 크레딧 잔액
   const balance = await getBalance(user.id);
+
+  // 스탬프 데이터 기반 업적 달성 현황 계산
+  // 표시용이므로 조회 실패 시 빈 현황으로 폴백 (페이지 전체는 막지 않음)
+  let achievementResult;
+  try {
+    achievementResult = await fetchUserAchievements(supabase, user.id);
+  } catch (e) {
+    console.error('업적 조회 실패', e);
+    achievementResult = {
+      achievements: ACHIEVEMENTS.map((a) => ({ id: a.id, achieved: false })),
+      totalStamps: 0,
+      clearedCount: 0,
+    };
+  }
 
   let profile: Profile;
 
@@ -56,6 +73,7 @@ export default async function MyPage() {
       email,
       academy_name: profileData?.institution ?? '',
       role: 'teacher',
+      selectedTitle,
       exhibitions: (exhibitionsData ?? []).map((ex) => {
         // dateStatus.ts의 getStatus()를 재사용해서 상태 계산
         // ongoing/upcoming → active, ended → ended 로 매핑
@@ -77,8 +95,15 @@ export default async function MyPage() {
       name,
       email,
       role: 'general',
+      selectedTitle,
     };
   }
 
-  return <MyPageScreen profile={profile} balance={balance} />;
+  return (
+    <MyPageScreen
+      profile={profile}
+      achievement={achievementResult}
+      balance={balance}
+    />
+  );
 }

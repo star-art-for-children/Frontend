@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
           }),
         ]);
       }
-    } else if (userPreset) {
-      gallery_preset = userPreset;
+    } else {
+      gallery_preset = userPreset ?? defaultPreset;
     }
 
     console.log(gallery_preset);

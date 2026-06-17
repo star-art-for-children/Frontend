@@ -25,7 +25,7 @@ export function validateExhibition(init: Record<string, unknown>) {
       start_date: new Date(startDateRaw),
       end_date: endDateRaw ? new Date(endDateRaw) : null,
       guidelines: guidelines ?? null,
-      gallery_preset,
+      gallery_preset: gallery_preset ? JSON.parse(gallery_preset) : null,
     },
   };
 }

@@ -1,3 +1,4 @@
+import AchievementSection from './AchievementSection';
 import CreditCard from './CreditCard';
 import ExhibitionList from './ExhibitionList';
 import LogoutButton from './LogoutButton';
@@ -5,13 +6,15 @@ import NewExhibitionBanner from './NewExhibitionBanner';
 import ProfileCard from './ProfileCard';
 import QuickLinks from './QuickLinks';
 import type { Profile } from '@/types/profile';
+import type { UserAchievementResult } from '@/lib/achievements/server';
 
 interface Props {
   profile: Profile;
+  achievement: UserAchievementResult;
   balance: number;
 }
 
-export default function MyPageScreen({ profile, balance }: Props) {
+export default function MyPageScreen({ profile, achievement, balance }: Props) {
   return (
     <main className="bg-[#f8f4ee] text-[#2d2926]">
       <div className="mx-auto w-full max-w-[1080px] px-5 py-7">
@@ -23,6 +26,11 @@ export default function MyPageScreen({ profile, balance }: Props) {
               <NewExhibitionBanner />
             </>
           )}
+          <AchievementSection
+            achievements={achievement.achievements}
+            clearedCount={achievement.clearedCount}
+            selectedTitle={profile.selectedTitle}
+          />
           <QuickLinks />
           {profile.role === 'teacher' && (
             <ExhibitionList exhibitions={profile.exhibitions} />
