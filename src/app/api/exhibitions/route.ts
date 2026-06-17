@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
         ]);
       }
     } else if (userPreset) {
-      gallery_preset = userPreset;
+      gallery_preset = JSON.parse(userPreset);
     }
 
     console.log(gallery_preset);
