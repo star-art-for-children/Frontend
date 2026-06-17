@@ -1,9 +1,19 @@
+// 크레딧 부족(402) — 호출부에서 충전 안내로 분기하기 위한 클라이언트 전용 에러.
+export class InsufficientCreditClientError extends Error {
+  constructor() {
+    super('INSUFFICIENT_CREDIT');
+  }
+}
+
 export const postNewExhibition = async (formDate: FormData) => {
   const res = await fetch('/api/exhibitions', {
     method: 'POST',
     body: formDate,
   });
 
+  if (res.status === 402) {
+    throw new InsufficientCreditClientError();
+  }
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.message);

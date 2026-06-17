@@ -1,11 +1,14 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { likesToggle, toggleReaction } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useImageDownload } from '@/hooks/useImageDownload';
 import ArtworkDetailContent from '@/components/ui/ArtworkDetailContent';
+import CreditSpendDialog from '@/components/shared/CreditSpendDialog';
+import { CREDIT_COSTS } from '@/lib/payments/costs';
 
 export interface Work {
   id: string;
@@ -27,6 +30,7 @@ interface WorkDialogProps {
   exhibitionHost: string;
   isLoggedIn?: boolean;
   isOwner?: boolean;
+  balance?: number;
 }
 
 export default function WorkDialog({
@@ -36,7 +40,9 @@ export default function WorkDialog({
   exhibitionHost,
   isLoggedIn,
   isOwner = false,
+  balance,
 }: WorkDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const {
@@ -107,6 +113,7 @@ export default function WorkDialog({
     work.videoUrl ?? null
   );
   const [isAnimating, setIsAnimating] = useState(false);
+  const [creditConfirmOpen, setCreditConfirmOpen] = useState(false);
 
   const handleAnimate = async () => {
     if (isAnimating) return;
@@ -116,6 +123,12 @@ export default function WorkDialog({
         `/api/exhibitions/${exhibitionId}/artworks/${work.id}/animate`,
         { method: 'POST' }
       );
+      if (res.status === 402) {
+        if (confirm('크레딧이 부족합니다. 충전 페이지로 이동할까요?')) {
+          router.push('/charge');
+        }
+        return;
+      }
       if (!res.ok) {
         const { message } = await res.json().catch(() => ({}));
         throw new Error(message || 'animate failed');
@@ -175,12 +188,21 @@ export default function WorkDialog({
           videoUrl={videoUrl}
           isOwner={isOwner}
           isAnimating={isAnimating}
-          onAnimate={handleAnimate}
+          onAnimate={() => setCreditConfirmOpen(true)}
           reactions={reactions}
           myReaction={myReaction}
           onReact={handleReaction}
         />
       )}
+
+      <CreditSpendDialog
+        open={creditConfirmOpen}
+        onOpenChange={setCreditConfirmOpen}
+        cost={CREDIT_COSTS.animate}
+        balance={balance}
+        actionLabel="영상 만들기"
+        onConfirm={handleAnimate}
+      />
     </>
   );
 }

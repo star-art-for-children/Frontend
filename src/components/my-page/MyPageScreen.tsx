@@ -17,8 +17,12 @@ export default function MyPageScreen({ profile, balance }: Props) {
       <div className="mx-auto w-full max-w-[1080px] px-5 py-7">
         <section className="mx-auto w-full max-w-[720px] space-y-4 pb-16">
           <ProfileCard profile={profile} />
-          <CreditCard balance={balance} />
-          {profile.role === 'teacher' && <NewExhibitionBanner />}
+          {profile.role === 'teacher' && (
+            <>
+              <CreditCard balance={balance} />
+              <NewExhibitionBanner />
+            </>
+          )}
           <QuickLinks />
           {profile.role === 'teacher' && (
             <ExhibitionList exhibitions={profile.exhibitions} />
