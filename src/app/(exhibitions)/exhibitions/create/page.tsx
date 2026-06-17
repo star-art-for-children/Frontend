@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { checkRole } from '@/lib/gallery/checkRole';
+import { getBalance } from '@/lib/payments/credit';
 import CreateGalleryPage from '@/components/exhibition-create/CreateGalleryPage';
 
 export default async function page() {
@@ -17,5 +18,6 @@ export default async function page() {
   }
 
   const institution = result.user.user_metadata?.institution || '';
-  return <CreateGalleryPage institution={institution} />;
+  const balance = await getBalance(result.user.id);
+  return <CreateGalleryPage institution={institution} balance={balance} />;
 }

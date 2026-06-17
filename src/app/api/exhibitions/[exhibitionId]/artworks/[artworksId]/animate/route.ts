@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { fal } from '@fal-ai/client';
 import { createClient } from '@/lib/supabase/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
+import {
+  withCreditSpend,
+  InsufficientCreditError,
+  CREDIT_COSTS,
+} from '@/lib/payments/credit';
 
 export const maxDuration = 180;
 
@@ -56,23 +62,47 @@ export async function POST(
       );
     }
 
-    const result = await fal.subscribe('fal-ai/wan-25-preview/image-to-video', {
-      input: {
-        image_url: artwork.image_url,
-        prompt:
-          "A children's hand-drawn illustration comes to life with soft, looping animation. The main subject gently moves: characters walk in place or sway, animals breathe and blink, plants and trees rustle slowly, water ripples calmly. Background elements move subtly at a slower pace than foreground. Strictly preserve the original flat 2D illustration style, crayon and paint textures, and color palette. Characters maintain their original shape and proportions throughout. No photorealism. No camera movement. Smooth, cute, cheerful motion.",
-        negative_prompt:
-          'photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change',
-        resolution: '480p',
-      },
-    });
+    let videoUrl: string;
+    try {
+      videoUrl = await withCreditSpend({
+        userId: roleCheck.user.id,
+        cost: CREDIT_COSTS.animate,
+        ref: randomUUID(),
+        run: async () => {
+          const result = await fal.subscribe(
+            'fal-ai/wan-25-preview/image-to-video',
+            {
+              input: {
+                image_url: artwork.image_url,
+                prompt:
+                  "A children's hand-drawn illustration comes to life with soft, looping animation. The main subject gently moves: characters walk in place or sway, animals breathe and blink, plants and trees rustle slowly, water ripples calmly. Background elements move subtly at a slower pace than foreground. Strictly preserve the original flat 2D illustration style, crayon and paint textures, and color palette. Characters maintain their original shape and proportions throughout. No photorealism. No camera movement. Smooth, cute, cheerful motion.",
+                negative_prompt:
+                  'photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change',
+                resolution: '480p',
+              },
+            }
+          );
 
-    const videoUrl = (result.data as { video?: { url?: string } })?.video?.url;
-    if (!videoUrl) {
-      return NextResponse.json(
-        { message: 'video generation failed' },
-        { status: 500 }
-      );
+          const url = (result.data as { video?: { url?: string } })?.video?.url;
+          if (!url) {
+            throw new Error('video generation failed');
+          }
+
+          return url;
+        },
+      });
+    } catch (err) {
+      if (err instanceof InsufficientCreditError) {
+        return NextResponse.json(
+          {
+            message: '크레딧이 부족합니다.',
+            balance: err.balance,
+            cost: err.cost,
+          },
+          { status: 402 }
+        );
+      }
+      throw err;
     }
 
     const { error: updateError } = await supabase
@@ -81,11 +111,11 @@ export async function POST(
       .eq('id', artworkId);
 
     if (updateError) {
-      console.error('video_url update error:', updateError);
-      return NextResponse.json(
-        { message: 'database update error' },
-        { status: 500 }
-      );
+      console.error('CRITICAL: video generated but video_url persist failed', {
+        artworkId,
+        videoUrl,
+        updateError,
+      });
     }
 
     return NextResponse.json({ videoUrl }, { status: 200 });

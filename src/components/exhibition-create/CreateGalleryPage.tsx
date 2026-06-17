@@ -15,13 +15,20 @@ import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/shared/ImageUploadBox';
 import { useCallback, useEffect, useState } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
-import { postNewExhibition } from '@/lib/exhibition/service';
+import {
+  postNewExhibition,
+  InsufficientCreditClientError,
+} from '@/lib/exhibition/service';
 import ThemeSelector from './ThemeSelector';
+import CreditSpendDialog from '@/components/shared/CreditSpendDialog';
+import { CREDIT_COSTS } from '@/lib/payments/costs';
 import { ALL_PRESETS, defaultPreset } from '@/lib/gallery/presets';
 export default function CreateGalleryPage({
   institution,
+  balance,
 }: {
   institution: string;
+  balance: number;
 }) {
   const router = useRouter();
   const {
@@ -48,30 +55,10 @@ export default function CreateGalleryPage({
   const galleryImg = useWatch({ control, name: 'galleryImg' });
 
   const [progress, setProgress] = useState(0);
+  const [creditConfirmOpen, setCreditConfirmOpen] = useState(false);
 
-  const submitHandler = useCallback(
-    async (e: UIFormProps) => {
-      const formData = new FormData();
-
-      formData.append('galleryName', e.galleryName);
-      formData.append('galleryDesc', e.galleryDesc);
-
-      if (e.galleryImg) formData.append('galleryImg', e.galleryImg);
-      if (e.guideLines) formData.append('guideLines', e.guideLines);
-
-      formData.append('startDate', e.startDate);
-      if (e.endDate) formData.append('endDate', e.endDate);
-
-      if (e.selectedPresetId && e.selectedPresetId !== 'ai') {
-        const preset = ALL_PRESETS.find((p) => p.id === e.selectedPresetId);
-        if (preset) formData.append('galleryPreset', JSON.stringify(preset));
-      } else if (
-        !e.selectedPresetId ||
-        (e.selectedPresetId === 'ai' && !e.galleryImg)
-      ) {
-        formData.append('galleryPreset', JSON.stringify(defaultPreset));
-      }
-
+  const runPost = useCallback(
+    async (formData: FormData) => {
       setProgress(0);
       let intervalId: ReturnType<typeof setInterval> | null = setInterval(
         () => {
@@ -97,10 +84,44 @@ export default function CreateGalleryPage({
         clearInterval(intervalId!);
         intervalId = null;
         setProgress(0);
+        if (err instanceof InsufficientCreditClientError) {
+          if (confirm('크레딧이 부족합니다. 충전 페이지로 이동할까요?')) {
+            router.push('/charge');
+          }
+          return;
+        }
         console.log(err);
       }
     },
     [router]
+  );
+
+  const submitHandler = useCallback(
+    async (e: UIFormProps) => {
+      const formData = new FormData();
+
+      formData.append('galleryName', e.galleryName);
+      formData.append('galleryDesc', e.galleryDesc);
+
+      if (e.galleryImg) formData.append('galleryImg', e.galleryImg);
+      if (e.guideLines) formData.append('guideLines', e.guideLines);
+
+      formData.append('startDate', e.startDate);
+      if (e.endDate) formData.append('endDate', e.endDate);
+
+      if (e.selectedPresetId && e.selectedPresetId !== 'ai') {
+        const preset = ALL_PRESETS.find((p) => p.id === e.selectedPresetId);
+        if (preset) formData.append('galleryPreset', JSON.stringify(preset));
+      } else if (
+        !e.selectedPresetId ||
+        (e.selectedPresetId === 'ai' && !e.galleryImg)
+      ) {
+        formData.append('galleryPreset', JSON.stringify(defaultPreset));
+      }
+
+      await runPost(formData);
+    },
+    [runPost]
   );
 
   useEffect(() => {
@@ -187,7 +208,13 @@ export default function CreateGalleryPage({
                   >
                     <ThemeSelector
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(id) => {
+                        if (id === 'ai') {
+                          setCreditConfirmOpen(true);
+                          return;
+                        }
+                        field.onChange(id);
+                      }}
                       hasThumb={!!galleryImg}
                     />
                   </CreateGalleryFormWrapper>
@@ -297,6 +324,16 @@ export default function CreateGalleryPage({
           </form>
         </div>
       </div>
+      <CreditSpendDialog
+        open={creditConfirmOpen}
+        onOpenChange={setCreditConfirmOpen}
+        cost={CREDIT_COSTS.theme}
+        balance={balance}
+        actionLabel="AI 테마 선택"
+        onConfirm={() => {
+          setValue('selectedPresetId', 'ai', { shouldValidate: true });
+        }}
+      />
     </>
   );
 }

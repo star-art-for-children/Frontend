@@ -204,7 +204,8 @@ export default function ArtworkDetailContent({
                       : 'border-purple-200 text-purple-600 hover:bg-purple-50'
                   }`}
                 >
-                  ✨ {isAnimating ? '생성 중...' : '움직이게 하기'}
+                  ✨{' '}
+                  {isAnimating ? '생성 중...' : '움직이게 하기 (1000 크레딧)'}
                 </button>
               )}
             </div>
