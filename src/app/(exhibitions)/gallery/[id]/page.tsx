@@ -37,7 +37,7 @@ export default function GalleryExhibitionPage() {
   const [isSceneReady, setIsSceneReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [soundOn, setSoundOn] = useState(true);
-  const [volume, setVolume] = useState(0.7);
+  const [volume, setVolume] = useState(0.15);
   const soundOnRef = useRef(soundOn);
   const volumeRef = useRef(volume);
   const [started, setStarted] = useState(false);
