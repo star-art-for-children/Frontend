@@ -1,7 +1,7 @@
 'use client';
 
 import { IoIosArrowBack } from 'react-icons/io';
-import { HelpCircle, Star, X } from 'lucide-react';
+import { HelpCircle, Star, X, Volume2, VolumeX } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { ChatHistory } from '@/hooks/usePlayerSocket';
 
@@ -17,6 +17,10 @@ interface GalleryHUDProps {
   stampCollected: number;
   stampTotal: number;
   onOpenStampBook: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  volume: number;
+  onVolumeChange: (v: number) => void;
 }
 
 export default function GalleryHUD({
@@ -31,24 +35,62 @@ export default function GalleryHUD({
   stampCollected,
   stampTotal,
   onOpenStampBook,
+  soundOn,
+  onToggleSound,
+  volume,
+  onVolumeChange,
 }: GalleryHUDProps) {
   const [showGuide, setShowGuide] = useState(true);
   return (
     <div className="pointer-events-none absolute inset-0 z-40 flex w-full items-start p-5">
       <div className={'flex w-full justify-between'}>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onBack();
-          }}
-          className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg"
-        >
-          <IoIosArrowBack className="text-lg text-white/80" />
-          <div className="flex flex-col">
-            <p className="font-bold text-white/80">{title}</p>
-            <p className="text-sm text-white/30">{host}</p>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onBack();
+            }}
+            className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-2xl bg-black/50 p-3 backdrop-blur-lg"
+          >
+            <IoIosArrowBack className="text-lg text-white/80" />
+            <div className="flex flex-col">
+              <p className="font-bold text-white/80">{title}</p>
+              <p className="text-sm text-white/30">{host}</p>
+            </div>
+          </button>
+          {/* 효과음: 클릭=음소거 토글, 호버=볼륨 슬라이더 */}
+          <div className="group pointer-events-auto relative">
+            <button
+              onClick={onToggleSound}
+              aria-label={soundOn ? '효과음 끄기' : '효과음 켜기'}
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl bg-black/50 backdrop-blur-lg transition-colors hover:bg-black/70"
+            >
+              {soundOn ? (
+                <Volume2 size={18} className="text-white/80" />
+              ) : (
+                <VolumeX size={18} className="text-white/40" />
+              )}
+            </button>
+            {/* 호버 시 나타나는 볼륨 슬라이더 (pt-2는 버튼↔슬라이더 호버 브리지) */}
+            <div className="invisible absolute top-full left-0 z-10 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+              <div className="flex items-center gap-2 rounded-2xl bg-black/50 px-3 py-2.5 backdrop-blur-lg">
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={soundOn ? volume : 0}
+                  onChange={(e) => onVolumeChange(Number(e.target.value))}
+                  aria-label="효과음 볼륨"
+                  className="accent-primary h-1.5 w-24 cursor-pointer"
+                />
+                <span className="w-7 text-right text-xs font-medium text-white/70">
+                  {Math.round((soundOn ? volume : 0) * 100)}
+                </span>
+              </div>
+            </div>
           </div>
-        </button>
+        </div>
         <div className="flex flex-col items-end gap-2">
           {isLogged && stampTotal > 0 && (
             <button

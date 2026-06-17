@@ -1,11 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { likesToggle } from '@/lib/artwork/service';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { likesToggle, toggleReaction } from '@/lib/artwork/service';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useImageDownload } from '@/hooks/useImageDownload';
 import ArtworkDetailContent from '@/components/ui/ArtworkDetailContent';
+import CreditSpendDialog from '@/components/shared/CreditSpendDialog';
+import { CREDIT_COSTS } from '@/lib/payments/costs';
 
 export interface Work {
   id: string;
@@ -16,6 +19,8 @@ export interface Work {
   likes: number;
   liked: boolean;
   videoUrl?: string | null;
+  reactions?: Record<string, number>;
+  myReaction?: string | null;
 }
 
 interface WorkDialogProps {
@@ -25,6 +30,7 @@ interface WorkDialogProps {
   exhibitionHost: string;
   isLoggedIn?: boolean;
   isOwner?: boolean;
+  balance?: number;
 }
 
 export default function WorkDialog({
@@ -34,7 +40,9 @@ export default function WorkDialog({
   exhibitionHost,
   isLoggedIn,
   isOwner = false,
+  balance,
 }: WorkDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const {
@@ -48,6 +56,47 @@ export default function WorkDialog({
     onToggle: () => likesToggle(exhibitionId, work.id),
     refreshOnSuccess: true,
   });
+
+  // 이모지 반응 (좋아요와 별개) — 낙관적 업데이트
+  const [reactions, setReactions] = useState<Record<string, number>>(
+    work.reactions ?? {}
+  );
+  const [myReaction, setMyReaction] = useState<string | null>(
+    work.myReaction ?? null
+  );
+  // 반응 요청 직렬화 — 응답 순서 역전으로 인한 UI/DB 불일치 방지
+  const reactionPendingRef = useRef(false);
+
+  const handleReaction = async (emoji: string) => {
+    if (!isLoggedIn || reactionPendingRef.current) return;
+
+    const prevReactions = reactions;
+    const prevMine = myReaction;
+
+    // 낙관적 계산: 같은 이모지 → 해제, 다른 이모지 → 교체
+    const next = { ...reactions };
+    if (prevMine) next[prevMine] = Math.max((next[prevMine] ?? 1) - 1, 0);
+    let nextMine: string | null;
+    if (prevMine === emoji) {
+      nextMine = null;
+    } else {
+      next[emoji] = (next[emoji] ?? 0) + 1;
+      nextMine = emoji;
+    }
+    setReactions(next);
+    setMyReaction(nextMine);
+
+    reactionPendingRef.current = true;
+    try {
+      await toggleReaction(exhibitionId, work.id, emoji);
+    } catch (err) {
+      console.error('reaction toggle error', err);
+      setReactions(prevReactions);
+      setMyReaction(prevMine);
+    } finally {
+      reactionPendingRef.current = false;
+    }
+  };
 
   const { download } = useImageDownload();
 
@@ -64,6 +113,7 @@ export default function WorkDialog({
     work.videoUrl ?? null
   );
   const [isAnimating, setIsAnimating] = useState(false);
+  const [creditConfirmOpen, setCreditConfirmOpen] = useState(false);
 
   const handleAnimate = async () => {
     if (isAnimating) return;
@@ -73,6 +123,12 @@ export default function WorkDialog({
         `/api/exhibitions/${exhibitionId}/artworks/${work.id}/animate`,
         { method: 'POST' }
       );
+      if (res.status === 402) {
+        if (confirm('크레딧이 부족합니다. 충전 페이지로 이동할까요?')) {
+          router.push('/charge');
+        }
+        return;
+      }
       if (!res.ok) {
         const { message } = await res.json().catch(() => ({}));
         throw new Error(message || 'animate failed');
@@ -132,9 +188,21 @@ export default function WorkDialog({
           videoUrl={videoUrl}
           isOwner={isOwner}
           isAnimating={isAnimating}
-          onAnimate={handleAnimate}
+          onAnimate={() => setCreditConfirmOpen(true)}
+          reactions={reactions}
+          myReaction={myReaction}
+          onReact={handleReaction}
         />
       )}
+
+      <CreditSpendDialog
+        open={creditConfirmOpen}
+        onOpenChange={setCreditConfirmOpen}
+        cost={CREDIT_COSTS.animate}
+        balance={balance}
+        actionLabel="영상 만들기"
+        onConfirm={handleAnimate}
+      />
     </>
   );
 }

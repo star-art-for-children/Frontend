@@ -119,7 +119,7 @@ export default function Scene2({
 
   return (
     <Canvas
-      shadows="soft"
+      shadows="percentage"
       camera={{ fov: 65 }}
       gl={{
         antialias: true,

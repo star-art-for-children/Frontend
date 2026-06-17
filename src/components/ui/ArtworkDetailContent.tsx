@@ -23,6 +23,9 @@ export interface ArtworkDetailContentProps {
   isOwner?: boolean;
   isAnimating?: boolean;
   onAnimate?: () => void;
+  reactions?: Record<string, number>;
+  myReaction?: string | null;
+  onReact?: (emoji: string) => void;
 }
 
 export default function ArtworkDetailContent({
@@ -43,9 +46,27 @@ export default function ArtworkDetailContent({
   isOwner = false,
   isAnimating = false,
   onAnimate,
+  reactions = {},
+  myReaction = null,
+  onReact,
 }: ArtworkDetailContentProps) {
   const [showLoginHint, setShowLoginHint] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+
+  const REACTIONS: { emoji: string; label: string }[] = [
+    { emoji: '❤️', label: '좋아요' },
+    { emoji: '😍', label: '멋져요' },
+    { emoji: '😮', label: '놀라워요' },
+    { emoji: '👏', label: '대단해요' },
+  ];
+
+  const handleReactClick = (emoji: string) => {
+    if (isLoggedIn === false) {
+      setShowLoginHint(true);
+      return;
+    }
+    onReact?.(emoji);
+  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -183,7 +204,8 @@ export default function ArtworkDetailContent({
                       : 'border-purple-200 text-purple-600 hover:bg-purple-50'
                   }`}
                 >
-                  ✨ {isAnimating ? '생성 중...' : '움직이게 하기'}
+                  ✨{' '}
+                  {isAnimating ? '생성 중...' : '움직이게 하기 (1000 크레딧)'}
                 </button>
               )}
             </div>
@@ -196,6 +218,46 @@ export default function ArtworkDetailContent({
               {description}
             </p>
           )}
+
+          {/* 이모지 반응 */}
+          <div className="mb-4 flex flex-wrap gap-2">
+            {REACTIONS.map(({ emoji, label }) => {
+              const count = reactions[emoji] ?? 0;
+              const active = myReaction === emoji;
+              return (
+                <button
+                  key={emoji}
+                  onClick={() => handleReactClick(emoji)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors',
+                    active
+                      ? 'border-[#F4845F] bg-[#FDEEE8]'
+                      : 'border-[#EDEBE4] hover:bg-[#F5F0E8]'
+                  )}
+                >
+                  <span className="text-[15px]">{emoji}</span>
+                  <span
+                    className={cn(
+                      'font-medium',
+                      active ? 'text-[#D9663F]' : 'text-[#444340]'
+                    )}
+                  >
+                    {label}
+                  </span>
+                  {count > 0 && (
+                    <span
+                      className={cn(
+                        'font-medium',
+                        active ? 'text-[#D9663F]' : 'text-[#888780]'
+                      )}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-[#F4845F]" />

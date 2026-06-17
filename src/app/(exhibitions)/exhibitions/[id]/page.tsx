@@ -12,6 +12,7 @@ import {
 } from '@/components/exhibition';
 import { fetchExhibitionDetail } from '@/lib/exhibition/server';
 import { fetchExhibitionReviews } from '@/lib/review/server';
+import { getBalance } from '@/lib/payments/credit';
 
 export default async function ExhibitionDetail({
   params,
@@ -33,6 +34,10 @@ export default async function ExhibitionDetail({
   );
 
   const { isLoggedIn, isOwner, isLiked, currentUserId } = exhibition;
+
+  // 작품 영상화(animate)는 소유자만 가능 → 소유자일 때만 잔액을 조회해 다이얼로그에 안내
+  const balance =
+    isOwner && currentUserId ? await getBalance(currentUserId) : undefined;
 
   const status = getStatus(
     exhibition.startDate,
@@ -124,12 +129,15 @@ export default async function ExhibitionDetail({
                     likes: work.likes,
                     liked: work.liked,
                     videoUrl: work.videoUrl,
+                    reactions: work.reactions,
+                    myReaction: work.myReaction,
                   }}
                   exhibitionId={exhibition.id}
                   exhibitionTitle={exhibition.title}
                   exhibitionHost={exhibition.host}
                   isLoggedIn={isLoggedIn}
                   isOwner={isOwner}
+                  balance={balance}
                 />
               ))}
             </div>
