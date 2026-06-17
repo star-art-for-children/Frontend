@@ -1,15 +1,13 @@
 'use client';
 
 import { IoIosArrowBack } from 'react-icons/io';
-import { Star, X } from 'lucide-react';
+import { HelpCircle, Star, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { ChatHistory } from '@/hooks/usePlayerSocket';
 
 interface GalleryHUDProps {
   title: string;
   host: string;
-  isMuted: boolean;
-  onMute: () => void;
   onBack: () => void;
   myName: string;
   playerNames: string[];
@@ -24,8 +22,6 @@ interface GalleryHUDProps {
 export default function GalleryHUD({
   title,
   host,
-  isMuted,
-  onMute,
   onBack,
   myName,
   playerNames,
@@ -36,6 +32,7 @@ export default function GalleryHUD({
   stampTotal,
   onOpenStampBook,
 }: GalleryHUDProps) {
+  const [showGuide, setShowGuide] = useState(true);
   return (
     <div className="pointer-events-none absolute inset-0 z-40 flex w-full items-start p-5">
       <div className={'flex w-full justify-between'}>
@@ -88,22 +85,73 @@ export default function GalleryHUD({
         <Chat sendMessage={sendMessage} chatHistory={chatHistory} me={myName} />
       )}
 
-      {!isMuted && (
-        <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 p-5">
-          <div className="flex items-center gap-3 rounded-lg bg-black/50 px-3 py-2 text-[14px] backdrop-blur-lg">
-            <p className="text-white/80">숫자키 1 - 좋아요</p>
-            <p className="text-white/80">숫자키 2 - 다운로드</p>
-            {isLogged && <p className="text-white/80">숫자키 3 - 스탬프</p>}
-            {isLogged && <p className="text-white/80">Tab - 스탬프북</p>}
+      <div className="absolute right-5 bottom-5 flex flex-col items-end gap-2">
+        {showGuide && (
+          <div className="pointer-events-auto w-fit overflow-hidden rounded-xl bg-black/60 backdrop-blur-lg">
+            <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+              <span className="text-sm font-bold tracking-widest text-white/70 uppercase">
+                조작 안내
+              </span>
+              <button onClick={() => setShowGuide(false)}>
+                <X size={20} className="text-white/70 hover:text-white/80" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-0.5 px-3 py-2.5">
+              <KeyRow
+                label="🖱️"
+                desc="화면 클릭으로 마우스 조작 시작"
+                variant="icon"
+              />
+              <KeyRow
+                label="⌨️"
+                desc="WASD 또는 방향키로 이동"
+                variant="icon"
+              />
+              <KeyRow label="👁️" desc="마우스로 시선 이동" variant="icon" />
+            </div>
+            <div className="border-t border-white/10" />
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 py-2.5">
+              <KeyRow label="1" desc="좋아요" />
+              <KeyRow label="2" desc="다운로드" />
+              {isLogged && <KeyRow label="3" desc="스탬프" />}
+              {isLogged && <KeyRow label="Tab" desc="스탬프북" />}
+              <KeyRow label="4" desc="시점 전환" />
+              <KeyRow label="5" desc="화면 캡처" />
+            </div>
           </div>
+        )}
+        {!showGuide && (
           <button
-            onClick={onMute}
-            className="pointer-events-auto rounded-full bg-black/50 p-1.5"
+            onClick={() => setShowGuide(true)}
+            className="pointer-events-auto rounded-full bg-black/60 p-2 backdrop-blur-lg hover:bg-black/80"
           >
-            <X size={20} className="text-white/80" />
+            <HelpCircle size={18} className="text-white/70" />
           </button>
-        </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function KeyRow({
+  label,
+  desc,
+  variant = 'key',
+}: {
+  label: string;
+  desc: string;
+  variant?: 'key' | 'icon';
+}) {
+  return (
+    <div className="flex items-center gap-2.5 py-0.5">
+      {variant === 'key' ? (
+        <span className="flex min-w-8 items-center justify-center rounded-md border border-white/20 bg-white/10 px-1.5 py-0.5 text-[11px] font-bold text-white/70">
+          {label}
+        </span>
+      ) : (
+        <span className="w-5 text-center text-sm leading-none">{label}</span>
       )}
+      <span className="text-[13px] text-white/60">{desc}</span>
     </div>
   );
 }

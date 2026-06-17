@@ -7,7 +7,7 @@ export default function ModalWrapper({
 }: {
   children: React.ReactNode;
   isOpen: boolean;
-  height: number;
+  height?: number;
   width: number;
   className?: string;
 }) {
