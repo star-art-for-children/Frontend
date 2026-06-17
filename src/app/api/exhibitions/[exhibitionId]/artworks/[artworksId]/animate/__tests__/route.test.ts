@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// artwork 조회(.from().select().eq().single())와 video_url 업데이트를 제어.
-// vi.mock 팩토리는 호이스팅되므로 스파이도 vi.hoisted로 끌어올린다.
 const { single, updateEq, withCreditSpend } = vi.hoisted(() => ({
   single: vi.fn(),
-  updateEq: vi.fn(async () => ({ error: null })),
+  updateEq: vi.fn(
+    async (): Promise<{ error: { message: string } | null }> => ({
+      error: null,
+    })
+  ),
   withCreditSpend: vi.fn(),
 }));
 vi.mock('@/lib/supabase/server', () => ({
@@ -25,7 +27,6 @@ vi.mock('@fal-ai/client', () => ({
   fal: { config: vi.fn(), subscribe: vi.fn() },
 }));
 
-// withCreditSpend는 스파이로 — 차감 호출 여부/전달된 ref를 검증한다.
 vi.mock('@/lib/payments/credit', () => {
   class InsufficientCreditError extends Error {
     constructor(
@@ -52,6 +53,8 @@ describe('POST animate route', () => {
   beforeEach(() => {
     single.mockReset();
     withCreditSpend.mockReset();
+    updateEq.mockReset();
+    updateEq.mockResolvedValue({ error: null });
   });
 
   it('video_url 캐시 히트 → 200, 차감 없음', async () => {
@@ -98,5 +101,24 @@ describe('POST animate route', () => {
     expect(ref1).not.toBe(ref2); // 매 시도 달라야 함
     expect(ref1).not.toBe('a1'); // artworkId 고정 금지
     expect(withCreditSpend.mock.calls[0][0].cost).toBe(CREDIT_COSTS.animate);
+  });
+
+  it('영상 생성 성공 후 DB 저장 실패 → 환불 없이 200 + videoUrl (fal.ai 중복 호출 방지)', async () => {
+    single.mockResolvedValue({
+      data: { image_url: 'img://x', video_url: null },
+      error: null,
+    });
+    // withCreditSpend는 run의 결과(영상 URL)를 정상 반환 — 차감/환불은 발생하지 않음.
+    withCreditSpend.mockResolvedValue('vid://generated');
+    // 영속화(DB update)만 실패.
+    updateEq.mockResolvedValue({ error: { message: 'db down' } });
+
+    const res = await callPOST();
+
+    // 영상은 이미 생성됐고 사용자도 과금된 상태이므로 URL을 그대로 반환한다.
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual({ videoUrl: 'vid://generated' });
+    // DB 저장은 차감 트랜잭션 밖에서 1회 시도되어야 한다.
+    expect(updateEq).toHaveBeenCalledTimes(1);
   });
 });
