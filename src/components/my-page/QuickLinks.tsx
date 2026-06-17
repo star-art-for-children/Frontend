@@ -18,6 +18,14 @@ const LINKS = [
     label: '위시리스트',
     sub: '좋아하는 작품들을 모아보세요',
   },
+  {
+    href: '/album',
+    icon: 'album',
+    iconBg: 'bg-[#fff1ea]',
+    iconColor: '#f09e72',
+    label: '스타아트 앨범',
+    sub: '아이의 빛나는 성장을 소중히 담아보세요',
+  },
 ] as const;
 
 export default function QuickLinks() {
@@ -40,6 +48,22 @@ export default function QuickLinks() {
                   stroke={link.iconColor}
                   strokeWidth="1.6"
                 />
+              </svg>
+            ) : link.icon === 'album' ? (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M5 4.75h10A1.25 1.25 0 0116.25 6v8A1.25 1.25 0 0115 15.25H5A1.25 1.25 0 013.75 14V6A1.25 1.25 0 015 4.75Z"
+                  stroke={link.iconColor}
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M3.75 12.5l3-3 2.5 2.5 3-3.5 4 4.5"
+                  stroke={link.iconColor}
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="7.5" cy="7.5" r="1" fill={link.iconColor} />
               </svg>
             ) : (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
