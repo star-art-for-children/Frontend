@@ -40,7 +40,6 @@ export default function GalleryExhibitionPage() {
     );
 
   const [isSceneReady, setIsSceneReady] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [soundOn, setSoundOn] = useState(true);
   const [volume, setVolume] = useState(0.15);
   const soundOnRef = useRef(soundOn);
@@ -209,6 +208,7 @@ export default function GalleryExhibitionPage() {
     <div className="fixed inset-0 z-99">
       {!started && (
         <GalleryEntryModal
+          isLogged={!!user}
           isAllReady={isAllReady}
           isInitReady={isInitReady}
           title={exhibitionDetails.title}
@@ -223,8 +223,6 @@ export default function GalleryExhibitionPage() {
       <GalleryHUD
         title={exhibitionDetails.title}
         host={exhibitionDetails.host}
-        isMuted={isMuted}
-        onMute={() => setIsMuted(true)}
         onBack={() => router.back()}
         isLogged={!!user}
         myName={myName}

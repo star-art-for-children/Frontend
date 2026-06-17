@@ -3,14 +3,6 @@
 import ModalWrapper from '@/components/exhibition-gallery/threejs/ModalWrapper';
 import { CharacterModel } from '@/hooks/usePlayerSocket';
 
-const CONTROLS = [
-  { icon: '🖱️', label: '화면 클릭으로 마우스 조작 시작' },
-  { icon: '⌨️', label: 'WASD 또는 방향키로 이동' },
-  { icon: '👁️', label: '마우스로 시선 이동' },
-  { icon: '🖼️', label: '숫자키 1 - 좋아요 / 숫자키 2 - 작품 다운로드' },
-  { icon: 'ESC', label: '마우스 조작 해제' },
-];
-
 const MODELS: { value: CharacterModel; label: string; emoji: string }[] = [
   { value: 'human', label: '사람', emoji: '🧑' },
   { value: 'bunny', label: '토끼', emoji: '🐰' },
@@ -26,6 +18,7 @@ interface GalleryEntryModalProps {
   onModelSelect: (model: CharacterModel) => void;
   onEnter: () => void;
   onBack: () => void;
+  isLogged: boolean;
 }
 
 export default function GalleryEntryModal({
@@ -37,9 +30,10 @@ export default function GalleryEntryModal({
   onModelSelect,
   onEnter,
   onBack,
+  isLogged = false,
 }: GalleryEntryModalProps) {
   return (
-    <ModalWrapper isOpen height={540} width={448} className="bg-black!">
+    <ModalWrapper isOpen width={448} className="bg-black!">
       <div className="flex h-full flex-col items-center justify-center gap-5 p-8">
         <div className="bg-primary/50 flex h-16 w-16 items-center justify-center rounded-3xl text-3xl">
           🎨
@@ -61,30 +55,24 @@ export default function GalleryEntryModal({
           </>
         )}
 
-        <ul className="bg-primary/10 flex w-full flex-col gap-1 rounded-lg p-4">
-          {CONTROLS.map(({ icon, label }) => (
-            <li key={label} className="text-secondary/40 text-[14px]">
-              {icon} {label}
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex w-full gap-3">
-          {MODELS.map(({ value, label, emoji }) => (
-            <button
-              key={value}
-              onClick={() => onModelSelect(value)}
-              className={`flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-xl py-3 text-sm font-bold transition-all ${
-                selectedModel === value
-                  ? 'bg-primary/90 text-white'
-                  : 'bg-white/10 text-black/50 hover:bg-white/20'
-              }`}
-            >
-              <span className="text-2xl">{emoji}</span>
-              {label}
-            </button>
-          ))}
-        </div>
+        {isLogged && (
+          <div className="flex w-full gap-3">
+            {MODELS.map(({ value, label, emoji }) => (
+              <button
+                key={value}
+                onClick={() => onModelSelect(value)}
+                className={`flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-xl py-3 text-sm font-bold transition-all ${
+                  selectedModel === value
+                    ? 'bg-primary/90 text-white'
+                    : 'bg-white/10 text-black/50 hover:bg-white/20'
+                }`}
+              >
+                <span className="text-2xl">{emoji}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex w-full gap-3">
           <button
