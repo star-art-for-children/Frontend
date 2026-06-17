@@ -91,6 +91,31 @@ export async function collectStamp(exhibitionId: string, artworkId: string) {
   return res.json();
 }
 
+// 작품 이모지 반응 (4종)
+export const REACTION_EMOJIS = ['❤️', '😍', '😮', '👏'] as const;
+
+// 반응 토글: 같은 이모지 → 해제, 다른 이모지 → 교체. 응답의 emoji가 최종 상태
+export async function toggleReaction(
+  exhibitionId: string,
+  artworkId: string,
+  emoji: string
+): Promise<{ emoji: string | null }> {
+  const res = await fetch(
+    `/api/exhibitions/${exhibitionId}/artworks/${artworkId}/reactions`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error('request failed');
+  }
+
+  return res.json();
+}
+
 export const toggleArtworkLike = async (
   exhibitionId: string,
   artworkId: string,

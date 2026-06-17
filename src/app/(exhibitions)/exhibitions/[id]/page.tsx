@@ -124,6 +124,8 @@ export default async function ExhibitionDetail({
                     likes: work.likes,
                     liked: work.liked,
                     videoUrl: work.videoUrl,
+                    reactions: work.reactions,
+                    myReaction: work.myReaction,
                   }}
                   exhibitionId={exhibition.id}
                   exhibitionTitle={exhibition.title}
