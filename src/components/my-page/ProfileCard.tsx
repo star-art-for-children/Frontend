@@ -21,7 +21,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-3">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
             <h1 className="text-[18px] font-bold text-[#2b2724]">
               {profile.name}
             </h1>
@@ -30,6 +30,11 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             >
               {profile.role === 'teacher' ? '🎨' : '👤'} {roleLabel}
             </span>
+            {profile.selectedTitle && (
+              <span className="rounded-full bg-[#fff7e6] px-2.5 py-1 text-[11px] font-semibold text-[#d5981f]">
+                🏅 {profile.selectedTitle}
+              </span>
+            )}
           </div>
           <p className="text-[14px] text-[#827b73]">{profile.email}</p>
 

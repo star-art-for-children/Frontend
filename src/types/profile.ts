@@ -18,6 +18,7 @@ export type TeacherProfile = {
   academy_name: string;
   role: 'teacher';
   exhibitions: Exhibition[];
+  selectedTitle: string | null;
 };
 
 export type UserProfile = {
@@ -25,6 +26,7 @@ export type UserProfile = {
   name: string;
   email: string;
   role: 'general';
+  selectedTitle: string | null;
 };
 
 export type Profile = TeacherProfile | UserProfile;

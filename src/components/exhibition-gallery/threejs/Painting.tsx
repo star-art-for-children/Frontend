@@ -208,6 +208,7 @@ export default function Painting({
       {videoUrl && (
         <Html
           transform
+          occlude
           position={[imgW / 2 + FRAME_M, -imgH / 2 - FRAME_M, 0.12]}
           distanceFactor={2}
           center
