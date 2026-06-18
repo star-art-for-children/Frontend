@@ -180,14 +180,21 @@ export default function GalleryExhibitionPage() {
 
   // 스탬프북 열기·닫기 (소리 포함). 여러 진입점(버튼·Tab·Esc·닫기버튼)에서 공통 사용
   const openBook = useCallback(() => {
-    if (!showStampBookRef.current) playSound(bookOpenAudioRef.current);
-    setShowStampBook(true);
+    // 연속 입력 시 중복 소리 방지를 위해 ref를 즉시 갱신 (effect 동기화 전에)
+    if (!showStampBookRef.current) {
+      showStampBookRef.current = true;
+      playSound(bookOpenAudioRef.current);
+      setShowStampBook(true);
+    }
     document.exitPointerLock?.();
   }, [playSound]);
 
   const closeBook = useCallback(() => {
-    if (showStampBookRef.current) playSound(bookCloseAudioRef.current);
-    setShowStampBook(false);
+    if (showStampBookRef.current) {
+      showStampBookRef.current = false;
+      playSound(bookCloseAudioRef.current);
+      setShowStampBook(false);
+    }
   }, [playSound]);
 
   // Tab: 스탬프북 토글 / ESC: 모달·스탬프북 닫기
