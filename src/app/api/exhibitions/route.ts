@@ -9,11 +9,7 @@ import {
 import { checkRole } from '@/lib/gallery/checkRole';
 import { parseFormDataToObj } from '@/lib/gallery/parseForm';
 import { validateExhibition } from '@/lib/gallery/validateExhibitionForm';
-import {
-  ImageUploadValidationError,
-  uploadImgToSupabase,
-} from '@/lib/supabase/uploadImage';
-import { generatePresetFromImageFile } from '@/lib/gallery/server';
+import { generatePresetFromImageUrl } from '@/lib/gallery/server';
 import { defaultPreset } from '@/lib/gallery/presets';
 import {
   withCreditSpend,
@@ -83,9 +79,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let thumbnailUrl: null | string = null;
-    let gallery_preset = null;
-
     const body = await req.formData();
     const parsedFormData = parseFormDataToObj(body);
     const result = validateExhibition(parsedFormData);
@@ -104,29 +97,25 @@ export async function POST(req: NextRequest) {
       gallery_preset: userPreset,
     } = result.data;
 
-    if (thumbnailImg instanceof File) {
+    const thumbnailUrl =
+      typeof thumbnailImg === 'string' && thumbnailImg ? thumbnailImg : null;
+    let gallery_preset = null;
+
+    if (thumbnailUrl) {
       if (userPreset) {
-        thumbnailUrl = await uploadImgToSupabase(
-          supabase,
-          thumbnailImg,
-          'thumbnails'
-        );
         gallery_preset = userPreset;
       } else {
-        [thumbnailUrl, gallery_preset] = await Promise.all([
-          uploadImgToSupabase(supabase, thumbnailImg, 'thumbnails'),
-          withCreditSpend({
-            userId: roleCheck.user.id,
-            cost: CREDIT_COSTS.theme,
-            ref: randomUUID(),
-            run: () => generatePresetFromImageFile(thumbnailImg),
-          }).catch((e) => {
-            // 잔액 부족은 402로 올려보내고, AI 생성 실패만 기본 테마로 폴백한다.
-            if (e instanceof InsufficientCreditError) throw e;
-            console.log(e);
-            return defaultPreset;
-          }),
-        ]);
+        gallery_preset = await withCreditSpend({
+          userId: roleCheck.user.id,
+          cost: CREDIT_COSTS.theme,
+          ref: randomUUID(),
+          run: () => generatePresetFromImageUrl(thumbnailUrl),
+        }).catch((e) => {
+          // 잔액 부족은 402로 올려보내고, AI 생성 실패만 기본 테마로 폴백한다.
+          if (e instanceof InsufficientCreditError) throw e;
+          console.log(e);
+          return defaultPreset;
+        });
       }
     } else {
       gallery_preset = userPreset ?? defaultPreset;
@@ -166,11 +155,6 @@ export async function POST(req: NextRequest) {
         { message: '크레딧이 부족합니다.', balance: e.balance, cost: e.cost },
         { status: 402 }
       );
-    }
-
-    // 이미지 검증 오류일 경우 400 에러 반환
-    if (e instanceof ImageUploadValidationError) {
-      return NextResponse.json({ message: e.message }, { status: 400 });
     }
 
     console.log(e);

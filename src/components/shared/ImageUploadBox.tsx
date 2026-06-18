@@ -3,10 +3,12 @@
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useMemo, useRef } from 'react';
+import { validateImageFile } from '@/lib/supabase/imageConstraints';
 
 interface ImageUploadBoxProps {
   value?: File | string | null;
   onChange?: (file: File | null) => void;
+  onError?: (message: string) => void;
   bgColor?: 'yellow' | 'gray';
 }
 
@@ -17,9 +19,22 @@ const bgColors = {
 export default function ImageUploadBox({
   value,
   onChange,
+  onError,
   bgColor = 'gray',
 }: ImageUploadBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const notifyError = (msg: string) =>
+    onError ? onError(msg) : window.alert(msg);
+
+  const accept = (file: File) => {
+    const invalid = validateImageFile(file);
+    if (invalid) {
+      notifyError(invalid);
+      return;
+    }
+    onChange?.(file);
+  };
 
   const preview = useMemo(() => {
     if (!value) return null;
@@ -35,7 +50,7 @@ export default function ImageUploadBox({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    onChange?.(file);
+    accept(file);
   };
 
   const removeImage = () => {
@@ -46,10 +61,9 @@ export default function ImageUploadBox({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
+    if (!file) return;
 
-    if (!file || !file.type.startsWith('image/')) return;
-
-    onChange?.(file);
+    accept(file);
   };
 
   return (
@@ -57,7 +71,7 @@ export default function ImageUploadBox({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/gif"
+        accept="image/jpeg,image/png,image/gif,image/webp"
         className="hidden"
         onChange={handleChange}
       />

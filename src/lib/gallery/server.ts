@@ -167,6 +167,11 @@ export async function generatePresetFromImageFile(
   });
 
   const raw = message.content[0].type === 'text' ? message.content[0].text : '';
+  return postProcessPreset(raw);
+}
+
+// generatePresetFromImageFile/Url이 공유하는 응답 후처리(JSON 파싱 + 등록되지 않은 모델 필터).
+function postProcessPreset(raw: string): GalleryPreset {
   const parsed = JSON.parse(raw) as GalleryPreset;
 
   parsed.decorations = parsed.decorations.filter((d) =>
@@ -174,4 +179,29 @@ export async function generatePresetFromImageFile(
   );
 
   return parsed;
+}
+
+export async function generatePresetFromImageUrl(
+  url: string
+): Promise<GalleryPreset> {
+  const message = await client.messages.create({
+    model: 'claude-opus-4-8',
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'url', url } },
+          {
+            type: 'text',
+            text: 'Generate a GalleryPreset JSON for this image.',
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = message.content[0].type === 'text' ? message.content[0].text : '';
+  return postProcessPreset(raw);
 }

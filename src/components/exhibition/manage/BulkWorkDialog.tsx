@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import AppDialog from '@/components/shared/AppDialog';
 import { postArtWorksByExhibitionId } from '@/lib/artwork/service';
+import { uploadViaSignedUrl } from '@/lib/supabase/uploadClient';
 
 type BulkRow = { image: File; title: string; artist_name: string };
 type BulkForm = { rows: BulkRow[] };
@@ -28,16 +29,16 @@ function RowItem({
   onRemove: () => void;
   register: ReturnType<typeof useForm<BulkForm>>['register'];
 }) {
-  const preview = useMemo(
-    () => (imageFile ? URL.createObjectURL(imageFile) : ''),
-    [imageFile]
-  );
+  const [preview, setPreview] = useState('');
 
   useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
+    if (!imageFile) return;
+    const url = URL.createObjectURL(imageFile);
+    // object URL(플랫폼 API) 동기화 목적의 setState라 규칙의 정당한 예외.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
 
   return (
     <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-[0_1px_4px_rgba(44,40,38,0.06)]">
@@ -133,9 +134,12 @@ export default function BulkWorkDialog() {
       setUploading(true);
 
       const results = await Promise.allSettled(
-        data.rows.map((row) => {
+        data.rows.map(async (row) => {
+          // 각 이미지를 Supabase로 직접 업로드(Vercel 4.5MB 우회) 후 URL만 전송.
+          // 업로드 실패(용량·타입)는 reject되어 기존 실패 카운트로 집계된다.
+          const url = await uploadViaSignedUrl(row.image, 'artworks');
           const formData = new FormData();
-          formData.append('image_url', row.image);
+          formData.append('image_url', url);
           formData.append('title', row.title);
           formData.append('artist_name', row.artist_name);
           return postArtWorksByExhibitionId(id, formData, controller.signal);
