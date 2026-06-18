@@ -4,7 +4,7 @@ import { MeshReflectorMaterial } from '@react-three/drei';
 import { RepeatWrapping } from 'three';
 
 export default function Floor({ size }: { size: number }) {
-  const texture = useTexture('/gallery/floor.jpg');
+  const texture = useTexture('/gallery/floor.webp');
 
   const cloned = useMemo(() => {
     const t = texture.clone();

@@ -17,7 +17,7 @@ export default function DynamicFloor({
   // useTexture는 hook 규칙상 항상 호출해야 한다. 이미지 패턴이 아니어도
   // 기본 경로를 로드(url 기준 캐시되어 저렴)하고, map 계산에서는 사용하지 않는다.
   const imageUrl =
-    spec?.source.type === 'image' ? spec.source.url : '/gallery/floor.jpg';
+    spec?.source.type === 'image' ? spec.source.url : '/gallery/floor.webp';
   const texture = useTexture(imageUrl);
 
   const map = useMemo(() => {
