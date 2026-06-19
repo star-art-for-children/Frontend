@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { mockExhibitionLike, mockArtworkLike, mockReviewCreate, mockReviewMutations } from './helpers/mock-api';
+import {
+  mockExhibitionLike,
+  mockArtworkLike,
+  mockReviewCreate,
+  mockReviewMutations,
+} from './helpers/mock-api';
 import { hasGeneralAuth, AUTH_GENERAL } from './helpers/auth';
 
 const EXHIBITION_ID = process.env.TEST_EXHIBITION_ID;
@@ -27,10 +32,14 @@ test.describe('진행중 전시회 상세 페이지', () => {
   });
 
   test('전시회 소개 섹션이 표시된다', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: '전시회 소개' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: '전시회 소개' })
+    ).toBeVisible();
   });
 
-  test('3D 갤러리 입장 버튼이 표시되고 올바른 링크를 가진다', async ({ page }) => {
+  test('3D 갤러리 입장 버튼이 표시되고 올바른 링크를 가진다', async ({
+    page,
+  }) => {
     const enterBtn = page.getByRole('link', { name: '전시회 입장하기' });
     await expect(enterBtn).toBeVisible();
     await expect(enterBtn).toHaveAttribute('href', `/gallery/${EXHIBITION_ID}`);
@@ -49,7 +58,9 @@ test.describe('진행중 전시회 상세 페이지', () => {
     }
   });
 
-  test('비로그인 전시 좋아요 클릭 시 로그인 페이지로 이동한다', async ({ page }) => {
+  test('비로그인 전시 좋아요 클릭 시 로그인 페이지로 이동한다', async ({
+    page,
+  }) => {
     await mockExhibitionLike(page, true);
 
     // 하트 버튼 찾기 (좋아요 버튼)
@@ -68,7 +79,9 @@ test.describe('예정된 전시회 상세 페이지', () => {
 
     await page.goto(`/exhibitions/${UPCOMING_ID}`);
     // ExhibitionUpcoming h2: "아직 공개되지 않은 미술전입니다"
-    await expect(page.getByRole('heading', { name: /공개되지 않은|관람 가능/ })).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.getByRole('heading', { name: /공개되지 않은|관람 가능/ })
+    ).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -77,7 +90,9 @@ test.describe('종료된 전시회 상세 페이지', () => {
     test.skip(!ENDED_ID, 'TEST_ENDED_EXHIBITION_ID 환경 변수 미설정');
 
     await page.goto(`/exhibitions/${ENDED_ID}`);
-    await expect(page.getByText(/종료|끝났|마감/).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/종료|끝났|마감/).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });
 
@@ -108,7 +123,10 @@ test.describe('로그인 상태에서 전시회 상세 — 후기 기능', () =>
     const reviewInput = page.getByPlaceholder(/후기|감상/);
     if (await reviewInput.isVisible()) {
       await reviewInput.fill('정말 멋진 전시였어요!');
-      await page.getByRole('button', { name: /등록|작성|제출/ }).last().click();
+      await page
+        .getByRole('button', { name: /등록|작성|제출/ })
+        .last()
+        .click();
     }
   });
 });
@@ -130,7 +148,9 @@ test.describe('전시회 작품 다이얼로그', () => {
     if (await firstWork.isVisible()) {
       await firstWork.click();
       // ArtworkDetailContent: role="dialog" 없이 fixed z-50 overlay로 렌더됨
-      await expect(page.locator('div[class*="fixed"][class*="z-50"]')).toBeVisible({ timeout: 5_000 });
+      await expect(
+        page.locator('div[class*="fixed"][class*="z-50"]')
+      ).toBeVisible({ timeout: 5_000 });
     }
   });
 });

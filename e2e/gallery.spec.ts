@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { mockStamp, mockArtworkLike } from './helpers/mock-api';
 
 const EXHIBITION_ID = process.env.TEST_EXHIBITION_ID;
 
@@ -16,7 +15,9 @@ test.describe('갤러리 입장 모달', () => {
     await page.goto(`/gallery/${EXHIBITION_ID}`);
 
     // GalleryEntryModal — 전시 제목 / 입장 버튼 / 뒤로가기 버튼 확인
-    await expect(page.getByRole('button', { name: /입장하기|로딩중/ })).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: /입장하기|로딩중/ })
+    ).toBeVisible({
       timeout: 15_000,
     });
   });
@@ -26,14 +27,21 @@ test.describe('갤러리 입장 모달', () => {
 
     // human / bunny / cartoon 캐릭터 선택 UI
     // 텍스트 또는 이미지 기반 버튼으로 구현되어 있음
-    await page.waitForSelector('[data-character], button:has-text("인간"), button:has-text("토끼"), button:has-text("캐릭터")', {
-      timeout: 5_000,
-      state: 'attached',
-    }).catch(() => {
-      // 캐릭터 버튼이 없으면 입장 버튼 존재만 확인
-    });
+    await page
+      .waitForSelector(
+        '[data-character], button:has-text("인간"), button:has-text("토끼"), button:has-text("캐릭터")',
+        {
+          timeout: 5_000,
+          state: 'attached',
+        }
+      )
+      .catch(() => {
+        // 캐릭터 버튼이 없으면 입장 버튼 존재만 확인
+      });
 
-    await expect(page.getByRole('button', { name: /입장하기|로딩중/ })).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: /입장하기|로딩중/ })
+    ).toBeVisible({
       timeout: 15_000,
     });
   });

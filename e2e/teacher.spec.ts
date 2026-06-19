@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { hasGeneralAuth, hasTeacherAuth, AUTH_GENERAL, AUTH_TEACHER } from './helpers/auth';
+import {
+  hasGeneralAuth,
+  hasTeacherAuth,
+  AUTH_GENERAL,
+  AUTH_TEACHER,
+} from './helpers/auth';
 
 const TEACHER_EXHIBITION_ID = process.env.TEST_TEACHER_EXHIBITION_ID;
 
@@ -15,7 +20,7 @@ test.describe('전시회 생성 — 일반 유저 접근 제어', () => {
 
     // 일반 유저는 404 또는 홈으로 리다이렉트됨
     const url = page.url();
-    const is404 = await page.getByText(/404/).count()
+    const is404 = await page.getByText(/404/).count();
     console.log(is404);
     expect(url.includes('/exhibitions/create') === false || is404).toBeTruthy();
   });
@@ -25,7 +30,10 @@ test.describe('전시회 생성 — 선생님', () => {
   test.use({ storageState: AUTH_TEACHER });
 
   test.beforeEach(async () => {
-    test.skip(!hasTeacherAuth(), 'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정');
+    test.skip(
+      !hasTeacherAuth(),
+      'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정'
+    );
   });
 
   test('/exhibitions/create 페이지가 정상 렌더링된다', async ({ page }) => {
@@ -61,7 +69,10 @@ test.describe('전시회 생성 — 선생님', () => {
   test('크레딧 잔액이 표시된다', async ({ page }) => {
     // create 페이지의 크레딧 잔액은 CreditSpendDialog(팝업) 안에만 있어 직접 노출되지 않음
     // 대신 전시회 생성 폼이 정상 로드되었는지 확인
-    test.skip(true, '크레딧 잔액은 create 페이지에 직접 노출되지 않음 (CreditSpendDialog 내부)');
+    test.skip(
+      true,
+      '크레딧 잔액은 create 페이지에 직접 노출되지 않음 (CreditSpendDialog 내부)'
+    );
     await page.goto('/exhibitions/create');
     await expect(page.getByText(/크레딧/)).toBeVisible({ timeout: 10_000 });
   });
@@ -71,15 +82,23 @@ test.describe('전시회 관리 페이지', () => {
   test.use({ storageState: AUTH_TEACHER });
 
   test.beforeEach(async () => {
-    test.skip(!hasTeacherAuth(), 'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정');
-    test.skip(!TEACHER_EXHIBITION_ID, 'TEST_TEACHER_EXHIBITION_ID 환경 변수 미설정');
+    test.skip(
+      !hasTeacherAuth(),
+      'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정'
+    );
+    test.skip(
+      !TEACHER_EXHIBITION_ID,
+      'TEST_TEACHER_EXHIBITION_ID 환경 변수 미설정'
+    );
   });
 
   test('전시회 관리 페이지가 렌더링된다', async ({ page }) => {
     await page.goto(`/exhibitions/${TEACHER_EXHIBITION_ID}/manage`);
 
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveURL(`/exhibitions/${TEACHER_EXHIBITION_ID}/manage`);
+    await expect(page).toHaveURL(
+      `/exhibitions/${TEACHER_EXHIBITION_ID}/manage`
+    );
   });
 
   test('작품 추가 버튼이 표시된다', async ({ page }) => {
@@ -123,7 +142,10 @@ test.describe('선생님 마이페이지', () => {
   test.use({ storageState: AUTH_TEACHER });
 
   test.beforeEach(async () => {
-    test.skip(!hasTeacherAuth(), 'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정');
+    test.skip(
+      !hasTeacherAuth(),
+      'TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정'
+    );
   });
 
   test('마이페이지에 내 전시회 목록 섹션이 표시된다', async ({ page }) => {

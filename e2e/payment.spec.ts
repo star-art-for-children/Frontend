@@ -5,7 +5,9 @@ import { mockPaymentConfirm } from './helpers/mock-api';
 // 크레딧 결제 플로우
 
 test.describe('크레딧 충전 페이지 — 접근 제어', () => {
-  test('/charge 비로그인 접근 시 /login으로 리다이렉트된다', async ({ page }) => {
+  test('/charge 비로그인 접근 시 /login으로 리다이렉트된다', async ({
+    page,
+  }) => {
     await page.goto('/charge');
     await expect(page).toHaveURL('/login');
   });
@@ -22,7 +24,9 @@ test.describe('크레딧 충전 페이지 — 로그인 상태', () => {
     await page.goto('/charge');
     await expect(page).toHaveURL('/charge');
 
-    await expect(page.getByRole('heading', { name: '크레딧 충전' })).toBeVisible({
+    await expect(
+      page.getByRole('heading', { name: '크레딧 충전' })
+    ).toBeVisible({
       timeout: 10_000,
     });
   });
@@ -41,7 +45,9 @@ test.describe('크레딧 충전 페이지 — 로그인 상태', () => {
     // TossPayments 위젯 로드 대기
     await page.waitForLoadState('networkidle');
 
-    const amountBtns = page.getByRole('button').filter({ hasText: /원|\d+,\d+/ });
+    const amountBtns = page
+      .getByRole('button')
+      .filter({ hasText: /원|\d+,\d+/ });
     const count = await amountBtns.count();
     // 금액 선택 버튼이 1개 이상 있거나 TossPayments 위젯이 렌더링됨
     expect(count >= 0).toBeTruthy();
@@ -52,20 +58,28 @@ test.describe('결제 실패 페이지', () => {
   test('취소 코드 전달 시 취소 메시지가 표시된다', async ({ page }) => {
     await page.goto('/charge/fail?code=PAY_PROCESS_CANCELED');
 
-    await expect(page.getByRole('heading', { name: '결제 실패' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: '결제 실패' })
+    ).toBeVisible();
     await expect(page.getByText('결제를 취소했습니다.')).toBeVisible();
   });
 
   test('카드 거절 코드 전달 시 거절 메시지가 표시된다', async ({ page }) => {
     await page.goto('/charge/fail?code=REJECT_CARD_COMPANY');
 
-    await expect(page.getByText('카드사에서 결제를 거절했습니다.')).toBeVisible();
+    await expect(
+      page.getByText('카드사에서 결제를 거절했습니다.')
+    ).toBeVisible();
   });
 
-  test('알 수 없는 코드 전달 시 기본 실패 메시지가 표시된다', async ({ page }) => {
+  test('알 수 없는 코드 전달 시 기본 실패 메시지가 표시된다', async ({
+    page,
+  }) => {
     await page.goto('/charge/fail?code=UNKNOWN_ERROR&message=알수없는오류');
 
-    await expect(page.getByRole('heading', { name: '결제 실패' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: '결제 실패' })
+    ).toBeVisible();
   });
 
   test('"다시 시도" 링크가 /charge로 연결된다', async ({ page }) => {
@@ -78,7 +92,9 @@ test.describe('결제 실패 페이지', () => {
 });
 
 test.describe('결제 성공 페이지', () => {
-  test('유효한 결제 파라미터와 mock API → 충전 완료 메시지가 표시된다', async ({ page }) => {
+  test('유효한 결제 파라미터와 mock API → 충전 완료 메시지가 표시된다', async ({
+    page,
+  }) => {
     await mockPaymentConfirm(page, 15_000);
 
     await page.goto(
@@ -94,7 +110,9 @@ test.describe('결제 성공 페이지', () => {
   test('결제 파라미터 누락 시 에러 메시지가 표시된다', async ({ page }) => {
     await page.goto('/charge/success');
 
-    await expect(page.getByText(/잘못된 접근|오류/)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/잘못된 접근|오류/)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('API 오류 시 충전 실패 메시지가 표시된다', async ({ page }) => {
@@ -110,7 +128,9 @@ test.describe('결제 성공 페이지', () => {
       '/charge/success?paymentKey=test_pk_fail&orderId=test_order_fail&amount=5000'
     );
 
-    await expect(page.getByText(/충전 실패|승인.*실패|실패/).first()).toBeVisible({
+    await expect(
+      page.getByText(/충전 실패|승인.*실패|실패/).first()
+    ).toBeVisible({
       timeout: 10_000,
     });
   });

@@ -53,7 +53,11 @@ export async function mockReviewMutations(page: Page) {
   await page.route('**/api/exhibitions/*/reviews/*', async (route) => {
     const method = route.request().method();
     if (method === 'PUT' || method === 'DELETE') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{}',
+      });
     } else {
       await route.continue();
     }
@@ -91,13 +95,16 @@ export async function mockOnboarding(page: Page) {
 }
 
 export async function mockReaction(page: Page) {
-  await page.route('**/api/exhibitions/*/artworks/*/reactions', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ ok: true }),
-    });
-  });
+  await page.route(
+    '**/api/exhibitions/*/artworks/*/reactions',
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true }),
+      });
+    }
+  );
 }
 
 export async function mockAnimate(page: Page) {

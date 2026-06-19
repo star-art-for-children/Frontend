@@ -1,4 +1,4 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 
@@ -22,7 +22,9 @@ setup('일반 유저 인증 세션 저장', async ({ page }) => {
   const password = process.env.TEST_USER_PASSWORD;
 
   if (!email || !password) {
-    console.warn('⚠️  TEST_USER_EMAIL / TEST_USER_PASSWORD 미설정 — 일반 유저 auth 건너뜀');
+    console.warn(
+      '⚠️  TEST_USER_EMAIL / TEST_USER_PASSWORD 미설정 — 일반 유저 auth 건너뜀'
+    );
     writeEmptyState('general.json');
     return;
   }
@@ -33,7 +35,9 @@ setup('일반 유저 인증 세션 저장', async ({ page }) => {
   await page.click('button[type="submit"]');
   await page.waitForURL('/', { timeout: 20_000 });
 
-  await page.context().storageState({ path: path.join(AUTH_DIR, 'general.json') });
+  await page
+    .context()
+    .storageState({ path: path.join(AUTH_DIR, 'general.json') });
   console.log('✅ 일반 유저 인증 세션 저장 완료');
 });
 
@@ -44,7 +48,9 @@ setup('선생님 인증 세션 저장', async ({ page }) => {
   const password = process.env.TEST_TEACHER_PASSWORD;
 
   if (!email || !password) {
-    console.warn('⚠️  TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정 — 선생님 auth 건너뜀');
+    console.warn(
+      '⚠️  TEST_TEACHER_EMAIL / TEST_TEACHER_PASSWORD 미설정 — 선생님 auth 건너뜀'
+    );
     writeEmptyState('teacher.json');
     return;
   }
@@ -55,6 +61,8 @@ setup('선생님 인증 세션 저장', async ({ page }) => {
   await page.click('button[type="submit"]');
   await page.waitForURL('/', { timeout: 20_000 });
 
-  await page.context().storageState({ path: path.join(AUTH_DIR, 'teacher.json') });
+  await page
+    .context()
+    .storageState({ path: path.join(AUTH_DIR, 'teacher.json') });
   console.log('✅ 선생님 인증 세션 저장 완료');
 });

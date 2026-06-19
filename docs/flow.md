@@ -296,17 +296,17 @@
 
 ## 10. 접근 제어 요약
 
-| 경로 | 비로그인 | 일반(general) | 선생님(teacher) |
-|------|----------|---------------|-----------------|
-| `/` | ✅ 열람 | ✅ | ✅ |
-| `/exhibitions/[id]` | ✅ 열람만 | ✅ 좋아요·리뷰 | ✅ + 관리 |
-| `/gallery/[id]` | ✅ 입장 (스탬프 불가) | ✅ 스탬프 가능 | ✅ |
-| `/exhibitions/create` | ❌ → login | ❌ → 404 | ✅ |
-| `/exhibitions/[id]/manage` | ❌ → login | ❌ → 404 | ✅ (본인 전시만) |
-| `/my-page` | ❌ → login | ✅ | ✅ |
-| `/artworks` | ❌ → login | ✅ | ✅ |
-| `/wish-list` | ❌ → login | ✅ | ✅ |
-| `/charge` | ❌ → login | ✅ | ✅ |
+| 경로                       | 비로그인              | 일반(general)  | 선생님(teacher)  |
+| -------------------------- | --------------------- | -------------- | ---------------- |
+| `/`                        | ✅ 열람               | ✅             | ✅               |
+| `/exhibitions/[id]`        | ✅ 열람만             | ✅ 좋아요·리뷰 | ✅ + 관리        |
+| `/gallery/[id]`            | ✅ 입장 (스탬프 불가) | ✅ 스탬프 가능 | ✅               |
+| `/exhibitions/create`      | ❌ → login            | ❌ → 404       | ✅               |
+| `/exhibitions/[id]/manage` | ❌ → login            | ❌ → 404       | ✅ (본인 전시만) |
+| `/my-page`                 | ❌ → login            | ✅             | ✅               |
+| `/artworks`                | ❌ → login            | ✅             | ✅               |
+| `/wish-list`               | ❌ → login            | ✅             | ✅               |
+| `/charge`                  | ❌ → login            | ✅             | ✅               |
 
 ---
 
@@ -357,7 +357,7 @@ AI
 
 ---
 
-## 12. 전시관 관람 핵심 상태 흐름 
+## 12. 전시관 관람 핵심 상태 흐름
 
 ```
 GalleryEntryModal 진입

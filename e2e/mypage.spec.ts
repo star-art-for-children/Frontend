@@ -4,17 +4,23 @@ import { hasGeneralAuth, AUTH_GENERAL } from './helpers/auth';
 // 마이페이지 — 일반 유저 기준
 
 test.describe('마이페이지 — 비로그인 접근 제어', () => {
-  test('/my-page 비로그인 접근 시 /login으로 리다이렉트된다', async ({ page }) => {
+  test('/my-page 비로그인 접근 시 /login으로 리다이렉트된다', async ({
+    page,
+  }) => {
     await page.goto('/my-page');
     await expect(page).toHaveURL('/login');
   });
 
-  test('/artworks 비로그인 접근 시 /login으로 리다이렉트된다', async ({ page }) => {
+  test('/artworks 비로그인 접근 시 /login으로 리다이렉트된다', async ({
+    page,
+  }) => {
     await page.goto('/artworks');
     await expect(page).toHaveURL('/login');
   });
 
-  test('/wish-list 비로그인 접근 시 /login으로 리다이렉트된다', async ({ page }) => {
+  test('/wish-list 비로그인 접근 시 /login으로 리다이렉트된다', async ({
+    page,
+  }) => {
     await page.goto('/wish-list');
     await expect(page).toHaveURL('/login');
   });
@@ -36,18 +42,25 @@ test.describe('마이페이지 — 로그인 상태 (일반 유저)', () => {
     await page.goto('/my-page');
 
     // 이름/이메일은 실제 계정에 따라 다름 — 요소 존재 여부만 확인
-    const profileCard = page.locator('[class*="profile"], [class*="Profile"]').first();
+    const profileCard = page
+      .locator('[class*="profile"], [class*="Profile"]')
+      .first();
     if (await profileCard.isVisible()) {
       await expect(profileCard).toBeVisible();
     } else {
       // ProfileCard 컴포넌트가 렌더링되는 영역 확인
-      await expect(page.getByText(process.env.TEST_USER_EMAIL!)).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByText(process.env.TEST_USER_EMAIL!)).toBeVisible({
+        timeout: 10_000,
+      });
     }
   });
 
   test('크레딧 잔액이 표시된다', async ({ page }) => {
     // 일반 유저는 CreditCard 섹션이 렌더링되지 않음 (teacher 전용)
-    test.skip(true, '일반 유저는 크레딧 섹션 미표시 — teacher.spec.ts에서 검증');
+    test.skip(
+      true,
+      '일반 유저는 크레딧 섹션 미표시 — teacher.spec.ts에서 검증'
+    );
     await page.goto('/my-page');
     await expect(page.getByText(/크레딧/)).toBeVisible({ timeout: 10_000 });
   });
@@ -64,7 +77,9 @@ test.describe('마이페이지 — 로그인 상태 (일반 유저)', () => {
   test('업적 섹션이 표시된다', async ({ page }) => {
     await page.goto('/my-page');
 
-    await expect(page.getByText(/업적|첫 발자국|탐험가|마스터/).first()).toBeVisible({
+    await expect(
+      page.getByText(/업적|첫 발자국|탐험가|마스터/).first()
+    ).toBeVisible({
       timeout: 10_000,
     });
   });

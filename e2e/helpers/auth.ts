@@ -9,7 +9,9 @@ export function hasGeneralAuth(): boolean {
 }
 
 export function hasTeacherAuth(): boolean {
-  return !!(process.env.TEST_TEACHER_EMAIL && process.env.TEST_TEACHER_PASSWORD);
+  return !!(
+    process.env.TEST_TEACHER_EMAIL && process.env.TEST_TEACHER_PASSWORD
+  );
 }
 
 export async function loginViaUI(page: Page, email: string, password: string) {
