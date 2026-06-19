@@ -212,13 +212,15 @@ export default function GalleryExhibitionPage() {
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
         // 브라우저 기본 포커스 이동 차단
         e.preventDefault();
+        // 스탬프북은 로그인 사용자 전용 (스탬프 수집과 동일 정책)
+        if (!user) return;
         if (showStampBookRef.current) closeBook();
         else openBook();
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [started, openBook, closeBook]);
+  }, [started, user, openBook, closeBook]);
 
   if (initError) {
     return (
@@ -341,7 +343,8 @@ export default function GalleryExhibitionPage() {
         </div>
       )}
 
-      {showStampBook && (
+      {/* 스탬프북은 로그인 사용자에게만 노출 */}
+      {showStampBook && user && (
         <StampBook
           artworks={stampArtworks}
           achievement={achievement}
