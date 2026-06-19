@@ -16,6 +16,7 @@
     "@anthropic-ai/sdk": "^0.100.1",
     "@base-ui/react": "^1.4.1",
     "@fal-ai/client": "^1.10.1",
+    "@react-pdf/renderer": "^4.5.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "@supabase/ssr": "^0.10.2",

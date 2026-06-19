@@ -55,6 +55,11 @@ export default function GalleryExhibitionPage() {
   // 도장 연출: key를 증가시켜 재마운트 → 애니메이션 재생
   const [stampFxId, setStampFxId] = useState(0);
   const stampAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bookOpenAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bookCloseAudioRef = useRef<HTMLAudioElement | null>(null);
+  const completeAudioRef = useRef<HTMLAudioElement | null>(null);
+  // 스탬프북 열림 상태를 이벤트/콜백에서 최신값으로 참조 (중복 소리 방지)
+  const showStampBookRef = useRef(showStampBook);
   // 미완료 → 완료로 전환되는 순간에만 축하 모달 노출
   // (이미 완료한 상태로 재진입 시엔 뜨지 않도록 첫 진행률은 baseline 처리)
   const prevCollectedRef = useRef<number | null>(null);
@@ -64,6 +69,14 @@ export default function GalleryExhibitionPage() {
 
   const stampCollected = stampArtworks.filter((x) => x.stampedByMe).length;
   const stampTotal = stampArtworks.length;
+
+  // 효과음 재생 헬퍼 — 음소거/볼륨 설정(soundOnRef/volumeRef) 반영
+  const playSound = useCallback((audio: HTMLAudioElement | null) => {
+    if (!audio || !soundOnRef.current) return;
+    audio.currentTime = 0;
+    audio.volume = volumeRef.current;
+    audio.play().catch(() => {});
+  }, []);
 
   const handleStampProgress = useCallback(
     (artworks: GalleryUIArtworkProps[]) => {
@@ -80,26 +93,20 @@ export default function GalleryExhibitionPage() {
       // 새 스탬프 획득 → 도장 쾅 연출 + 도구가 닿는 순간(~0.16s) 효과음
       if (collected > prev) {
         setStampFxId((n) => n + 1);
-        setTimeout(() => {
-          const audio = stampAudioRef.current;
-          if (audio && soundOnRef.current) {
-            audio.currentTime = 0;
-            audio.volume = volumeRef.current;
-            audio.play().catch(() => {});
-          }
-        }, 160);
+        setTimeout(() => playSound(stampAudioRef.current), 160);
       }
 
-      // 마지막 스탬프 → 도장 연출이 끝난 뒤 완료 모달
+      // 마지막 스탬프 → 도장 연출이 끝난 뒤 완료 모달 + 축하 사운드
       if (collected === total && prev < total) {
         completeTimerRef.current = setTimeout(() => {
           setShowStampComplete(true);
+          playSound(completeAudioRef.current);
           // 마우스로 모달 버튼을 누를 수 있도록 포인터 잠금 해제
           document.exitPointerLock?.();
         }, 1000);
       }
     },
-    []
+    [playSound]
   );
 
   // 효과음 on/off·볼륨 최신값을 콜백에서 참조할 수 있도록 ref 동기화
@@ -110,12 +117,23 @@ export default function GalleryExhibitionPage() {
     volumeRef.current = volume;
   }, [volume]);
 
-  // 도장 효과음 미리 로드
+  // 효과음 미리 로드 (도장 / 스탬프북 열기·닫기 / 완주 축하)
   useEffect(() => {
-    const audio = new Audio('/sounds/stamp.mp3');
-    audio.preload = 'auto';
-    stampAudioRef.current = audio;
+    const load = (src: string) => {
+      const a = new Audio(src);
+      a.preload = 'auto';
+      return a;
+    };
+    stampAudioRef.current = load('/sounds/stamp.mp3');
+    bookOpenAudioRef.current = load('/sounds/book-open.mp3');
+    bookCloseAudioRef.current = load('/sounds/book-close.mp3');
+    completeAudioRef.current = load('/sounds/complete.mp3');
   }, []);
+
+  // 스탬프북 열림 상태 ref 동기화
+  useEffect(() => {
+    showStampBookRef.current = showStampBook;
+  }, [showStampBook]);
 
   // 언마운트 시 완료 모달 타이머 정리
   useEffect(() => {
@@ -160,10 +178,24 @@ export default function GalleryExhibitionPage() {
     }
   }, []);
 
-  const openStampBook = useCallback(() => {
-    setShowStampBook(true);
+  // 스탬프북 열기·닫기 (소리 포함). 여러 진입점(버튼·Tab·Esc·닫기버튼)에서 공통 사용
+  const openBook = useCallback(() => {
+    // 연속 입력 시 중복 소리 방지를 위해 ref를 즉시 갱신 (effect 동기화 전에)
+    if (!showStampBookRef.current) {
+      showStampBookRef.current = true;
+      playSound(bookOpenAudioRef.current);
+      setShowStampBook(true);
+    }
     document.exitPointerLock?.();
-  }, []);
+  }, [playSound]);
+
+  const closeBook = useCallback(() => {
+    if (showStampBookRef.current) {
+      showStampBookRef.current = false;
+      playSound(bookCloseAudioRef.current);
+      setShowStampBook(false);
+    }
+  }, [playSound]);
 
   // Tab: 스탬프북 토글 / ESC: 모달·스탬프북 닫기
   useEffect(() => {
@@ -171,7 +203,7 @@ export default function GalleryExhibitionPage() {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowStampComplete(false);
-        setShowStampBook(false);
+        closeBook();
         return;
       }
       if (e.key === 'Tab') {
@@ -182,15 +214,13 @@ export default function GalleryExhibitionPage() {
         e.preventDefault();
         // 스탬프북은 로그인 사용자 전용 (스탬프 수집과 동일 정책)
         if (!user) return;
-        setShowStampBook((prev) => {
-          if (!prev) document.exitPointerLock?.();
-          return !prev;
-        });
+        if (showStampBookRef.current) closeBook();
+        else openBook();
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [started, user]);
+ }, [started, user, openBook, closeBook]);
 
   if (initError) {
     return (
@@ -233,7 +263,7 @@ export default function GalleryExhibitionPage() {
         chatHistory={chatHistory}
         stampCollected={stampCollected}
         stampTotal={stampTotal}
-        onOpenStampBook={openStampBook}
+        onOpenStampBook={openBook}
         soundOn={soundOn}
         onToggleSound={() => setSoundOn((v) => !v)}
         volume={volume}
@@ -319,7 +349,7 @@ export default function GalleryExhibitionPage() {
           artworks={stampArtworks}
           achievement={achievement}
           onSelectTitle={handleSelectTitle}
-          onClose={() => setShowStampBook(false)}
+          onClose={closeBook}
         />
       )}
 
