@@ -121,6 +121,7 @@ export default function Scene2({
     <Canvas
       shadows="percentage"
       camera={{ fov: 65 }}
+      dpr={[1, 1.5]}
       gl={{
         antialias: true,
         preserveDrawingBuffer: true,
@@ -144,28 +145,28 @@ export default function Scene2({
                 position={[-40, 24, -50]}
                 speed={0.04}
                 opacity={0.7}
-                segments={40}
+                segments={20}
                 bounds={[18, 4, 8]}
               />
               <Cloud
                 position={[-46, 26, -48]}
                 speed={0.03}
                 opacity={0.45}
-                segments={25}
+                segments={15}
                 bounds={[10, 3, 5]}
               />
               <Cloud
                 position={[45, 22, 30]}
                 speed={0.05}
                 opacity={0.65}
-                segments={45}
+                segments={20}
                 bounds={[20, 5, 9]}
               />
               <Cloud
                 position={[50, 25, 28]}
                 speed={0.04}
                 opacity={0.4}
-                segments={20}
+                segments={10}
                 bounds={[8, 3, 4]}
               />
             </>
@@ -210,7 +211,7 @@ export default function Scene2({
         intensity={lighting.directional.intensity}
         color={lighting.directional.color}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-radius={20}
         shadow-bias={-0.001}
         shadow-normalBias={0.04}

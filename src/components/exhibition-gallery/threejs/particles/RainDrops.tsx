@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Mesh } from 'three';
 
@@ -19,37 +19,6 @@ type DropState = {
   windX: number;
 };
 
-function SingleDrop({
-  state,
-  height,
-  color,
-  opacity,
-}: {
-  state: DropState;
-  height: number;
-  color: string;
-  opacity: number;
-}) {
-  const ref = useRef<Mesh>(null);
-  const y = useRef(state.startY);
-
-  useFrame((_, delta) => {
-    if (!ref.current) return;
-    y.current -= state.speed * delta;
-    if (y.current < 0) y.current = height;
-    ref.current.position.y = y.current;
-    ref.current.position.x =
-      state.x + (height - y.current) * state.windX * 0.04;
-  });
-
-  return (
-    <mesh ref={ref} position={[state.x, state.startY, state.z]}>
-      <cylinderGeometry args={[0.012, 0.004, 0.22, 3]} />
-      <meshBasicMaterial color={color} transparent opacity={opacity} />
-    </mesh>
-  );
-}
-
 export default function RainDrops({
   count = 200,
   size,
@@ -67,7 +36,7 @@ export default function RainDrops({
 }) {
   const half = size / 2;
 
-  const drops = useMemo(
+  const drops = useMemo<DropState[]>(
     () =>
       Array.from({ length: count }, (_, i) => ({
         x: rr(i * 5, -half, half),
@@ -79,16 +48,41 @@ export default function RainDrops({
     [count, half, height, speed]
   );
 
+  const meshRefs = useRef<(Mesh | null)[]>([]);
+  const yState = useRef<number[]>([]);
+
+  useEffect(() => {
+    yState.current = drops.map((d) => d.startY);
+  }, [drops]);
+
+  useFrame((_, delta) => {
+    for (let i = 0; i < drops.length; i++) {
+      const mesh = meshRefs.current[i];
+      if (!mesh) continue;
+      const s = drops[i];
+
+      yState.current[i] -= s.speed * delta;
+      if (yState.current[i] < 0) yState.current[i] = height;
+
+      const y = yState.current[i];
+      mesh.position.y = y;
+      mesh.position.x = s.x + (height - y) * s.windX * 0.04;
+    }
+  });
+
   return (
     <>
       {drops.map((state, i) => (
-        <SingleDrop
+        <mesh
           key={i}
-          state={state}
-          height={height}
-          color={color}
-          opacity={opacity}
-        />
+          ref={(el) => {
+            meshRefs.current[i] = el;
+          }}
+          position={[state.x, state.startY, state.z]}
+        >
+          <cylinderGeometry args={[0.012, 0.004, 0.22, 3]} />
+          <meshBasicMaterial color={color} transparent opacity={opacity} />
+        </mesh>
       ))}
     </>
   );

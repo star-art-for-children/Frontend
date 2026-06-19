@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Mesh } from 'three';
 
@@ -22,42 +22,6 @@ type SnowState = {
   initialT: number;
 };
 
-function SingleFlake({
-  state,
-  height,
-  color,
-  opacity,
-}: {
-  state: SnowState;
-  height: number;
-  color: string;
-  opacity: number;
-}) {
-  const ref = useRef<Mesh>(null);
-  const y = useRef(state.startY);
-  const t = useRef(state.initialT);
-
-  useFrame((_, delta) => {
-    if (!ref.current) return;
-    y.current -= state.speed * delta;
-    t.current += delta * 0.5;
-
-    if (y.current < 0) y.current = height;
-
-    ref.current.position.x = state.x + Math.sin(t.current + state.driftX) * 0.3;
-    ref.current.position.y = y.current;
-    ref.current.position.z =
-      state.z + Math.cos(t.current * 0.7 + state.driftZ) * 0.3;
-  });
-
-  return (
-    <mesh ref={ref} position={[state.x, state.startY, state.z]}>
-      <sphereGeometry args={[state.size, 8, 8]} />
-      <meshBasicMaterial color={color} transparent opacity={opacity} />
-    </mesh>
-  );
-}
-
 export default function FallingSnow({
   count = 60,
   size,
@@ -75,7 +39,7 @@ export default function FallingSnow({
 }) {
   const half = size / 2;
 
-  const flakes = useMemo(
+  const flakes = useMemo<SnowState[]>(
     () =>
       Array.from({ length: count }, (_, i) => ({
         x: rr(i * 6, -half, half),
@@ -90,16 +54,47 @@ export default function FallingSnow({
     [count, half, height, speed]
   );
 
+  const meshRefs = useRef<(Mesh | null)[]>([]);
+  const yState = useRef<number[]>([]);
+  const tState = useRef<number[]>([]);
+
+  useEffect(() => {
+    yState.current = flakes.map((f) => f.startY);
+    tState.current = flakes.map((f) => f.initialT);
+  }, [flakes]);
+
+  useFrame((_, delta) => {
+    for (let i = 0; i < flakes.length; i++) {
+      const mesh = meshRefs.current[i];
+      if (!mesh) continue;
+      const s = flakes[i];
+
+      yState.current[i] -= s.speed * delta;
+      tState.current[i] += delta * 0.5;
+
+      if (yState.current[i] < 0) yState.current[i] = height;
+
+      const y = yState.current[i];
+      const t = tState.current[i];
+      mesh.position.x = s.x + Math.sin(t + s.driftX) * 0.3;
+      mesh.position.y = y;
+      mesh.position.z = s.z + Math.cos(t * 0.7 + s.driftZ) * 0.3;
+    }
+  });
+
   return (
     <>
       {flakes.map((state, i) => (
-        <SingleFlake
+        <mesh
           key={i}
-          state={state}
-          height={height}
-          color={color}
-          opacity={opacity}
-        />
+          ref={(el) => {
+            meshRefs.current[i] = el;
+          }}
+          position={[state.x, state.startY, state.z]}
+        >
+          <sphereGeometry args={[state.size, 8, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={opacity} />
+        </mesh>
       ))}
     </>
   );
