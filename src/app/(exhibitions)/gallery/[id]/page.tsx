@@ -220,7 +220,7 @@ export default function GalleryExhibitionPage() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
- }, [started, user, openBook, closeBook]);
+  }, [started, user, openBook, closeBook]);
 
   if (initError) {
     return (
