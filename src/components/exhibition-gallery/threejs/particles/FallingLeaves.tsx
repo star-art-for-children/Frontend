@@ -17,7 +17,6 @@ function rr(seed: number, min: number, max: number): number {
   return min + sr(seed) * (max - min);
 }
 
-/** 초록 → 단풍(갈색/주황) 잎 색 팔레트 */
 const LEAF_COLORS = ['#6BA34A', '#4F8C3A', '#C9882E', '#B5651D', '#D9A441'];
 
 type LeafState = {
@@ -32,43 +31,6 @@ type LeafState = {
   initialRotY: number;
   colorIndex: number;
 };
-
-function SingleLeaf({
-  state,
-  height,
-  geometry,
-  material,
-}: {
-  state: LeafState;
-  height: number;
-  geometry: ShapeGeometry;
-  material: MeshStandardMaterial;
-}) {
-  const ref = useRef<Group>(null);
-  const y = useRef(state.startY);
-  const rotY = useRef(state.initialRotY);
-
-  useFrame((_, delta) => {
-    if (!ref.current) return;
-    y.current -= state.speed * delta;
-    rotY.current += state.rotSpeed * delta;
-
-    if (y.current < -0.5) y.current = height + rr(y.current * 1000, 0, height);
-
-    ref.current.position.x = state.x + Math.sin(y.current * 0.5) * state.driftX;
-    ref.current.position.y = y.current;
-    ref.current.position.z = state.z + Math.cos(y.current * 0.4) * state.driftZ;
-    ref.current.rotation.y = rotY.current;
-    ref.current.rotation.x = Math.sin(y.current * 0.7) * 0.6;
-    ref.current.rotation.z = Math.cos(y.current * 0.5) * 0.4;
-  });
-
-  return (
-    <group ref={ref} scale={state.scale}>
-      <mesh geometry={geometry} material={material} castShadow />
-    </group>
-  );
-}
 
 export default function FallingLeaves({
   count = 40,
@@ -114,7 +76,7 @@ export default function FallingLeaves({
     [geometry, materials]
   );
 
-  const leaves = useMemo(
+  const leaves = useMemo<LeafState[]>(
     () =>
       Array.from({ length: count }, (_, i) => ({
         x: rr(i * 7, -half, half),
@@ -131,16 +93,54 @@ export default function FallingLeaves({
     [count, half, height, speed]
   );
 
+  const groupRefs = useRef<(Group | null)[]>([]);
+  const yState = useRef<number[]>([]);
+  const rotYState = useRef<number[]>([]);
+
+  useEffect(() => {
+    yState.current = leaves.map((l) => l.startY);
+    rotYState.current = leaves.map((l) => l.initialRotY);
+  }, [leaves]);
+
+  useFrame((_, delta) => {
+    for (let i = 0; i < leaves.length; i++) {
+      const group = groupRefs.current[i];
+      if (!group) continue;
+      const s = leaves[i];
+
+      yState.current[i] -= s.speed * delta;
+      rotYState.current[i] += s.rotSpeed * delta;
+
+      if (yState.current[i] < -0.5) {
+        yState.current[i] = height + rr(yState.current[i] * 1000, 0, height);
+      }
+
+      const y = yState.current[i];
+      group.position.x = s.x + Math.sin(y * 0.5) * s.driftX;
+      group.position.y = y;
+      group.position.z = s.z + Math.cos(y * 0.4) * s.driftZ;
+      group.rotation.y = rotYState.current[i];
+      group.rotation.x = Math.sin(y * 0.7) * 0.6;
+      group.rotation.z = Math.cos(y * 0.5) * 0.4;
+    }
+  });
+
   return (
     <>
       {leaves.map((state, i) => (
-        <SingleLeaf
+        <group
           key={i}
-          state={state}
-          height={height}
-          geometry={geometry}
-          material={materials[state.colorIndex]}
-        />
+          ref={(el) => {
+            groupRefs.current[i] = el;
+          }}
+          scale={state.scale}
+        >
+          <mesh
+            geometry={geometry}
+            material={materials[state.colorIndex]}
+            castShadow
+          />
+        </group>
       ))}
     </>
   );

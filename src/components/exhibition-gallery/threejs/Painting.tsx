@@ -110,9 +110,11 @@ export default function Painting({
   }, [videoUrl]);
 
   useFrame(({ camera, clock }) => {
+    if (!videoUrl) return;
+
     // 영상 작품 프레임: 빛 띠(그라데이션)가 프레임을 따라 흐르고
     // 전체 밝기도 은은하게 맥동
-    if (videoUrl && frameMatRef.current) {
+    if (frameMatRef.current) {
       const t = clock.elapsedTime;
       if (sweepTextureRef.current) {
         sweepTextureRef.current.offset.x = -t * 0.3;
