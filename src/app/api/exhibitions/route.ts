@@ -10,6 +10,7 @@ import { checkRole } from '@/lib/gallery/checkRole';
 import { parseFormDataToObj } from '@/lib/gallery/parseForm';
 import { validateExhibition } from '@/lib/gallery/validateExhibitionForm';
 import { generatePresetFromImageUrl } from '@/lib/gallery/server';
+import { isPublicStorageUrl } from '@/lib/supabase/storageUrl';
 import { defaultPreset } from '@/lib/gallery/presets';
 import {
   withCreditSpend,
@@ -99,6 +100,14 @@ export async function POST(req: NextRequest) {
 
     const thumbnailUrl =
       typeof thumbnailImg === 'string' && thumbnailImg ? thumbnailImg : null;
+
+    if (thumbnailUrl && !isPublicStorageUrl(thumbnailUrl, 'thumbnails')) {
+      return NextResponse.json(
+        { message: 'invalid thumbnail url' },
+        { status: 400 }
+      );
+    }
+
     let gallery_preset = null;
 
     if (thumbnailUrl) {

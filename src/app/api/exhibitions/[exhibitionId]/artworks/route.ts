@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 import { getUserIdByEmail } from '@/lib/gallery/user';
+import { isPublicStorageUrl } from '@/lib/supabase/storageUrl';
 
 export async function POST(
   req: NextRequest,
@@ -54,6 +55,17 @@ export async function POST(
     const description = body.get('description');
 
     const imageUrl = body.get('image_url');
+
+    if (
+      typeof imageUrl === 'string' &&
+      imageUrl &&
+      !isPublicStorageUrl(imageUrl, 'artworks')
+    ) {
+      return NextResponse.json(
+        { message: 'invalid image url' },
+        { status: 400 }
+      );
+    }
 
     const { data, error } = await supabase
       .from('artworks')

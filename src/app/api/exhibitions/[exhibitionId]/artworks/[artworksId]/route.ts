@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 import { getUserIdByEmail } from '@/lib/gallery/user';
+import { isPublicStorageUrl } from '@/lib/supabase/storageUrl';
 
 export async function PUT(
   req: NextRequest,
@@ -37,6 +38,17 @@ export async function PUT(
     const artist_name = body.get('artist_name');
     const description = body.get('description') || null;
     const imageUrl = body.get('image_url');
+
+    if (
+      typeof imageUrl === 'string' &&
+      imageUrl &&
+      !isPublicStorageUrl(imageUrl, 'artworks')
+    ) {
+      return NextResponse.json(
+        { message: 'invalid image url' },
+        { status: 400 }
+      );
+    }
 
     const updates: Record<string, unknown> = {
       title,
