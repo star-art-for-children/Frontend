@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { UIFormProps } from '@/types/gallery';
 import ImageUploadBox from '@/components/shared/ImageUploadBox';
+import { uploadViaSignedUrl } from '@/lib/supabase/uploadClient';
 import { useCallback, useEffect, useState } from 'react';
 import CreateGalleryFormWrapper from './FormWrapper';
 import {
@@ -103,7 +104,16 @@ export default function CreateGalleryPage({
       formData.append('galleryName', e.galleryName);
       formData.append('galleryDesc', e.galleryDesc);
 
-      if (e.galleryImg) formData.append('galleryImg', e.galleryImg);
+      // 썸네일은 제출 전 Supabase로 직접 업로드(Vercel 4.5MB 우회) 후 URL만 전송
+      if (e.galleryImg instanceof File) {
+        try {
+          const url = await uploadViaSignedUrl(e.galleryImg, 'thumbnails');
+          formData.append('galleryImg', url);
+        } catch (err) {
+          alert(err instanceof Error ? err.message : '이미지 업로드 실패');
+          return;
+        }
+      }
       if (e.guideLines) formData.append('guideLines', e.guideLines);
 
       formData.append('startDate', e.startDate);

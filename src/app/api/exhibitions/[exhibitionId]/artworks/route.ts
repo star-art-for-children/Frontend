@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 import { getUserIdByEmail } from '@/lib/gallery/user';
-import {
-  ImageUploadValidationError,
-  uploadImgToSupabase,
-} from '@/lib/supabase/uploadImage';
+import { isPublicStorageUrl } from '@/lib/supabase/storageUrl';
 
 export async function POST(
   req: NextRequest,
@@ -56,11 +53,18 @@ export async function POST(
     const title = body.get('title');
     const artist_name = body.get('artist_name');
     const description = body.get('description');
-    const imageUrlRaw = body.get('image_url');
 
-    let imageUrl;
-    if (imageUrlRaw instanceof File) {
-      imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
+    const imageUrl = body.get('image_url');
+
+    if (
+      typeof imageUrl === 'string' &&
+      imageUrl &&
+      !isPublicStorageUrl(imageUrl, 'artworks')
+    ) {
+      return NextResponse.json(
+        { message: 'invalid image url' },
+        { status: 400 }
+      );
     }
 
     const { data, error } = await supabase
@@ -89,11 +93,6 @@ export async function POST(
       { status: 200 }
     );
   } catch (e) {
-    // 이미지 검증 오류일 경우 400에러 반환
-    if (e instanceof ImageUploadValidationError) {
-      return NextResponse.json({ message: e.message }, { status: 400 });
-    }
-
     console.log(e);
     return NextResponse.json({ message: 'unkwon Error' }, { status: 500 });
   }

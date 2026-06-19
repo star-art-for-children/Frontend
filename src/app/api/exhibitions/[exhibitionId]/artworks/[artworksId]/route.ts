@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
 import { getUserIdByEmail } from '@/lib/gallery/user';
-import {
-  ImageUploadValidationError,
-  uploadImgToSupabase,
-} from '@/lib/supabase/uploadImage';
+import { isPublicStorageUrl } from '@/lib/supabase/storageUrl';
 
 export async function PUT(
   req: NextRequest,
@@ -40,11 +37,17 @@ export async function PUT(
     const title = body.get('title');
     const artist_name = body.get('artist_name');
     const description = body.get('description') || null;
-    const imageUrlRaw = body.get('image_url');
+    const imageUrl = body.get('image_url');
 
-    let imageUrl = imageUrlRaw;
-    if (imageUrlRaw instanceof File) {
-      imageUrl = await uploadImgToSupabase(supabase, imageUrlRaw, 'artworks');
+    if (
+      typeof imageUrl === 'string' &&
+      imageUrl &&
+      !isPublicStorageUrl(imageUrl, 'artworks')
+    ) {
+      return NextResponse.json(
+        { message: 'invalid image url' },
+        { status: 400 }
+      );
     }
 
     const updates: Record<string, unknown> = {
@@ -91,11 +94,6 @@ export async function PUT(
     );
     // console.log(artworkId,body)
   } catch (err) {
-    // 이미지 검증 에러일 경우 400애러 반환
-    if (err instanceof ImageUploadValidationError) {
-      return NextResponse.json({ message: err.message }, { status: 400 });
-    }
-
     console.log(err);
     return NextResponse.json({ message: 'unkwon Error' }, { status: 500 });
   }

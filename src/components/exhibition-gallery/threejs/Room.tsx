@@ -14,6 +14,7 @@ import { defaultPreset } from '@/lib/gallery/presets';
 import InnerWalls from '@/components/exhibition-gallery/threejs/InnerWall';
 import Walls from '@/components/exhibition-gallery/threejs/Walls';
 import DynamicFloor from '@/components/exhibition-gallery/threejs/DynamicFloor';
+import { optimizedTextureUrl } from '@/lib/gallery/optimizedTextureUrl';
 import * as THREE from 'three';
 
 export default function Room({
@@ -47,7 +48,10 @@ export default function Room({
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
   const stampLoadingRef = useRef(false);
-  const urls = useMemo(() => artworks.map((x) => x.image_url), [artworks]);
+  const urls = useMemo(
+    () => artworks.map((x) => optimizedTextureUrl(x.image_url)),
+    [artworks]
+  );
   const paintingTextures = useTexture(urls);
 
   // 벽 패턴 텍스처는 한 번만 생성해 외벽/내벽이 공유한다.

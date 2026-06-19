@@ -24,7 +24,7 @@ export type FloorPatternSpec = {
  */
 export const FLOOR_PATTERNS: Record<string, FloorPatternSpec> = {
   wood: {
-    source: { type: 'image', url: '/gallery/floor.jpg' },
+    source: { type: 'image', url: '/gallery/floor.webp' },
     repeatDivisor: 8,
     mixBlur: 0.8,
     mixStrength: 1,

@@ -15,6 +15,7 @@ import {
 } from '@/lib/artwork/service';
 import { useEffect, useState } from 'react';
 import { ArtworkFormUi, ArtworkWithEmail } from '@/types/artwork';
+import { uploadViaSignedUrl } from '@/lib/supabase/uploadClient';
 
 type WorkDialogProps =
   | { mode: 'add'; triggerLabel?: string; triggerClassName?: string }
@@ -74,7 +75,19 @@ export default function WorkDialog(props: WorkDialogProps) {
     }
     formData.append('artist_name', e.artist_name);
     formData.append('title', e.title);
-    formData.append('image_url', e.image_url);
+
+    // 신규 이미지는 제출 전 직접 업로드(Vercel 4.5MB 우회) 후 URL만 전송.
+    // 수정 모드에서 이미지를 교체하지 않았다면 기존 URL(string)을 그대로 전송.
+    let imageUrl = e.image_url;
+    if (e.image_url instanceof File) {
+      try {
+        imageUrl = await uploadViaSignedUrl(e.image_url, 'artworks');
+      } catch (err) {
+        alert(err instanceof Error ? err.message : '이미지 업로드 실패');
+        return;
+      }
+    }
+    formData.append('image_url', imageUrl as string);
     try {
       if (work) {
         await putArtWorkByArtWorkId(id, work.id, formData);
