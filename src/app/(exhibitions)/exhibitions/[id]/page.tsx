@@ -111,6 +111,22 @@ export default async function ExhibitionDetail({
           </p>
         </section>
 
+        {/* 3D 갤러리 입장 버튼 섹션 */}
+        <section className="overflow-hidden rounded-2xl bg-linear-to-r from-[#F5A623] to-[#F37C5A] p-8 text-center text-white">
+          <h2 className="text-xl font-bold">3D 가상 전시장에서 관람하기</h2>
+          <p className="mt-2 text-sm text-white/90">
+            실제 갤러리를 걷는 것처럼 작품을 감상해보세요
+          </p>
+          <Link
+            href={`/gallery/${exhibition.id}`}
+            className="mt-5 inline-flex h-12 items-center gap-1.5 rounded-xl bg-white px-7 text-sm font-medium text-[#F5A623] shadow-sm transition-colors hover:bg-white/90"
+          >
+            <span>🎨</span>
+            전시회 입장하기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+
         {/* 전시 작품 */}
         {exhibition.works && exhibition.works.length > 0 && (
           <section className="space-y-4">
@@ -144,22 +160,6 @@ export default async function ExhibitionDetail({
             </div>
           </section>
         )}
-
-        {/* 3D 갤러리 입장 버튼 섹션 */}
-        <section className="overflow-hidden rounded-2xl bg-linear-to-r from-[#F5A623] to-[#F37C5A] p-8 text-center text-white">
-          <h2 className="text-xl font-bold">3D 가상 전시장에서 관람하기</h2>
-          <p className="mt-2 text-sm text-white/90">
-            실제 갤러리를 걷는 것처럼 작품을 감상해보세요
-          </p>
-          <Link
-            href={`/gallery/${exhibition.id}`}
-            className="mt-5 inline-flex h-12 items-center gap-1.5 rounded-xl bg-white px-7 text-sm font-medium text-[#F5A623] shadow-sm transition-colors hover:bg-white/90"
-          >
-            <span>🎨</span>
-            전시회 입장하기
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </section>
 
         {/* 관람 후기 */}
         <ReviewSection
