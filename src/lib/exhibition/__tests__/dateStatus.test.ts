@@ -12,9 +12,9 @@ describe('getStatus — endedAt 우선순위', () => {
   });
 
   it('ended_at이 과거면 날짜 범위가 진행중이어도 ended', () => {
-    expect(
-      getStatus('2026-06-01', '2026-12-31', '2026-06-20T00:00:00Z')
-    ).toBe('ended');
+    expect(getStatus('2026-06-01', '2026-12-31', '2026-06-20T00:00:00Z')).toBe(
+      'ended'
+    );
   });
 
   it('ended_at이 null이면 기존 날짜 로직대로 ongoing', () => {
@@ -26,8 +26,8 @@ describe('getStatus — endedAt 우선순위', () => {
   });
 
   it('ended_at이 미래면 무시하고 날짜 로직대로 ongoing', () => {
-    expect(
-      getStatus('2026-06-01', '2026-12-31', '2026-12-30T00:00:00Z')
-    ).toBe('ongoing');
+    expect(getStatus('2026-06-01', '2026-12-31', '2026-12-30T00:00:00Z')).toBe(
+      'ongoing'
+    );
   });
 });

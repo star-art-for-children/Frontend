@@ -164,7 +164,11 @@ export default function EditExhibitionDialog({
           <div className="flex justify-end gap-2 pt-2">
             <DialogClose
               render={
-                <Button type="button" variant="surface" className="rounded-xl" />
+                <Button
+                  type="button"
+                  variant="surface"
+                  className="rounded-xl"
+                />
               }
             >
               취소
