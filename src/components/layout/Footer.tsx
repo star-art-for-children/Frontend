@@ -1,38 +1,44 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { getAuthContext } from '@/lib/auth/getAuthContext';
 
-const footerLinks = [
-  {
-    title: '서비스',
-    links: [
-      { label: '전체 전시회', href: '/' },
-      { label: '회원가입', href: '/signup' },
-    ],
-  },
-  {
-    title: '안내',
-    links: [
-      { label: '서비스 소개', href: '/' },
-      { label: '이용약관', href: '/' },
-      { label: '문의하기', href: '/' },
-    ],
-  },
-];
+export default async function Footer() {
+  const { user, onboarded } = await getAuthContext();
+  const isAuthed = !!user && onboarded;
 
-export default function Footer() {
+  const footerLinks = [
+    {
+      title: '서비스',
+      links: [{ label: '전체 전시회', href: '/' }],
+    },
+    {
+      title: '계정',
+      links: isAuthed
+        ? [
+            { label: '마이페이지', href: '/my-page' },
+            { label: '위시리스트', href: '/wish-list' },
+            { label: '내 작품 모아보기', href: '/artworks' },
+          ]
+        : [
+            { label: '로그인', href: '/login' },
+            { label: '회원가입', href: '/signup' },
+          ],
+    },
+  ];
+
   return (
     <footer className="bg-secondary text-white">
       <div className="mx-auto max-w-6xl px-3.5 py-12">
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div className="max-w-sm">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-1">
               <Image
                 src="/images/logo.svg"
                 alt="스타아트 로고"
-                width={32}
-                height={32}
+                width={42}
+                height={42}
               />
-              <span className="text-lg font-bold text-white">스타아트</span>
+              <span className="text-xl font-bold text-white">스타아트</span>
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-white/50">
               아이들의 창작물을 진지한 예술 작품으로,
