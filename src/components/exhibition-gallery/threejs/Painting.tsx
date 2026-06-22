@@ -12,7 +12,7 @@ import {
 } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
-import { Download, Heart, Play } from 'lucide-react';
+import { Download, Heart } from 'lucide-react';
 import { checkImgSize } from '@/lib/gallery/image';
 import { GalleryUIArtworkProps } from '@/types/gallery';
 
@@ -41,6 +41,31 @@ function createGoldSweepTexture() {
   const tex = new CanvasTexture(canvas);
   tex.wrapS = RepeatWrapping;
   tex.wrapT = RepeatWrapping;
+  return tex;
+}
+
+// 영상 작품 ▶ 배지 텍스처 (원형 + 흰 삼각형). 모든 작품이 공유 — 1회만 생성
+let playBadgeTexture: CanvasTexture | null = null;
+function getPlayBadgeTexture() {
+  if (playBadgeTexture) return playBadgeTexture;
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.beginPath();
+  ctx.arc(32, 32, 30, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(26, 19);
+  ctx.lineTo(47, 32);
+  ctx.lineTo(26, 45);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  const tex = new CanvasTexture(canvas);
+  tex.colorSpace = SRGBColorSpace;
+  playBadgeTexture = tex;
   return tex;
 }
 
@@ -206,21 +231,18 @@ export default function Painting({
         <meshStandardMaterial map={img} />
       </mesh>
 
-      {/* 영상 변환 작품 ▶ 배지 — 액자 우하단 모서리 */}
+      {/* 영상 변환 작품 ▶ 배지 — 액자 우하단 모서리.
+          Html이 아닌 실제 3D 메시라 깊이 테스트로 벽이 자동으로 가림 (레이캐스팅 없음) */}
       {videoUrl && (
-        <Html
-          transform
-          occlude
-          position={[imgW / 2 + FRAME_M, -imgH / 2 - FRAME_M, 0.12]}
-          distanceFactor={2}
-          center
-          zIndexRange={[30, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm">
-            <Play size={13} className="ml-0.5 fill-white text-white" />
-          </div>
-        </Html>
+        <mesh position={[imgW / 2 + FRAME_M, -imgH / 2 - FRAME_M, 0.12]}>
+          <planeGeometry args={[0.22, 0.22]} />
+          <meshBasicMaterial
+            map={getPlayBadgeTexture()}
+            transparent
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
       )}
 
       {/* 작품 정보 */}
