@@ -9,7 +9,7 @@ import {
   CREDIT_COSTS,
 } from '@/lib/payments/credit';
 
-export const maxDuration = 180;
+export const maxDuration = 300;
 
 fal.config({ credentials: process.env.FALAI_API_KEY });
 
@@ -69,19 +69,16 @@ export async function POST(
         cost: CREDIT_COSTS.animate,
         ref: randomUUID(),
         run: async () => {
-          const result = await fal.subscribe(
-            'fal-ai/wan-25-preview/image-to-video',
-            {
-              input: {
-                image_url: artwork.image_url,
-                prompt:
-                  "A children's hand-drawn illustration comes to life with soft, looping animation. The main subject gently moves: characters walk in place or sway, animals breathe and blink, plants and trees rustle slowly, water ripples calmly. Background elements move subtly at a slower pace than foreground. Strictly preserve the original flat 2D illustration style, crayon and paint textures, and color palette. Characters maintain their original shape and proportions throughout. No photorealism. No camera movement. Smooth, cute, cheerful motion.",
-                negative_prompt:
-                  'photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change',
-                resolution: '480p',
-              },
-            }
-          );
+          const result = await fal.subscribe('fal-ai/wan/v2.7/image-to-video', {
+            input: {
+              image_url: artwork.image_url,
+              prompt:
+                "A children's hand-drawn illustration comes to life with soft, looping animation. The main subject gently moves: characters walk in place or sway, animals breathe and blink, plants and trees rustle slowly, water ripples calmly. Background elements move subtly at a slower pace than foreground. Strictly preserve the original flat 2D illustration style, crayon and paint textures, and color palette. Characters maintain their original shape and proportions throughout. No photorealism. No camera movement. Smooth, cute, cheerful motion.",
+              negative_prompt:
+                'photorealistic, 3D render, morphing, warping, distortion, flickering, camera pan, camera zoom, blurry, deformed characters, style change',
+              resolution: '1080p',
+            },
+          });
 
           const url = (result.data as { video?: { url?: string } })?.video?.url;
           if (!url) {
