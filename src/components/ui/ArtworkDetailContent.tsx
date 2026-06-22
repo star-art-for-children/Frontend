@@ -146,6 +146,25 @@ export default function ArtworkDetailContent({
               {showVideo ? '🖼 이미지 보기' : '▶ 영상 보기'}
             </button>
           )}
+
+          {/* 영상 생성 대기 로딩 오버레이 (~1-2분 소요) */}
+          {isAnimating && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/80 px-6 text-center backdrop-blur-sm">
+              <div className="relative flex h-14 w-14 items-center justify-center">
+                <span className="absolute inset-0 animate-ping rounded-full bg-purple-300/50" />
+                <span className="absolute inset-1.5 rounded-full bg-purple-100" />
+                <span className="relative animate-pulse text-2xl">✨</span>
+              </div>
+              <p className="text-[14px] font-bold text-purple-700">
+                작품을 영상으로 만들고 있어요
+              </p>
+              <p className="text-[12px] leading-relaxed text-[#6b6b6b]">
+                보통 1~2분 정도 걸려요.
+                <br />
+                창을 닫지 말고 잠시만 기다려 주세요.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* 정보 패널 */}
