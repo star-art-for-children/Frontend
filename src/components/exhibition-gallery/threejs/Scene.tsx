@@ -254,6 +254,7 @@ export default function Scene2({
         <RemotePlayers
           playerInfo={playerInfo}
           remotePlayersRef={remotePlayersRef}
+          size={roomSize}
         />
       )}
       <Player

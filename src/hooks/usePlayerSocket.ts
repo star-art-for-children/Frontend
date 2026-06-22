@@ -74,6 +74,10 @@ export function usePlayerSocket(
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const lastSentAt = useRef(0);
+  // 칭호는 입장 후 비동기로 로드된다. deps에 넣어 소켓을 재접속하면
+  // 입장 직후 leave/rejoin churn으로 위치 동기화가 꼬일 수 있어,
+  // ref로 들고 있다가 기존 연결로 join을 재전송(re-announce)해 갱신한다.
+  const titleRef = useRef(title);
 
   const remotePlayersRef = useRef<Map<string, RemotePlayerData>>(new Map());
   const userNamesRef = useRef<Map<string, string>>(new Map());
@@ -104,7 +108,13 @@ export function usePlayerSocket(
       const myName = userName ?? userId;
       userNamesRef.current.set(userId, myName);
       ws.send(
-        JSON.stringify({ type: 'join', userId, userName: myName, model, title })
+        JSON.stringify({
+          type: 'join',
+          userId,
+          userName: myName,
+          model,
+          title: titleRef.current,
+        })
       );
     };
 
@@ -167,7 +177,24 @@ export function usePlayerSocket(
       }
       ws.close();
     };
-  }, [exhibitionId, userId, userName, model, title]);
+  }, [exhibitionId, userId, userName, model]);
+
+  // 칭호 변경 시: 소켓 재접속 없이 기존 연결로 join 재전송 → 서버가 broadcast,
+  // 다른 클라가 upsert로 최신 칭호 반영
+  useEffect(() => {
+    titleRef.current = title;
+    const ws = wsRef.current;
+    if (!userId || !ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(
+      JSON.stringify({
+        type: 'join',
+        userId,
+        userName: userName ?? userId,
+        model,
+        title,
+      })
+    );
+  }, [title, userId, userName, model]);
 
   const sendMove = useCallback(
     (camera: THREE.Camera) => {
