@@ -44,6 +44,11 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   },
 ];
 
+// 칭호명 → 대표 이모지 아이콘 (이름표 등에서 칭호 옆 표시용)
+export const TITLE_ICONS: Record<string, string> = Object.fromEntries(
+  ACHIEVEMENTS.map((a) => [a.title, a.icon])
+);
+
 // 주어진 진행 상황으로 업적 달성 여부 판정
 export function isAchieved(
   condition: AchievementCondition,

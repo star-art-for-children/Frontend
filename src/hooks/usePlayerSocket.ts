@@ -15,6 +15,7 @@ export type PlayerInfo = {
   userId: string;
   userName: string;
   model: CharacterModel;
+  title?: string | null;
 };
 
 export type ChatHistory = { userId: string; userName: string; message: string };
@@ -24,7 +25,13 @@ type ChatRaw = {
   message: string;
 };
 type OutboundMessage =
-  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
+  | {
+      type: 'join';
+      userId: string;
+      userName: string;
+      model: CharacterModel;
+      title?: string | null;
+    }
   | { type: 'leave'; userId: string }
   | {
       type: 'move';
@@ -45,7 +52,13 @@ type InboundMessage =
       z: number;
       yaw: number;
     }
-  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
+  | {
+      type: 'join';
+      userId: string;
+      userName: string;
+      model: CharacterModel;
+      title?: string | null;
+    }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string }
   | { type: 'messageInit'; userId: string; messages: ChatRaw[] };
@@ -56,7 +69,8 @@ export function usePlayerSocket(
   exhibitionId: string,
   userId: string | null,
   userName: string | null,
-  model: CharacterModel = 'human'
+  model: CharacterModel = 'human',
+  title: string | null = null
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const lastSentAt = useRef(0);
@@ -90,7 +104,7 @@ export function usePlayerSocket(
       const myName = userName ?? userId;
       userNamesRef.current.set(userId, myName);
       ws.send(
-        JSON.stringify({ type: 'join', userId, userName: myName, model })
+        JSON.stringify({ type: 'join', userId, userName: myName, model, title })
       );
     };
 
@@ -123,6 +137,7 @@ export function usePlayerSocket(
                   userId: msg.userId,
                   userName: msg.userName,
                   model: msg.model,
+                  title: msg.title ?? null,
                 },
               ]
         );
@@ -151,7 +166,7 @@ export function usePlayerSocket(
       }
       ws.close();
     };
-  }, [exhibitionId, userId, userName, model]);
+  }, [exhibitionId, userId, userName, model, title]);
 
   const sendMove = useCallback(
     (camera: THREE.Camera) => {
