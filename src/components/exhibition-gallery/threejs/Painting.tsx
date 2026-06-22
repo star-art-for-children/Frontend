@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 import {
   CanvasTexture,
   Group,
@@ -52,6 +52,8 @@ export default function Painting({
   paintingRef,
   htmlRef,
   videoUrl,
+  playerPosRef,
+  isThirdPerson = false,
 }: {
   img: Texture;
   details: GalleryUIArtworkProps;
@@ -60,6 +62,8 @@ export default function Painting({
   paintingRef?: (mesh: Group | null) => void;
   htmlRef?: (el: HTMLDivElement | null) => void;
   videoUrl?: string | null;
+  playerPosRef?: RefObject<Vector3>;
+  isThirdPerson?: boolean;
 }) {
   const localRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
@@ -123,8 +127,10 @@ export default function Painting({
     const videoData = videoDataRef.current;
     if (!localRef.current || !meshRef.current) return;
     localRef.current.getWorldPosition(worldPosRef.current);
-    const near =
-      camera.position.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
+    // 3인칭은 카메라가 플레이어에서 떨어져 궤도를 돌므로 플레이어 좌표 기준으로 판정
+    const refPos =
+      isThirdPerson && playerPosRef ? playerPosRef.current : camera.position;
+    const near = refPos.distanceTo(worldPosRef.current) < VIDEO_NEAR_THRESHOLD;
 
     if (videoData) {
       const videoReady = videoData.video.readyState >= 3;

@@ -29,6 +29,7 @@ export default function Room({
   wallColor = defaultPreset.wallColor,
   wallPattern,
   playerPosRef,
+  isThirdPerson = false,
 }: {
   init: GalleryUIArtworkProps[];
   size: number;
@@ -43,6 +44,7 @@ export default function Room({
   wallColor?: string;
   wallPattern?: WallPatternConfig;
   playerPosRef: RefObject<THREE.Vector3>;
+  isThirdPerson?: boolean;
 }) {
   const [artworks, setArtworks] = useState(init);
   const loadingRef = useRef(false);
@@ -258,6 +260,8 @@ export default function Room({
         paintingRefs={paintingRefs}
         htmlRefs={htmlRefs}
         wallTexture={wallTexture}
+        playerPosRef={playerPosRef}
+        isThirdPerson={isThirdPerson}
       />
     </>
   );

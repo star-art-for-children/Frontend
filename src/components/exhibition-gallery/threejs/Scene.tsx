@@ -236,6 +236,7 @@ export default function Scene2({
         wallColor={mergedPreset.wallColor}
         wallPattern={mergedPreset.wallPattern}
         playerPosRef={playerPosRef}
+        isThirdPerson={isThirdPerson ?? false}
       />
       <DynamicDecorations
         preset={mergedPreset}
