@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Texture } from 'three';
+import { Group, Texture, Vector3 } from 'three';
 import Painting from './Painting';
 import { GalleryUIArtworkProps, WAllType } from '@/types/gallery';
 
@@ -10,6 +10,8 @@ export default function InnerWalls({
   paintingRefs,
   htmlRefs,
   wallTexture = null,
+  playerPosRef,
+  isThirdPerson = false,
 }: {
   paintingTextures: Texture[];
   init: GalleryUIArtworkProps[];
@@ -17,6 +19,8 @@ export default function InnerWalls({
   paintingRefs: React.RefObject<(Group | null)[]>;
   htmlRefs: React.RefObject<(HTMLDivElement | null)[]>;
   wallTexture?: Texture | null;
+  playerPosRef?: React.RefObject<Vector3>;
+  isThirdPerson?: boolean;
 }) {
   let interiorBackIdx = walls.length;
   const assignments = walls.map((wall, i) => ({
@@ -56,6 +60,8 @@ export default function InnerWalls({
                   htmlRefs.current[front] = el;
                 }}
                 videoUrl={init[front].video_url}
+                playerPosRef={playerPosRef}
+                isThirdPerson={isThirdPerson}
               />
             )}
 
@@ -73,6 +79,8 @@ export default function InnerWalls({
                     htmlRefs.current[back] = el;
                   }}
                   videoUrl={init[back].video_url}
+                  playerPosRef={playerPosRef}
+                  isThirdPerson={isThirdPerson}
                 />
               </group>
             )}
