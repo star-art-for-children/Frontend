@@ -30,13 +30,15 @@ export default function GalleryExhibitionPage() {
   } = useGalleryData(id);
 
   const [selectedModel, setSelectedModel] = useState<CharacterModel>('human');
+  const [achievement, setAchievement] = useState<MyAchievements | null>(null);
 
   const { sendMove, sendMessage, remotePlayersRef, playerInfo, chatHistory } =
     usePlayerSocket(
       id,
       user?.id ?? null,
       user?.user_metadata?.username ?? 'guest',
-      selectedModel
+      selectedModel,
+      achievement?.selectedTitle ?? null
     );
 
   const [isSceneReady, setIsSceneReady] = useState(false);
@@ -51,7 +53,6 @@ export default function GalleryExhibitionPage() {
   );
   const [showStampComplete, setShowStampComplete] = useState(false);
   const [showStampBook, setShowStampBook] = useState(false);
-  const [achievement, setAchievement] = useState<MyAchievements | null>(null);
   // 도장 연출: key를 증가시켜 재마운트 → 애니메이션 재생
   const [stampFxId, setStampFxId] = useState(0);
   const stampAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -295,6 +296,7 @@ export default function GalleryExhibitionPage() {
             playerInfo={playerInfo}
             selectedModel={selectedModel}
             myName={myName}
+            myTitle={achievement?.selectedTitle ?? null}
             isThirdPerson={isThirdPerson}
             onToggleThirdPerson={() => setIsThirdPerson((v) => !v)}
           />

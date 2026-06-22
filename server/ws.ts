@@ -22,6 +22,7 @@ type RoomEntry = {
   chat: Chat[] | [];
   userName: string;
   model: CharacterModel;
+  title: string | null;
 };
 
 // roomId → (userId → RoomEntry)
@@ -78,7 +79,8 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       myUserId = userId;
       const userName = (msg.userName as string) || userId;
       const model = (msg.model as CharacterModel) || 'human';
-      room.set(userId, { ws, state: null, chat: [], userName, model });
+      const title = (msg.title as string) ?? null;
+      room.set(userId, { ws, state: null, chat: [], userName, model, title });
 
       console.log(
         `[ws] join  room=${roomId} userId=${userId} total=${room.size}`
@@ -93,6 +95,7 @@ wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
               userId: id,
               userName: entry.userName,
               model: entry.model,
+              title: entry.title,
             })
           );
           if (entry.state) {

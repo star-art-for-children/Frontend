@@ -15,6 +15,7 @@ export type PlayerInfo = {
   userId: string;
   userName: string;
   model: CharacterModel;
+  title?: string | null;
 };
 
 export type ChatHistory = { userId: string; userName: string; message: string };
@@ -24,7 +25,13 @@ type ChatRaw = {
   message: string;
 };
 type OutboundMessage =
-  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
+  | {
+      type: 'join';
+      userId: string;
+      userName: string;
+      model: CharacterModel;
+      title?: string | null;
+    }
   | { type: 'leave'; userId: string }
   | {
       type: 'move';
@@ -45,7 +52,13 @@ type InboundMessage =
       z: number;
       yaw: number;
     }
-  | { type: 'join'; userId: string; userName: string; model: CharacterModel }
+  | {
+      type: 'join';
+      userId: string;
+      userName: string;
+      model: CharacterModel;
+      title?: string | null;
+    }
   | { type: 'leave'; userId: string }
   | { type: 'message'; userId: string; message: string }
   | { type: 'messageInit'; userId: string; messages: ChatRaw[] };
@@ -56,7 +69,8 @@ export function usePlayerSocket(
   exhibitionId: string,
   userId: string | null,
   userName: string | null,
-  model: CharacterModel = 'human'
+  model: CharacterModel = 'human',
+  title: string | null = null
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const lastSentAt = useRef(0);
@@ -90,7 +104,7 @@ export function usePlayerSocket(
       const myName = userName ?? userId;
       userNamesRef.current.set(userId, myName);
       ws.send(
-        JSON.stringify({ type: 'join', userId, userName: myName, model })
+        JSON.stringify({ type: 'join', userId, userName: myName, model, title })
       );
     };
 
@@ -114,18 +128,20 @@ export function usePlayerSocket(
         ]);
       } else if (msg.type === 'join') {
         userNamesRef.current.set(msg.userId, msg.userName);
-        setPlayerInfo((prev) =>
-          prev.find((p) => p.userId === msg.userId)
-            ? prev
-            : [
-                ...prev,
-                {
-                  userId: msg.userId,
-                  userName: msg.userName,
-                  model: msg.model,
-                },
-              ]
-        );
+        setPlayerInfo((prev) => {
+          // 재접속(칭호 갱신 등) 시 기존 항목을 갱신(upsert)해 최신 title 반영
+          const nextEntry = {
+            userId: msg.userId,
+            userName: msg.userName,
+            model: msg.model,
+            title: msg.title ?? null,
+          };
+          const idx = prev.findIndex((p) => p.userId === msg.userId);
+          if (idx === -1) return [...prev, nextEntry];
+          const next = [...prev];
+          next[idx] = { ...next[idx], ...nextEntry };
+          return next;
+        });
       } else if (msg.type === 'leave') {
         remotePlayersRef.current.delete(msg.userId);
         userNamesRef.current.delete(msg.userId);
@@ -151,7 +167,7 @@ export function usePlayerSocket(
       }
       ws.close();
     };
-  }, [exhibitionId, userId, userName, model]);
+  }, [exhibitionId, userId, userName, model, title]);
 
   const sendMove = useCallback(
     (camera: THREE.Camera) => {

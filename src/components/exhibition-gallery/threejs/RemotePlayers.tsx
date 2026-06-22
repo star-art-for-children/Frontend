@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PlayerInfo, RemotePlayerData } from '@/hooks/usePlayerSocket';
+import { TITLE_ICONS } from '@/lib/achievements/definitions';
 import { Html } from '@react-three/drei';
 import HumanCharacter from './characters/HumanCharacter';
 import BunnyCharacter from './characters/BunnyCharacter';
@@ -19,6 +20,7 @@ function RemotePlayer({
   const playerId = playerInfo.userId;
   const playerName = playerInfo.userName;
   const playerModel = playerInfo.model;
+  const playerTitle = playerInfo.title;
   const initializedRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
@@ -48,8 +50,18 @@ function RemotePlayer({
     <group ref={groupRef} visible={visible}>
       {visible && (
         <Html position={[0, 1.9, 0]} center zIndexRange={[30, 0]}>
-          <div className="w-fit rounded-full bg-black/50 px-3 py-0.5 text-sm whitespace-nowrap text-white">
-            {playerName}
+          <div className="flex flex-col items-center gap-0.5">
+            {playerTitle && (
+              <div className="bg-primary/90 flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-white">
+                {TITLE_ICONS[playerTitle] && (
+                  <span>{TITLE_ICONS[playerTitle]}</span>
+                )}
+                {playerTitle}
+              </div>
+            )}
+            <div className="w-fit rounded-full bg-black/50 px-3 py-0.5 text-sm whitespace-nowrap text-white">
+              {playerName}
+            </div>
           </div>
         </Html>
       )}

@@ -49,6 +49,7 @@ export default function Scene2({
   remotePlayersRef,
   playerInfo,
   myName,
+  myTitle,
   selectedModel = 'human',
   isThirdPerson,
   onToggleThirdPerson,
@@ -64,6 +65,7 @@ export default function Scene2({
   remotePlayersRef?: React.RefObject<Map<string, RemotePlayerData>>;
   playerInfo?: PlayerInfo[];
   myName: string;
+  myTitle?: string | null;
   selectedModel?: CharacterModel;
   isThirdPerson?: boolean;
   onToggleThirdPerson?: () => void;
@@ -272,6 +274,7 @@ export default function Scene2({
       />
       <LocalPlayerCharacter
         myName={myName}
+        myTitle={myTitle}
         model={selectedModel}
         visible={isThirdPerson ?? false}
         playerPosRef={playerPosRef}
