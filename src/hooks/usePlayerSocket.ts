@@ -128,19 +128,20 @@ export function usePlayerSocket(
         ]);
       } else if (msg.type === 'join') {
         userNamesRef.current.set(msg.userId, msg.userName);
-        setPlayerInfo((prev) =>
-          prev.find((p) => p.userId === msg.userId)
-            ? prev
-            : [
-                ...prev,
-                {
-                  userId: msg.userId,
-                  userName: msg.userName,
-                  model: msg.model,
-                  title: msg.title ?? null,
-                },
-              ]
-        );
+        setPlayerInfo((prev) => {
+          // 재접속(칭호 갱신 등) 시 기존 항목을 갱신(upsert)해 최신 title 반영
+          const nextEntry = {
+            userId: msg.userId,
+            userName: msg.userName,
+            model: msg.model,
+            title: msg.title ?? null,
+          };
+          const idx = prev.findIndex((p) => p.userId === msg.userId);
+          if (idx === -1) return [...prev, nextEntry];
+          const next = [...prev];
+          next[idx] = { ...next[idx], ...nextEntry };
+          return next;
+        });
       } else if (msg.type === 'leave') {
         remotePlayersRef.current.delete(msg.userId);
         userNamesRef.current.delete(msg.userId);
