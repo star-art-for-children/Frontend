@@ -21,52 +21,59 @@ export default function ThemeSelector({
   hasThumb: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-5 gap-2">
-        {/* AI 자동 생성 카드 */}
+    <div className="flex flex-col gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
+        {/* AI 자동 생성 스와치 */}
         <button
           type="button"
           onClick={() => onChange(value === 'ai' ? null : 'ai')}
-          className={`flex flex-col overflow-hidden rounded-[10px] border-2 transition-all duration-150 ${
+          aria-label="AI 자동 생성"
+          title="AI 자동 생성"
+          className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full transition-all duration-200 ${
             !hasThumb
-              ? 'cursor-not-allowed opacity-40'
+              ? 'w-9 cursor-not-allowed bg-linear-to-br from-violet-400 to-indigo-500 opacity-30'
               : value === 'ai'
-                ? 'border-primary shadow-md'
-                : 'border-transparent hover:border-gray-200'
+                ? 'bg-indigo-50 pr-3.5 pl-1.5 text-sm font-semibold text-indigo-600 ring-2 ring-indigo-500'
+                : 'w-9 bg-linear-to-br from-violet-400 to-indigo-500 hover:scale-110'
           }`}
           disabled={!hasThumb}
         >
-          <div className="flex h-11 w-full items-center justify-center bg-gradient-to-br from-violet-400 to-indigo-500">
-            <Wand2 className="h-5 w-5 text-white" />
-          </div>
-          <div className="w-full bg-indigo-50 px-1 py-[5px] text-center text-[10px] leading-tight font-semibold text-indigo-600">
-            AI 자동
-          </div>
+          {value === 'ai' ? (
+            <>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-linear-to-br from-violet-400 to-indigo-500">
+                <Wand2 className="h-3.5 w-3.5 text-white" />
+              </span>
+              AI 자동
+            </>
+          ) : (
+            <Wand2 className="h-4 w-4 text-white" />
+          )}
         </button>
 
         {ALL_PRESETS.map((preset) => {
           const isSelected = value === preset.id;
+          const label = PRESET_LABELS[preset.id] ?? preset.id;
           return (
             <button
               key={preset.id}
               type="button"
               onClick={() => onChange(isSelected ? null : preset.id)}
-              className={`flex flex-col overflow-hidden rounded-[10px] border-2 transition-all duration-150 ${
+              aria-label={label}
+              title={label}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-full transition-all duration-200 ${
                 isSelected
-                  ? 'border-primary shadow-md'
-                  : 'border-transparent hover:border-gray-200'
+                  ? 'bg-primary/10 text-primary ring-primary pr-3.5 pl-1.5 text-sm font-semibold ring-2'
+                  : 'w-9 ring-1 ring-black/10 hover:scale-110'
               }`}
+              style={isSelected ? undefined : { background: getCardBg(preset) }}
             >
-              <div
-                className="h-11 w-full"
-                style={{ background: getCardBg(preset) }}
-              />
-              <div
-                className="w-full px-1 py-[5px] text-center text-[10px] leading-tight font-semibold text-gray-700"
-                style={{ backgroundColor: preset.floor.color || '#fff' }}
-              >
-                {PRESET_LABELS[preset.id] ?? preset.id}
-              </div>
+              {isSelected && (
+                <span
+                  className="h-6 w-6 rounded-full ring-1 ring-black/10"
+                  style={{ background: getCardBg(preset) }}
+                />
+              )}
+              {isSelected && label}
             </button>
           );
         })}
