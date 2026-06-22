@@ -1,5 +1,7 @@
 export type ExhibitionStatus = 'ongoing' | 'upcoming' | 'ended';
 
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 // 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
 export const todayKST = (): string => {
   return new Intl.DateTimeFormat('en-CA', {
@@ -8,6 +10,23 @@ export const todayKST = (): string => {
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+};
+
+const getKSTBoundaryTime = (
+  date: string,
+  boundary: 'start' | 'end'
+): number => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) return Number.NaN;
+
+  const [, year, month, day] = match;
+  const utcMidnight = Date.UTC(Number(year), Number(month) - 1, Number(day));
+
+  if (boundary === 'start') {
+    return utcMidnight - KST_OFFSET_MS;
+  }
+
+  return utcMidnight + (24 * 60 * 60 * 1000 - KST_OFFSET_MS) - 1;
 };
 
 export function getStatus(
@@ -23,20 +42,17 @@ export function getStatus(
     if (!Number.isNaN(ended) && now >= ended) return 'ended';
   }
 
-  const start = new Date(startDate);
-  const end = new Date(endDate ?? startDate);
+  const start = getKSTBoundaryTime(startDate, 'start');
+  const end = getKSTBoundaryTime(endDate ?? startDate, 'end');
 
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+  if (Number.isNaN(start) || Number.isNaN(end)) {
     console.warn('Invalid date:', { startDate, endDate });
     return 'ended';
   }
 
-  start.setHours(0, 0, 0, 0);
-  end.setHours(23, 59, 59, 999);
-
-  if (now < start.getTime()) return 'upcoming';
+  if (now < start) return 'upcoming';
   if (!endDate) return 'ongoing';
-  if (now > end.getTime()) return 'ended';
+  if (now > end) return 'ended';
   return 'ongoing';
 }
 

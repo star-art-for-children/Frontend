@@ -121,6 +121,12 @@ export async function PATCH(
 
     // (b) 즉시 종료 — 진행중 전시만 가능. 서버 시각으로 ended_at 설정.
     if (body.endNow === true) {
+      if (todayKST() === current.start_date) {
+        return NextResponse.json(
+          { message: 'cannot end exhibition on its start date' },
+          { status: 400 }
+        );
+      }
       if (status !== 'ongoing') {
         return NextResponse.json(
           { message: 'only ongoing exhibition can be ended' },

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { getStatus } from '../dateStatus';
+import { getStatus, todayKST } from '../dateStatus';
 
 describe('getStatus — endedAt 우선순위', () => {
   beforeEach(() => {
@@ -29,5 +29,23 @@ describe('getStatus — endedAt 우선순위', () => {
     expect(getStatus('2026-06-01', '2026-12-31', '2026-12-30T00:00:00Z')).toBe(
       'ongoing'
     );
+  });
+
+  it('한국 시간 기준 오늘 날짜를 반환한다', () => {
+    vi.setSystemTime(new Date('2026-06-21T15:30:00.000Z'));
+
+    expect(todayKST()).toBe('2026-06-22');
+  });
+
+  it('시작일 00:00 KST부터 ongoing으로 본다', () => {
+    vi.setSystemTime(new Date('2026-05-31T15:00:00.000Z'));
+
+    expect(getStatus('2026-06-01', '2026-12-31')).toBe('ongoing');
+  });
+
+  it('종료일 23:59:59 KST 이후 ended로 본다', () => {
+    vi.setSystemTime(new Date('2026-06-01T15:00:00.000Z'));
+
+    expect(getStatus('2026-06-01', '2026-06-01')).toBe('ended');
   });
 });

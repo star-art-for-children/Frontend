@@ -76,6 +76,21 @@ describe('PATCH /api/exhibitions/[exhibitionId]', () => {
     );
   });
 
+  it('전시 시작 당일에는 endNow=true여도 400', async () => {
+    currentRow.value = {
+      start_date: '2026-06-22',
+      end_date: '2026-12-31',
+      ended_at: null,
+    };
+
+    const res = await PATCH(makeReq({ endNow: true }), params);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      message: 'cannot end exhibition on its start date',
+    });
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
   it('진행중 전시에서 종료일을 과거로 바꾸면 400', async () => {
     const res = await PATCH(
       makeReq({
