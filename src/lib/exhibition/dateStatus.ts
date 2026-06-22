@@ -12,9 +12,17 @@ export const todayKST = (): string => {
 
 export function getStatus(
   startDate: string,
-  endDate?: string
+  endDate?: string | null,
+  endedAt?: string | null
 ): ExhibitionStatus {
   const now = Date.now();
+
+  // 즉시 종료(ended_at)가 설정되어 그 시각이 지났으면 최우선으로 ended.
+  if (endedAt) {
+    const ended = new Date(endedAt).getTime();
+    if (!Number.isNaN(ended) && now >= ended) return 'ended';
+  }
+
   const start = new Date(startDate);
   const end = new Date(endDate ?? startDate);
 

@@ -15,10 +15,10 @@ export default function ExhibitionCard({
   exhibition,
   isLoggedIn,
 }: ExhibitionCardProps) {
-  const { id, title, host, image, startDate, endDate, likes, liked } =
+  const { id, title, host, image, startDate, endDate, endedAt, likes, liked } =
     exhibition;
 
-  const status = getStatus(startDate, endDate ?? undefined);
+  const status = getStatus(startDate, endDate ?? undefined, endedAt);
   const dateText = formatDate(startDate, endDate ?? undefined);
 
   return (

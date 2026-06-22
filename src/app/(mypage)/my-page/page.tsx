@@ -61,7 +61,9 @@ export default async function MyPage() {
     // 선생님이면 본인이 만든 전시회 목록과 각 전시회의 작품 수를 함께 조회
     const { data: exhibitionsData, error: exhibitionsError } = await supabase
       .from('exhibitions')
-      .select('id, title, thumbnail_url, start_date, end_date, artworks(count)')
+      .select(
+        'id, title, thumbnail_url, start_date, end_date, ended_at, artworks(count)'
+      )
       .eq('teacher_id', user.id)
       .order('created_at', { ascending: false });
 
@@ -77,7 +79,11 @@ export default async function MyPage() {
       exhibitions: (exhibitionsData ?? []).map((ex) => {
         // dateStatus.ts의 getStatus()를 재사용해서 상태 계산
         // ongoing/upcoming → active, ended → ended 로 매핑
-        const rawStatus = getStatus(ex.start_date, ex.end_date ?? undefined);
+        const rawStatus = getStatus(
+          ex.start_date,
+          ex.end_date ?? undefined,
+          ex.ended_at
+        );
         const artworks = ex.artworks as { count: number }[] | null;
         return {
           id: ex.id,

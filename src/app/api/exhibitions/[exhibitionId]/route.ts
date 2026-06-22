@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { checkExhibitionOwner, checkRole } from '@/lib/gallery/checkRole';
+import { EditExhibitionSchema } from '@/lib/schemas/exhibition';
+import { getStatus, todayKST } from '@/lib/exhibition/dateStatus';
 
 import { GalleryPreset } from '@/types/gallery-theme';
 
@@ -99,12 +101,87 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const patch: Record<string, unknown> = {};
-    if ('end_date' in body) patch.end_date = body.end_date;
+
+    // 제약 재검증을 위해 현재 일정/종료 상태 조회
+    const { data: current, error: fetchError } = await supabase
+      .from('exhibitions')
+      .select('start_date, end_date, ended_at')
+      .eq('id', exhibitionId)
+      .single();
+
+    if (fetchError || !current) {
+      return NextResponse.json({ message: 'not found' }, { status: 404 });
+    }
+
+    const status = getStatus(
+      current.start_date,
+      current.end_date,
+      current.ended_at
+    );
+
+    // (b) 즉시 종료 — 진행중 전시만 가능. 서버 시각으로 ended_at 설정.
+    if (body.endNow === true) {
+      if (status !== 'ongoing') {
+        return NextResponse.json(
+          { message: 'only ongoing exhibition can be ended' },
+          { status: 400 }
+        );
+      }
+      const { error } = await supabase
+        .from('exhibitions')
+        .update({ ended_at: new Date().toISOString() })
+        .eq('id', exhibitionId);
+
+      if (error) {
+        console.error(error);
+        return NextResponse.json(
+          { message: 'failed to update exhibition' },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json(
+        { message: 'success', updatedId: exhibitionId },
+        { status: 200 }
+      );
+    }
+
+    // (a) 모달 저장 — 정보 수정
+    const parsed = EditExhibitionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ message: 'invalid input' }, { status: 400 });
+    }
+    const { title, description, startDateRaw, endDateRaw } = parsed.data;
+
+    // 상태별 날짜 제약 재검증
+    if (status === 'ended') {
+      return NextResponse.json(
+        { message: 'ended exhibition cannot be edited' },
+        { status: 400 }
+      );
+    }
+    if (status === 'ongoing') {
+      if (startDateRaw !== current.start_date) {
+        return NextResponse.json(
+          { message: 'cannot change start date of ongoing exhibition' },
+          { status: 400 }
+        );
+      }
+      if (endDateRaw && endDateRaw < todayKST()) {
+        return NextResponse.json(
+          { message: 'end date must be today or later' },
+          { status: 400 }
+        );
+      }
+    }
 
     const { error } = await supabase
       .from('exhibitions')
-      .update(patch)
+      .update({
+        title,
+        description,
+        start_date: startDateRaw,
+        end_date: endDateRaw ?? null,
+      })
       .eq('id', exhibitionId);
 
     if (error) {
@@ -121,6 +198,6 @@ export async function PATCH(
     );
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: 'unkwon error' }, { status: 500 });
+    return NextResponse.json({ message: 'unknown error' }, { status: 500 });
   }
 }

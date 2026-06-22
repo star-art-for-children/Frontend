@@ -32,3 +32,20 @@ export const ExhibitionSchema = z
       data.endDateRaw >= data.startDateRaw,
     { message: 'endDate must be after startDate' }
   );
+
+export const EditExhibitionSchema = z
+  .object({
+    title: z.string().trim().min(1, 'invalid title'),
+    description: z.string(),
+    startDateRaw: z.string().date('invalid startDate'),
+    endDateRaw: z.string().date('invalid endDate').nullable().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.endDateRaw ||
+      !data.startDateRaw ||
+      data.endDateRaw >= data.startDateRaw,
+    { message: 'endDate must be after startDate' }
+  );
+
+export type EditExhibitionInput = z.infer<typeof EditExhibitionSchema>;

@@ -18,15 +18,15 @@ export default async function Layout({
   const { data, error } = await supabase
     .from('exhibitions')
     .select(
-      'title,start_date,end_date,teacher_id,profile:profiles!teacher_id ( institution )'
+      'title,start_date,end_date,ended_at,teacher_id,profile:profiles!teacher_id ( institution )'
     )
     .eq('id', exhibitionId)
     .single<ExhibitionRow>();
 
   if (error || !data) notFound();
 
-  const { title, start_date, end_date, profile } = data;
-  const status = getStatus(start_date, end_date ?? undefined);
+  const { title, start_date, end_date, ended_at, profile } = data;
+  const status = getStatus(start_date, end_date ?? undefined, ended_at);
 
   const institution = Array.isArray(profile)
     ? profile[0]?.institution

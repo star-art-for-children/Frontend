@@ -56,6 +56,7 @@ export async function fetchExhibitions({
       thumbnail_url,
       start_date,
       end_date,
+      ended_at,
       teacher_id,
       created_at,
       likes_count,
@@ -86,6 +87,7 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
+        .is('ended_at', null)
         .order('start_date', { ascending: true })
         .order('created_at', { ascending: true });
       break;
@@ -93,6 +95,7 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
+        .is('ended_at', null)
         .order('likes_count', { ascending: false })
         .order('start_date', { ascending: false })
         .order('created_at', { ascending: false });
@@ -105,7 +108,7 @@ export async function fetchExhibitions({
       break;
     case 'ended':
       query = query
-        .lt('end_date', today)
+        .or(`end_date.lt.${today},ended_at.not.is.null`)
         .order('end_date', { ascending: false })
         .order('created_at', { ascending: false });
       break;
@@ -123,6 +126,7 @@ export async function fetchExhibitions({
       query = query
         .lte('start_date', today)
         .or(`end_date.gte.${today},end_date.is.null`)
+        .is('ended_at', null)
         .order('start_date', { ascending: false })
         .order('created_at', { ascending: false });
   }
@@ -169,6 +173,7 @@ export async function fetchExhibitions({
       image: row.thumbnail_url,
       startDate: row.start_date,
       endDate: row.end_date,
+      endedAt: row.ended_at,
       likes: row.likes_count,
       liked: likedIds.has(row.id),
     };
@@ -203,6 +208,7 @@ export type ExhibitionDetailItem = {
   image: string | null;
   startDate: string;
   endDate: string | null;
+  endedAt: string | null;
   description: string | null;
   host: string;
   totalLikes: number;
@@ -231,6 +237,7 @@ export async function fetchExhibitionDetail(
       thumbnail_url,
       start_date,
       end_date,
+      ended_at,
       description,
       teacher_id,
       likes_count,
@@ -299,6 +306,7 @@ export async function fetchExhibitionDetail(
     image: rawData.thumbnail_url,
     startDate: rawData.start_date,
     endDate: rawData.end_date,
+    endedAt: rawData.ended_at,
     description: rawData.description,
     host: profile?.institution ?? '',
     totalLikes: rawData.likes_count,

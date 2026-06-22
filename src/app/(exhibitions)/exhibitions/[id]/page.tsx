@@ -41,7 +41,8 @@ export default async function ExhibitionDetail({
 
   const status = getStatus(
     exhibition.startDate,
-    exhibition.endDate ?? undefined
+    exhibition.endDate ?? undefined,
+    exhibition.endedAt
   );
 
   // 종료된 전시

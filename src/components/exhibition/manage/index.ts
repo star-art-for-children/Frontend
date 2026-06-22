@@ -6,3 +6,6 @@ export { default as BulkWorkDialog } from './BulkWorkDialog';
 // 작품 삭제, 전시회 종료 alert dialog
 export { default as DeleteArtworkDialog } from './DeleteArtworkDialog';
 export { default as EndExhibitionDialog } from './EndExhibitionDialog';
+
+// 전시 정보 수정 dialog
+export { default as EditExhibitionDialog } from './EditExhibitionDialog';
