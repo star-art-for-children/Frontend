@@ -23,12 +23,12 @@ export default async function Header() {
       <div className="border-secondary/8 fixed top-0 z-30 h-16 w-full border-b bg-[#FAF7F2]/95 shadow-[0_2px_8px_rgba(44,40,38,0.06)] backdrop-blur">
         <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-3.5">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-1">
               <Image
                 src="/images/logo.svg"
                 alt="스타아트 로고"
-                width={32}
-                height={32}
+                width={42}
+                height={42}
               />
               <span className="text-secondary text-lg font-bold">스타아트</span>
             </Link>
