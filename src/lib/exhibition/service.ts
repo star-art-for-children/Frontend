@@ -55,9 +55,34 @@ export const toggleExhibitionLike = async (
 export const endExhibition = async (exhibitionId: string) => {
   const res = await fetch(`/api/exhibitions/${exhibitionId}`, {
     method: 'PATCH',
-    body: JSON.stringify({
-      end_date: new Date(),
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endNow: true }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message);
+  }
+  const { updatedId } = await res.json();
+
+  return updatedId;
+};
+
+export interface UpdateExhibitionPayload {
+  title: string;
+  description: string;
+  startDateRaw: string;
+  endDateRaw?: string | null;
+}
+
+export const updateExhibition = async (
+  exhibitionId: string,
+  payload: UpdateExhibitionPayload
+) => {
+  const res = await fetch(`/api/exhibitions/${exhibitionId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {

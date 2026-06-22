@@ -12,6 +12,7 @@ export type ExhibitionRow = {
   thumbnail_url: string | null;
   start_date: string;
   end_date: string | null;
+  ended_at: string | null;
   teacher_id: string;
   created_at: string;
   profile: { institution: string } | { institution: string }[] | null;
@@ -27,6 +28,7 @@ export type ExhibitionListItem = {
   image: string | null;
   startDate: string;
   endDate: string | null;
+  endedAt: string | null;
   likes: number;
   liked: boolean;
 };
@@ -69,6 +71,7 @@ export type ExhibitionDetailRow = {
   thumbnail_url: string | null;
   start_date: string;
   end_date: string | null;
+  ended_at: string | null;
   description: string | null;
   guidelines: string | null;
   teacher_id: string;

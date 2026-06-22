@@ -1,17 +1,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft, DoorOpen, Upload } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   AddWorkDialog,
   BulkWorkDialog,
   DeleteArtworkDialog,
+  EditExhibitionDialog,
   EditWorkDialog,
   EndExhibitionDialog,
 } from '@/components/exhibition/manage';
+import { ExhibitionEnded } from '@/components/exhibition';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ArtworkWithEmail } from '@/types/artwork';
+import { getStatus } from '@/lib/exhibition/dateStatus';
+import { cn } from '@/lib/utils';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -36,6 +40,20 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
 
   if (!exhibition || exhibtionError) notFound();
   if (user.id !== exhibition.teacher_id) notFound();
+
+  const status = getStatus(
+    exhibition.start_date,
+    exhibition.end_date,
+    exhibition.ended_at
+  );
+  if (status === 'ended') {
+    return (
+      <ExhibitionEnded
+        title={exhibition.title}
+        endDate={exhibition.end_date ?? ''}
+      />
+    );
+  }
 
   const { data, error: artworksError } = await supabase.rpc(
     'get_artworks_with_email',
@@ -76,10 +94,32 @@ export default async function ExhibitionManagePage({ params }: PageProps) {
             </div>
           </div>
 
-          <EndExhibitionDialog
-            exhibitionId={exhibitionId}
-            startDate={exhibition.start_date}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <EditExhibitionDialog
+              exhibitionId={exhibitionId}
+              title={exhibition.title}
+              description={exhibition.description ?? ''}
+              startDate={exhibition.start_date}
+              endDate={exhibition.end_date}
+              status={status}
+            />
+            <Link
+              href={`/gallery/${exhibitionId}`}
+              className={cn(
+                buttonVariants({ size: 'lg' }),
+                'shrink-0 rounded-xl'
+              )}
+            >
+              <DoorOpen className="h-4 w-4" />
+              전시관 입장
+            </Link>
+            {status === 'ongoing' && (
+              <EndExhibitionDialog
+                exhibitionId={exhibitionId}
+                startDate={exhibition.start_date}
+              />
+            )}
+          </div>
         </div>
 
         {/* 전시 소개 */}
