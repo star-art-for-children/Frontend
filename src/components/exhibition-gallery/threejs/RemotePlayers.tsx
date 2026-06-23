@@ -11,9 +11,11 @@ import CartoonCharacter from './characters/CartoonCharacter';
 function RemotePlayer({
   playerInfo,
   remotePlayersRef,
+  size,
 }: {
   playerInfo: PlayerInfo;
   remotePlayersRef: React.RefObject<Map<string, RemotePlayerData>>;
+  size?: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const targetPos = useRef(new THREE.Vector3());
@@ -24,19 +26,29 @@ function RemotePlayer({
   const initializedRef = useRef(false);
   const [visible, setVisible] = useState(false);
 
+  // 이상 좌표(동기화 순간 오류 등)가 와도 방 밖으로 튀지 않도록 범위 제한
+  const clampToRoom = (v: number) => {
+    if (size === undefined) return v;
+    const limit = size / 2 - 0.5;
+    return Math.max(-limit, Math.min(limit, v));
+  };
+
   useFrame(() => {
     const data = remotePlayersRef.current.get(playerId);
     if (!data || !groupRef.current) return;
 
+    const cx = clampToRoom(data.x);
+    const cz = clampToRoom(data.z);
+
     if (!initializedRef.current) {
-      groupRef.current.position.set(data.x, 0, data.z);
+      groupRef.current.position.set(cx, 0, cz);
       groupRef.current.rotation.y = data.yaw;
       initializedRef.current = true;
       setVisible(true);
       return;
     }
 
-    targetPos.current.set(data.x, 0, data.z);
+    targetPos.current.set(cx, 0, cz);
     groupRef.current.position.lerp(targetPos.current, 0.15);
 
     let diff = data.yaw - groupRef.current.rotation.y;
@@ -80,9 +92,11 @@ function RemotePlayer({
 export default function RemotePlayers({
   playerInfo,
   remotePlayersRef,
+  size,
 }: {
   playerInfo: PlayerInfo[];
   remotePlayersRef: React.RefObject<Map<string, RemotePlayerData>>;
+  size?: number;
 }) {
   return (
     <>
@@ -91,6 +105,7 @@ export default function RemotePlayers({
           key={info.userId}
           playerInfo={info}
           remotePlayersRef={remotePlayersRef}
+          size={size}
         />
       ))}
     </>
